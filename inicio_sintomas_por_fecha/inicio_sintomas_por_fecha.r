@@ -28,9 +28,10 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
   xlim(c(fecha_inicio, fecha_final)) +
   ylab(label = "Número de casos") +
   xlab(label = "Fecha de inicio de síntomas") +
+  AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
-        panel.border = element_rect(color = "black", fill = NA, size = 2))
-p1
+        panel.border = element_rect(color = "black", fill = NA, size = 2),
+        axis.title = element_text(size = 20))
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.jpeg")
 ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 

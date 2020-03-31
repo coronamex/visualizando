@@ -79,9 +79,13 @@ p1 <- Dat %>%
   scale_y_log10() +
   ylab("Total de casos confirmados") +
   xlab("Días desde el caso 60") +
-  AMOR::theme_blackbox()
+  AMOR::theme_blackbox() +
+  theme(legend.position = "top",
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20),
+        axis.title = element_text(size = 20))
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.jpeg")
-ggsave(archivo, p1, width = 6, height = 5, dpi = 150)
+ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 
 p1 <- Dat %>%
   filter(pais != "China") %>%
@@ -98,9 +102,13 @@ p1 <- Dat %>%
   scale_y_log10() +
   ylab("Total de muertes") +
   xlab("Días desde el caso 60") +
-  AMOR::theme_blackbox()
+  AMOR::theme_blackbox() +
+  theme(legend.position = "top",
+      legend.text = element_text(size = 20),
+      legend.title = element_text(size = 20),
+      axis.title = element_text(size = 20))
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.jpeg")
-ggsave(archivo, p1, width = 6, height = 5, dpi = 150)
+ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 
 # Casos vs muertes.para segunda versión
 # p1 <- Dat %>%
