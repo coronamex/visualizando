@@ -42,7 +42,7 @@ p1 <- Tab %>%
   scale_fill_gradient2(low = "#313695",
                        mid = "#ffffbf",
                        high = "#a50026",
-                       midpoint = 20) +
+                       midpoint = 30) +
   theme(panel.background = element_blank(),
         axis.text.x = element_text(angle = 0))
 ggsave("inicio_sintomas_por_fecha_estado.jpeg", p1, width = 10, height = 6, dpi = 150)
