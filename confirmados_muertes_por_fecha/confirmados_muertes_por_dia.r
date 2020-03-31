@@ -1,6 +1,9 @@
 library(tidyverse)
 
-args <- list(mundo_dir = "../../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/")
+args <- list(mundo_dir = "../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/",
+             min_casos = 60,
+             tabla_mx = "../datos/ssa_dge/reportes_diarios.csv",
+             dir_salida = "../sitio_web/static/imagenes/")
 
 paises <- c("US", "Spain", "Italy", "Iran", "China",
             "France", "Brazil", "South Korea", "Japan")
@@ -8,9 +11,8 @@ nuevos_nombres <- c("EEUU", "España", "Italia", "Irán",
                     "China", "Francia", "Brasil", "Corea del Sur",
                     "Japón")
 
-min_casos <- 60
-
-datos_mx <- read_csv("../../datos/ssa_dge/reportes_diarios.csv")
+# Leer daots México
+datos_mx <- read_csv(args$tabla_mx)
 datos_mx$pais <- "México"
 
 datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
@@ -62,7 +64,7 @@ Dat <- datos_mundo %>%
 
 p1 <- Dat %>%
   filter(pais != "China") %>%
-  filter(casos_acumulados >= min_casos) %>%
+  filter(casos_acumulados >= args$min_casos) %>%
   split(.$pais) %>%
   map_dfr(function(d){
     d$dia <- as.numeric(d$fecha - min(d$fecha) + 1)
@@ -80,7 +82,7 @@ p1
 
 p1 <- Dat %>%
   filter(pais != "China") %>%
-  filter(casos_acumulados >= min_casos) %>%
+  filter(casos_acumulados >= args$min_casos) %>%
   split(.$pais) %>%
   map_dfr(function(d){
     d$dia <- as.numeric(d$fecha - min(d$fecha) + 1)
@@ -98,7 +100,7 @@ p1
 
 p1 <- Dat %>%
   filter(pais != "China") %>%
-  filter(casos_acumulados >= min_casos) %>%
+  filter(casos_acumulados >= args$min_casos) %>%
   ggplot(aes(x = casos_acumulados, y = muertes_acumuladas)) +
   geom_line(aes(col = pais, size = pais)) +
   scale_color_brewer(palette = "Paired", name = "País") +
