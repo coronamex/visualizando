@@ -1,6 +1,9 @@
 library(tidyverse)
 
-Tab <- read_csv("../datos/ssa_dge/tabla_casos_confirmados.csv",
+args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
+             dir_salida = "../sitio_web/static/imagenes/")
+
+Tab <- read_csv(args$tabla_sintomas,
                 col_types = cols(estado = col_character(),
                                  sexo = col_character(),
                                  edad = col_number(),
@@ -16,33 +19,41 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
                 ymin = -Inf, ymax = Inf),
             fill = "pink") +
   geom_bar(aes(y=..count..)) +
+  annotate("text",
+           x = fecha_final - 5,
+           y = 0.9 * max(table(Tab$fecha_sintomas)),
+           label = 'italic("Estos números\npueden aumentar")',
+           hjust = "middle",
+           parse = TRUE) +
   xlim(c(fecha_inicio, fecha_final)) +
   ylab(label = "Número de casos") +
   xlab(label = "Fecha de inicio de síntomas") +
   theme(panel.background = element_blank(),
         panel.border = element_rect(color = "black", fill = NA, size = 2))
-ggsave("inicio_sintomas_por_fecha_nacional.jpeg", p1, width = 10, height = 6, dpi = 150)
+p1
+archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.jpeg")
+ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 
-# Tabla por estado
-fecha_inicio <- min(Tab$fecha_sintomas) - 0.5
-fecha_final <- max(Tab$fecha_sintomas) + 0.5
-labeller <- c(`FALSE` = "Probablemente estable", `TRUE` = "Probablemente cambiará")
-p1 <- Tab %>%
-  group_by(estado, fecha_sintomas) %>%
-  summarize(casos = n()) %>%
-  ungroup %>%
-  mutate(estado = factor(estado, levels = rev(unique(estado)))) %>%
-  mutate(incompleto = fecha_sintomas > (max(fecha_sintomas) - 15)) %>%
-  filter(fecha_sintomas > fecha_inicio & fecha_sintomas < fecha_final) %>%
-  ggplot(aes(x = fecha_sintomas, y = estado, fill = casos)) +
-  facet_grid(~ incompleto, scales = "free_x", space = "free",labeller = as_labeller(labeller)) +
-  geom_tile() +
-  ylab(label = "Entidad federativa") +
-  xlab(label = "Fecha de inicio de síntomas") +
-  scale_fill_gradient2(low = "#313695",
-                       mid = "#ffffbf",
-                       high = "#a50026",
-                       midpoint = 30) +
-  theme(panel.background = element_blank(),
-        axis.text.x = element_text(angle = 0))
-ggsave("inicio_sintomas_por_fecha_estado.jpeg", p1, width = 10, height = 6, dpi = 150)
+# # Tabla por estado (para segunda versión)
+# fecha_inicio <- min(Tab$fecha_sintomas) - 0.5
+# fecha_final <- max(Tab$fecha_sintomas) + 0.5
+# labeller <- c(`FALSE` = "Probablemente estable", `TRUE` = "Probablemente cambiará")
+# p1 <- Tab %>%
+#   group_by(estado, fecha_sintomas) %>%
+#   summarize(casos = n()) %>%
+#   ungroup %>%
+#   mutate(estado = factor(estado, levels = rev(unique(estado)))) %>%
+#   mutate(incompleto = fecha_sintomas > (max(fecha_sintomas) - 15)) %>%
+#   filter(fecha_sintomas > fecha_inicio & fecha_sintomas < fecha_final) %>%
+#   ggplot(aes(x = fecha_sintomas, y = estado, fill = casos)) +
+#   facet_grid(~ incompleto, scales = "free_x", space = "free",labeller = as_labeller(labeller)) +
+#   geom_tile() +
+#   ylab(label = "Entidad federativa") +
+#   xlab(label = "Fecha de inicio de síntomas") +
+#   scale_fill_gradient2(low = "#313695",
+#                        mid = "#ffffbf",
+#                        high = "#a50026",
+#                        midpoint = 30) +
+#   theme(panel.background = element_blank(),
+#         axis.text.x = element_text(angle = 0))
+# ggsave("inicio_sintomas_por_fecha_estado.jpeg", p1, width = 10, height = 6, dpi = 150)

@@ -102,7 +102,7 @@ p1 <- Dat %>%
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.jpeg")
 ggsave(archivo, p1, width = 6, height = 5, dpi = 150)
 
-# Casos vs muertes. Para segunda versión de sitio
+# Casos vs muertes.para segunda versión
 # p1 <- Dat %>%
 #   filter(pais != "China") %>%
 #   filter(casos_acumulados >= args$min_casos) %>%
