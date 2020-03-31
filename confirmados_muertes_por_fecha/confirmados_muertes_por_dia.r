@@ -15,6 +15,7 @@ nuevos_nombres <- c("EEUU", "España", "Italia", "Irán",
 datos_mx <- read_csv(args$tabla_mx)
 datos_mx$pais <- "México"
 
+# Leer datos mundiales de John Hopkins
 datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
   str_subset("[.]md$", negate = TRUE) %>%
   map_dfr(function(file){
@@ -56,6 +57,7 @@ for(i in 1:length(paises)){
     mutate(pais = replace(pais, pais == paises[i], nuevos_nombres[i]))
 }
 
+# Combinar datos
 Dat <- datos_mundo %>%
   bind_rows(datos_mx %>%
               select(pais, casos_acumulados, muertes_acumuladas,
@@ -78,7 +80,8 @@ p1 <- Dat %>%
   ylab("Total de casos confirmados") +
   xlab("Días desde el caso 60") +
   AMOR::theme_blackbox()
-p1
+archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.jpeg")
+ggsave(archivo, p1, width = 6, height = 5, dpi = 150)
 
 p1 <- Dat %>%
   filter(pais != "China") %>%
@@ -96,19 +99,21 @@ p1 <- Dat %>%
   ylab("Total de muertes") +
   xlab("Días desde el caso 60") +
   AMOR::theme_blackbox()
-p1
+archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.jpeg")
+ggsave(archivo, p1, width = 6, height = 5, dpi = 150)
 
-p1 <- Dat %>%
-  filter(pais != "China") %>%
-  filter(casos_acumulados >= args$min_casos) %>%
-  ggplot(aes(x = casos_acumulados, y = muertes_acumuladas)) +
-  geom_line(aes(col = pais, size = pais)) +
-  scale_color_brewer(palette = "Paired", name = "País") +
-  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-  scale_y_log10() +
-  scale_x_log10() +
-  ylab("Total de muertes") +
-  xlab("Total de casos confirmados") +
-  AMOR::theme_blackbox()
-p1
+# Casos vs muertes. Para segunda versión de sitio
+# p1 <- Dat %>%
+#   filter(pais != "China") %>%
+#   filter(casos_acumulados >= args$min_casos) %>%
+#   ggplot(aes(x = casos_acumulados, y = muertes_acumuladas)) +
+#   geom_line(aes(col = pais, size = pais)) +
+#   scale_color_brewer(palette = "Paired", name = "País") +
+#   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
+#   scale_y_log10() +
+#   scale_x_log10() +
+#   ylab("Total de muertes") +
+#   xlab("Total de casos confirmados") +
+#   AMOR::theme_blackbox()
+# p1
 
