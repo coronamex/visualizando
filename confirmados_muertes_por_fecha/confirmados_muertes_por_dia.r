@@ -3,7 +3,7 @@ library(tidyverse)
 args <- list(mundo_dir = "../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/",
              min_casos = 60,
              tabla_mx = "../datos/ssa_dge/reportes_diarios.csv",
-             dir_salida = "../sitio_web/static/imagenes/")
+             dir_salida = "../sitio_hugo/static/imagenes/")
 
 paises <- c("US", "Spain", "Italy", "Iran", "China",
             "France", "Brazil", "South Korea", "Japan")
@@ -84,6 +84,7 @@ p1 <- Dat %>%
         legend.text = element_text(size = 20),
         legend.title = element_text(size = 20),
         axis.title = element_text(size = 20))
+p1
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.jpeg")
 ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 
@@ -107,6 +108,7 @@ p1 <- Dat %>%
       legend.text = element_text(size = 20),
       legend.title = element_text(size = 20),
       axis.title = element_text(size = 20))
+p1
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.jpeg")
 ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 
