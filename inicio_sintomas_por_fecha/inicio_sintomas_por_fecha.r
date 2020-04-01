@@ -29,12 +29,15 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
   ylab(label = "Número de casos") +
   xlab(label = "Fecha de inicio de síntomas") +
   AMOR::theme_blackbox() +
-  theme(panel.background = element_blank(),
-        panel.border = element_rect(color = "black", fill = NA, size = 2),
-        axis.title = element_text(size = 20))
+  theme(axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20))
 p1
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.jpeg")
-ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional@2x.jpeg")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
 
 # # Tabla por estado (para segunda versión)
 # fecha_inicio <- min(Tab$fecha_sintomas) - 0.5

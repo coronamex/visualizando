@@ -81,12 +81,17 @@ p1 <- Dat %>%
   xlab("Días desde el caso 60") +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
-        legend.text = element_text(size = 20),
-        legend.title = element_text(size = 20),
-        axis.title = element_text(size = 20))
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"),
+        legend.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20))
 p1
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.jpeg")
-ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia@2x.jpeg")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 p1 <- Dat %>%
   filter(pais != "China") %>%
@@ -105,12 +110,17 @@ p1 <- Dat %>%
   xlab("Días desde el caso 60") +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
-      legend.text = element_text(size = 20),
-      legend.title = element_text(size = 20),
-      axis.title = element_text(size = 20))
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"),
+        legend.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20))
 p1
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.jpeg")
-ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia@2x.jpeg")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 # Casos vs muertes.para segunda versión
 # p1 <- Dat %>%
