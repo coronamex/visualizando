@@ -32,6 +32,7 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
   theme(panel.background = element_blank(),
         panel.border = element_rect(color = "black", fill = NA, size = 2),
         axis.title = element_text(size = 20))
+p1
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.jpeg")
 ggsave(archivo, p1, width = 10, height = 6, dpi = 150)
 
