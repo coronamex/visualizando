@@ -2,6 +2,7 @@ library(tidyverse)
 
 args <- list(mundo_dir = "../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/",
              min_casos = 60,
+             dias_ventana = 7,
              tabla_mx = "../datos/ssa_dge/reportes_diarios.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
@@ -63,7 +64,7 @@ Dat <- datos_mundo %>%
               select(pais, casos_acumulados, muertes_acumuladas,
                      fecha, casos_nuevos, muertes_nuevas))
 
-
+# Casos acumukados
 p1 <- Dat %>%
   filter(pais != "China") %>%
   filter(casos_acumulados >= args$min_casos) %>%
@@ -122,6 +123,58 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia@2x.jpeg")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
+# Mejor curva
+incremento <- function(x){
+  res <- x[-1] / x[-length(x)]
+  res <- res[!is.na(res)]
+  res <- res[!is.infinite(res)]
+  res <- (res - 1)
+  mean(res)
+}
+roll_incremento <- tibbletime::rollify(incremento, window = args$dias_ventana + 1)
+p1 <- Dat %>%
+  filter(pais != "China") %>%
+  split(.$pais) %>%
+  map_dfr(function(d, min_casos = 60, dias_ventana = 7){
+    # Asegurarse de que los datos estén ordenaados por fecha
+    d <- d %>%
+      arrange(fecha)
+    
+    # Elegir los días necesarios
+    ii <- which(d$casos_acumulados >= min_casos)
+    ii <- c(max(1,min(ii) - dias_ventana):(min(ii) -1), ii)
+    d <- d[ii,]
+    d$dia <- -(dias_ventana - 1):(nrow(d) - dias_ventana)
+    
+    # Calcular incremento
+    d %>%
+      mutate(crecimiento = roll_incremento(casos_acumulados))
+  }, min_casos = args$min_casos, dias_ventana = args$dias_ventana) %>%
+  filter(!is.na(crecimiento)) %>%
+  select(pais, casos_acumulados, crecimiento) %>%
+  ggplot(aes(x = casos_acumulados, y = crecimiento, group = pais)) +
+  geom_line(aes(col = pais, size = pais)) +
+  scale_color_brewer(palette = "Paired", name = "País") +
+  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
+  # scale_y_log10(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_log10() +
+  ylab("Incremento (%)") +
+  xlab("Casos acumulados") +
+  AMOR::theme_blackbox() +
+  theme(legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"),
+        legend.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20))
+p1
+archivo <- file.path(args$dir_salida, "incremento_por_casos.jpeg")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "incremento_por_casos@2x.jpeg")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
 # Casos vs muertes.para segunda versión
 # p1 <- Dat %>%
 #   filter(pais != "China") %>%
@@ -136,4 +189,6 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   xlab("Total de casos confirmados") +
 #   AMOR::theme_blackbox()
 # p1
+
+
 
