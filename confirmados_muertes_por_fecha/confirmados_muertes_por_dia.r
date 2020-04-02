@@ -160,7 +160,7 @@ p1 <- Dat %>%
   scale_y_continuous(labels = scales::percent) +
   scale_x_log10() +
   ylab("Incremento (%)") +
-  xlab("Casos acumulados") +
+  xlab("Total de casos confirmados") +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),
