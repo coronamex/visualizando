@@ -3,7 +3,8 @@ library(tidyverse)
 args <- list(dge_dir = "../datos/ssa_dge/",
              poblacion = "../datos/demograficos/2015_pob_estado.tsv",
              tasa_min = 1,
-             dir_salida = "../sitio_hugo/static/imagenes/")
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             max_dias = 10)
 estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          `BAJA CALIFORNIA` = "Baja California",
                          `BAJA CALIFORNIA SUR` = "Baja California Sur",
@@ -45,16 +46,11 @@ estados_nombres_pob["Coahuila de Zaragoza"] <- "Coahuila"
 estados_nombres_pob["Estado de México"] <- "México"
 pob <- pob %>%
   mutate(estado = as.character(estados_nombres_pob[match(estado, names(estados_nombres_pob))]))
-# pob$estado
-# pob
-# pob %>% print(n=32)
 
 fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
 
 Dat <- fechas_dirs %>%
   map_dfr(function(fecha_dir){
-    # fecha_dir <- "../datos/ssa_dge//2020-03-29"
-    
     archivo_tabla <- file.path(fecha_dir, "tabla_casos_confirmados.csv")
     if(file.exists(archivo_tabla)){
       Tab <- read_csv(archivo_tabla,
@@ -75,9 +71,6 @@ Dat <- fechas_dirs %>%
   })
 
 # Renombrar estados
-# which(is.na(estados_nombres_dge[match(Dat$estado, names(estados_nombres_dge))]))
-# 
-# as.character(estados_nombres_dge[match(Dat$estado, names(estados_nombres_dge))])
 Dat <- Dat %>%
   mutate(estado = as.character(estados_nombres_dge[match(estado, names(estados_nombres_dge))]))
 
@@ -97,6 +90,7 @@ p1 <- Dat %>%
     }
   }, tasa_min = args$tasa_min) %>%
   select(estado, casos_100mil, fecha) %>%
+  filter(fecha > max(fecha) - args$max_dias) %>%
   mutate(estado = factor(estado, levels = rev(unique(estado)))) %>%
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
