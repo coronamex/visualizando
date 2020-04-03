@@ -2,9 +2,10 @@ library(tidyverse)
 
 args <- list(dge_dir = "../datos/ssa_dge/",
              poblacion = "../datos/demograficos/2015_pob_estado.tsv",
-             tasa_min = 1,
+             tasa_min = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
-             max_dias = 10)
+             max_dias = 10,
+             archivo_estados = "../datos/ssa_dge/datos_mapa.csv")
 estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          `BAJA CALIFORNIA` = "Baja California",
                          `BAJA CALIFORNIA SUR` = "Baja California Sur",
@@ -47,8 +48,16 @@ estados_nombres_pob["Estado de México"] <- "México"
 pob <- pob %>%
   mutate(estado = as.character(estados_nombres_pob[match(estado, names(estados_nombres_pob))]))
 
-fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
+situacion_estados <- read_csv(args$archivo_estados)
+estados_nombres_situacion <- set_names(sort(situacion_estados$estado), sort(situacion_estados$estado))
+estados_nombres_situacion["Queretaro"] <- "Querétaro"
+situacion_estados <- situacion_estados %>%
+  mutate(estado = as.character(estados_nombres_situacion[match(estado, names(estados_nombres_situacion))]))
+situacion_estados <- situacion_estados %>% left_join(pob, by = "estado") %>%
+  select(estado, muertes_acumuladas, poblacion_2015) %>%
+  mutate(mortalidad = 100000*muertes_acumuladas/poblacion_2015)
 
+fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
 Dat <- fechas_dirs %>%
   map_dfr(function(fecha_dir){
     archivo_tabla <- file.path(fecha_dir, "tabla_casos_confirmados.csv")
@@ -80,12 +89,15 @@ pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
                                    "#66c2a4", "#41ae76",
                                    "#238b45", "#006d2c",
                                    "#00441b"))
+
+estados <- "Guanajuato"
+estados <- NULL
 p1 <- Dat %>% 
   left_join(pob, by = "estado") %>%
   mutate(casos_100mil = casos_acumulados / (poblacion_2015/1e5)) %>%
   split(.$estado) %>%
   map_dfr(function(d, tasa_min){
-    if(max(d$casos_100mil >= tasa_min)){
+    if(max(d$casos_100mil >= tasa_min) || d$estado[1] %in% estados){
       return(d)
     }
   }, tasa_min = args$tasa_min) %>%
@@ -96,7 +108,7 @@ p1 <- Dat %>%
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
                        high = pal(11)[11], midpoint = 2.5,
-                       name = "Casos / (100 mil habitantes)") +
+                       name = expression(frac(Muertes, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -105,8 +117,37 @@ p1 <- Dat %>%
         axis.title = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "top",
-        plot.margin = margin(l = 20, r = 20, b = 20))
+        plot.margin = margin(l = 20, r = 0, b = 20))
 p1
+
+p2 <- situacion_estados %>%
+  filter(estado %in% levels(p1$data$estado)) %>%
+  mutate(estado = factor(estado, levels = levels(p1$data$estado))) %>%
+  ggplot(aes(y = estado, x = mortalidad)) +
+  geom_bar(stat = "identity", fill = "brown") +
+  # geom_bar(aes(fill=muertes_acumuladas), stat = "identity") +
+  scale_x_continuous(position = "top") +
+  xlab(label = expression(frac(Muertes, "100 mil habitantes"))) +
+  AMOR::theme_blackbox() +
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_text(angle = 90),
+        axis.title = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "top",
+        plot.margin = margin(l = -7, r = 20, b = 20),
+        panel.background = element_blank(),
+        panel.border = element_rect(size = 1.5, color = "black", fill = NA),
+        axis.title.x = element_text(size = 10))
+p2
+
+g1 <- cowplot::plot_grid(plotlist=list(p1,
+                                       p2),
+                         ncol=2, align='h', axis = 'tb',
+                         rel_widths = c(2,1))
+g1
+
+#ggsave("estados_mas_guanajuato.jpeg", p1, width = 7, height = 6.7, dpi = 150)
+ggsave("test.jpeg", g1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados.jpeg")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados@2x.jpeg")
