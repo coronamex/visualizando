@@ -89,9 +89,9 @@ p1 <- Dat %>%
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
 p1
-archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.jpeg")
+archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia@2x.jpeg")
+archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 p1 <- Dat %>%
@@ -118,9 +118,9 @@ p1 <- Dat %>%
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
 p1
-archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.jpeg")
+archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia@2x.jpeg")
+archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 # Mejor curva
@@ -170,9 +170,9 @@ p1 <- Dat %>%
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
 p1
-archivo <- file.path(args$dir_salida, "incremento_por_casos.jpeg")
+archivo <- file.path(args$dir_salida, "incremento_por_casos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "incremento_por_casos@2x.jpeg")
+archivo <- file.path(args$dir_salida, "incremento_por_casos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 # Casos vs muertes.para segunda versión
