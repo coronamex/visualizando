@@ -147,7 +147,7 @@ g1 <- cowplot::plot_grid(plotlist=list(p1,
 g1
 
 #ggsave("estados_mas_guanajuato.jpeg", p1, width = 7, height = 6.7, dpi = 150)
-ggsave("test.jpeg", g1, width = 7, height = 6.7, dpi = 75)
+ggsave("test.png", g1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados.jpeg")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados@2x.jpeg")
