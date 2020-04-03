@@ -21,7 +21,7 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
   geom_bar(aes(y=..count..)) +
   annotate("text",
            x = fecha_final - 5,
-           y = 0.9 * max(table(Tab$fecha_sintomas)),
+           y = 0.95 * max(table(Tab$fecha_sintomas)),
            label = 'italic("Estos números\npueden aumentar")',
            hjust = "middle",
            parse = TRUE) +
@@ -31,7 +31,9 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
   AMOR::theme_blackbox() +
   theme(axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
-        plot.margin = margin(l = 20, r = 20))
+        plot.margin = margin(l = 20, r = 20),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill=NA, colour = "black", size = 3))
 p1
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.jpeg")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
