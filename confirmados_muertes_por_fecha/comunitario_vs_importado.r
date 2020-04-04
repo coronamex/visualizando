@@ -175,8 +175,9 @@ p1
 # ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "casos_acumulados_comunitarios_importados.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "casos_acumulados_comunitarios_importados.png@2x.png")
+archivo <- file.path(args$dir_salida, "casos_acumulados_comunitarios_importados@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
 
 
 
