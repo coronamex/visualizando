@@ -78,6 +78,8 @@ grafica_pob_futuro <- function(dat, var, valor_min = 10, n = 7, grupo = "Provinc
     geom_point() +
     geom_smooth(method = "lm", se = FALSE) +
     scale_x_log10() +
+    xlab("Población") +
+    ylab("Nuevos") +
     AMOR::theme_blackbox()
   p1
 }
@@ -86,24 +88,30 @@ p11 <- grafica_pob_futuro(dat = muertes, var = "muertes_acumuladas",
                          valor_min = 1, grupo = "Province_State", n = 7)
 p11
 p21 <- grafica_pob_futuro(dat = muertes, var = "muertes_acumuladas",
-                          valor_min = 5, grupo = "Province_State", n = 7)
+                          valor_min = 10, grupo = "Province_State", n = 7)
 p21
 p31 <- grafica_pob_futuro(dat = muertes, var = "muertes_acumuladas",
-                          valor_min = 10, grupo = "Province_State", n = 7)
+                          valor_min = 20, grupo = "Province_State", n = 7)
 p31
 
 p12 <- grafica_pob_futuro(dat = casos, var = "casos_acumulados",
                           valor_min = 1, grupo = "Province_State", n = 7)
 p12
 p22 <- grafica_pob_futuro(dat = casos, var = "casos_acumulados",
-                          valor_min = 5, grupo = "Province_State", n = 7)
+                          valor_min = 10, grupo = "Province_State", n = 7)
 p22
 p32 <- grafica_pob_futuro(dat = casos, var = "casos_acumulados",
-                          valor_min = 10, grupo = "Province_State", n = 7)
+                          valor_min = 20, grupo = "Province_State", n = 7)
 p32
 
 
-
-
-
+p1 <- cowplot::plot_grid(p11 + ggtitle(label = "Nuevas muertes 7 días despues\nde 1 muerte (Estados de EEUU)"),
+                   p12 + ggtitle(label = "Nuevos casos 7 días despues\nde 1 caso (Estados de EEUU)"),
+                   p21 + ggtitle(label = "Nuevas muertes 7 díasdespues\nde 10 muertes (Estados de EEUU)"),
+                   p22 + ggtitle(label = "Nuevos casos 7 días despues\nde 10 casos (Estados de EEUU)"),
+                   p31 + ggtitle(label = "Nuevas muertes 7 días despues\nde 20 muertes (Estados de EEUU)"),
+                   p32 + ggtitle(label = "Nuevos casos 7 días despues de\n20 casos (Estados de EEUU)"),
+                   ncol = 2)
+archivo <- "semana_proxima_desde_hoy.png"
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
