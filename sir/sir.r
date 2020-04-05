@@ -2,6 +2,7 @@ library(tidyverse)
 library(deSolve)
 # https://rstudio-pubs-static.s3.amazonaws.com/6852_c59c5a2e8ea3456abbeb017185de603e.html
 # https://gabgoh.github.io/COVID/index.html
+# https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology
 
 # Create an SIR function
 sir <- function(time, state, parameters) {
@@ -25,23 +26,20 @@ sir <- function(time, state, parameters) {
 
 N_pob <- 135552447
 casos_confirmados <- 1
-casos_confirmados / N_pob
+n_dias <- 200
 
-### Set parameters
-## Proportion in each compartment: Susceptible 0.999999, Infected 0.000001, Recovered 0
-# init <- c(S = (N_pob - casos_confirmados)/N_pob, I = casos_confirmados / N_pob, R = 0.0)
-init <- c(S = (N_pob - casos_confirmados)/N_pob,
+# Condiciones iniciales
+t_0 <- c(S = (N_pob - casos_confirmados)/N_pob,
           E = 0,
           I = casos_confirmados / N_pob,
           R = 0.0)
-## beta: infection parameter; gamma: recovery parameter
-# parameters <- c(beta = 0.125, gamma =1/20)
-parameters <- c(R_t = 2.2, T_inf = 3, T_inc = 5)
+# Parámetros
+parametros <- c(R_t = 2.2, T_inf = 3, T_inc = 5)
 ## Time frame 
-times <- seq(0, 365, by = 1)
+dias <- seq(0, n_dias, by = 1)
 
-## Solve using ode (General Solver for Ordinary Differential Equations)
-pred <- ode(y = init, times = times, func = sir, parms = parameters)
+# Usar ode para resolver, convertir a tibble
+pred <- ode(y = t_0, times = dias, func = sir, parms = parametros)
 pred <- tibble(dia = pred[,"time"],
        S = pred[,"S"],
        E = pred[,'E'],
