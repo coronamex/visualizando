@@ -20,29 +20,15 @@ sir <- function(time, state, parameters) {
     dI <- ((1 / T_inc) * E) - ((1 / T_inf) * I)
     dR <- (1 / T_inf) * I
     
+    dS <- max(0, dS)
+    dE <- max(0, dE)
+    dI <- max(0, dI)
+    dR <- max(0, dR)
+    
     return(list(c(dS, dE, dI, dR)))
   })
 }
 
-args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
-             dias_retraso = 15)
-
-# Leer 
-Tab <- read_csv(args$tabla_sintomas,
-                col_types = cols(estado = col_character(),
-                                 sexo = col_character(),
-                                 edad = col_number(),
-                                 fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                 procedencia = col_character(),
-                                 fecha_llegada = col_date(format = "%d/%m/%Y")))
-Tab <- table(Tab$fecha_sintomas)
-Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
-              casos_nuevos = as.vector(Tab)) %>%
-  mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
-  filter(fecha <= (max(fecha) - args$dias_retraso)) %>%
-  mutate(dia = as.numeric(fecha - min(fecha)))
-Tab
-max(Tab$fecha) - min(Tab$fecha)
 
 sir_simular <- function(t_0, parametros, n_dias, FUN = sir){
   # funcion
@@ -63,6 +49,7 @@ sir_simular <- function(t_0, parametros, n_dias, FUN = sir){
 }
 
 sir_optmizable <- function(R_0, real, pob, T_inf = 3, T_inc = 5){
+  
   # Definir Condiciones iniciales
   casos_confirmados <- real$casos_acumulados[real$dia == 0]
   t_0 <- c(S = (pob - casos_confirmados) / pob,
@@ -76,8 +63,8 @@ sir_optmizable <- function(R_0, real, pob, T_inf = 3, T_inc = 5){
                       n_dias = max(real$dia), FUN = sir)
   
   ss <- pred %>%
-    filter(dia <= 49) %>%
-    mutate(casos = I*pob) %>%
+    mutate(casos_acumulados = pob*(I + R)) %>%
+    mutate(casos = c(casos_confirmados, diff(casos_acumulados))) %>%
     select(dia, casos) %>%
     left_join(real %>% select(dia, casos_nuevos), by = "dia") %>%
     mutate(casos_nuevos = replace(casos_nuevos, is.na(casos_nuevos), 0)) %>%
@@ -89,24 +76,74 @@ sir_optmizable <- function(R_0, real, pob, T_inf = 3, T_inc = 5){
   return(ss)
 }
 
+encontrar_R_0 <- function(Tab, dias_retraso = 15,
+                          T_inc =c(4.1, 5.2, 7.9),
+                          T_inf = c(1.5, 2.9, 6),
+                          pob = 135552447){
+  Tab <- Tab %>%
+    filter(fecha <= (max(fecha) - dias_retraso)) %>%
+    mutate(dia = as.numeric(fecha - min(fecha)))
+  
+  # Optimizar en matriz de parámetros
+  Dat <- expand.grid(T_inc = T_inc, T_inf = T_inf) %>%
+    as_tibble() 
+  Dat$R_hat <- Dat %>%
+    pmap_dbl(function(T_inc, T_inf, Tab, pob){
+      optim(2, fn = sir_optmizable,
+            method = "Brent", lower = 0.5, upper = 5,
+            real = Tab, pob = pob, T_inf = T_inf, T_inc = T_inc)$par
+    }, Tab = Tab, pob = pob)
+  Dat
+}
+
+
+args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
+             dias_retraso = 15)
+
+# Leer 
+Tab <- read_csv(args$tabla_sintomas,
+                col_types = cols(estado = col_character(),
+                                 sexo = col_character(),
+                                 edad = col_number(),
+                                 fecha_sintomas = col_date(format = "%d/%m/%Y"),
+                                 procedencia = col_character(),
+                                 fecha_llegada = col_date(format = "%d/%m/%Y")))
+Tab <- table(Tab$fecha_sintomas)
+Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
+              casos_nuevos = as.vector(Tab)) %>%
+  mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+  mutate(dia = as.numeric(fecha - min(fecha)))
+
 # Parameters to make optimization
 pob <- 135552447
 T_inc <- c(4.1, 5.2, 7.9)
 T_inf <- c(1.5, 2.9, 6)
 
+R_hat <- encontrar_R_0(Tab, dias_retraso = 15,
+                       T_inc = T_inc, T_inf = T_inf, pob = pob)
+R_hat
 
-Dat <- expand.grid(T_inc = T_inc, T_inf = T_inf) %>%
-  as_tibble() 
-Dat$R_hat <- Dat %>%
-  pmap_dbl(function(T_inc, T_inf){
-    optim(2, fn = sir_optmizable,
-          method = "Brent", lower = 0.5, upper = 5,
-          real = Tab, pob = pob, T_inf = T_inf, T_inc = T_inc)$par
-  })
-Dat
+# Simular con parámetros estimados
+# Definir t_0
+casos_confirmados <- Tab$casos_acumulados[Tab$dia == 0]
+t_0 <- c(S = (pob - casos_confirmados) / pob,
+         E = 0,
+         I = casos_confirmados / pob,
+         R = 0.0)
+sims <- R_hat %>%
+  bind_cols(model = paste0("m", 1:nrow(R_hat))) %>%
+  pmap_dfr(function(T_inc, T_inf, R_hat, model, n_dias, FUN, t_0){
+    parametros <- c(R_t = R_hat, T_inf = T_inf, T_inc = T_inc)
+    sir_simular(t_0 = t_0, parametros = parametros, n_dias = max(Tab$dia), FUN = sir) %>%
+      mutate(casos_acumulados = floor(pob * (I + R))) %>%
+      select(dia, casos_acumulados) %>%
+      mutate(model = model)
+  }, n_dias = max(Tab$dia), FUN = sir, t_0 = t_0)
+sims
 
 
-Tab
+
+
 p1 <- pred %>%
   pivot_longer(-dia) %>%
   filter(name != "S") %>%
