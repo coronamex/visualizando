@@ -98,7 +98,9 @@ encontrar_R_0 <- function(Tab, dias_retraso = 15,
 
 
 args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
-             dias_retraso = 15)
+             reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
+             dias_retraso = 15,
+             dir_salida = "../sitio_hugo/static/imagenes/")
 
 # Leer 
 Tab <- read_csv(args$tabla_sintomas,
@@ -116,10 +118,10 @@ Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
 
 # Parameters to make optimization
 pob <- 135552447
-T_inc <- c(4.1, 5.2, 7.9)
-T_inf <- c(1.5, 2.9, 6)
+T_inc <- c(2, 3, 4, 5, 6, 7, 8)
+T_inf <- c(1, 2, 3, 4, 5, 6)
 
-R_hat <- encontrar_R_0(Tab, dias_retraso = 15,
+R_hat <- encontrar_R_0(Tab, dias_retraso = args$dias_retraso,
                        T_inc = T_inc, T_inf = T_inf, pob = pob)
 R_hat
 
@@ -146,19 +148,36 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob){
   sims
 }
 sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Tab, pob = pob)
+ctds <- read_csv(args$reportes_diarios) %>%
+  select(fecha, casos_acumulados) %>%
+  mutate(modelo = "Confirmado")
 
-
-
-
-
-p1 <- pred %>%
-  pivot_longer(-dia) %>%
-  filter(name != "S") %>%
-  filter(name != "R") %>%
-  ggplot(aes(x = dia, y = N_pob * value, group = name)) +
-  geom_line(aes(col = name)) +
-  xlim(c(0,50)) +
-  ylim(c(0,1000)) +
-  theme(panel.background = element_blank())
+p1 <- Tab %>%
+  select(dia, casos_acumulados) %>%
+  mutate(modelo = "real") %>%
+  bind_rows(sims) %>%
+  mutate(fecha = min(Tab$fecha) + dia) %>%
+  select(-dia) %>%
+  bind_rows(ctds) %>%
+  mutate(grupo = "Estimadow") %>%
+  mutate(grupo = replace(grupo, modelo == "real", "Inicio de síntomas")) %>%
+  mutate(grupo = replace(grupo, modelo == "Confirmado", "Confirmado")) %>%
+  filter(fecha >= as.Date("2020-02-27")) %>%
+  ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
+  geom_line(aes(col = grupo, size = grupo)) +
+  scale_color_brewer(palette = "Dark2", name = NULL) +
+  scale_size_manual(values = c(2, 0.1, 2)) +
+  guides(size = FALSE) +
+  ylab("Casos acumulados") +
+  xlab("Fecha") +
+  theme(panel.background = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", size = 3),
+        legend.position = "top",
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20))
 p1
-
+archivo <- file.path(args$dir_salida, "sir_nacional.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
