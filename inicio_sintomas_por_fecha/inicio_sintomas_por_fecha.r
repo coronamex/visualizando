@@ -21,8 +21,8 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
   geom_bar(aes(y=..count..)) +
   annotate("text",
            x = fecha_final - 5,
-           y = 0.95 * max(table(Tab$fecha_sintomas)),
-           label = 'italic("Estos números\npueden aumentar")',
+           y = 0.85 * max(table(Tab$fecha_sintomas)),
+           label = 'italic("Estos\nnúmeros\npueden\naumentar")',
            hjust = "middle",
            parse = TRUE) +
   xlim(c(fecha_inicio, fecha_final)) +
