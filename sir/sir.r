@@ -124,22 +124,29 @@ R_hat <- encontrar_R_0(Tab, dias_retraso = 15,
 R_hat
 
 # Simular con parámetros estimados
-# Definir t_0
-casos_confirmados <- Tab$casos_acumulados[Tab$dia == 0]
-t_0 <- c(S = (pob - casos_confirmados) / pob,
-         E = 0,
-         I = casos_confirmados / pob,
-         R = 0.0)
-sims <- R_hat %>%
-  bind_cols(model = paste0("m", 1:nrow(R_hat))) %>%
-  pmap_dfr(function(T_inc, T_inf, R_hat, model, n_dias, FUN, t_0){
-    parametros <- c(R_t = R_hat, T_inf = T_inf, T_inc = T_inc)
-    sir_simular(t_0 = t_0, parametros = parametros, n_dias = max(Tab$dia), FUN = sir) %>%
-      mutate(casos_acumulados = floor(pob * (I + R))) %>%
-      select(dia, casos_acumulados) %>%
-      mutate(model = model)
-  }, n_dias = max(Tab$dia), FUN = sir, t_0 = t_0)
-sims
+
+simular_multiples_modelos <- function(modelos, FUN, real, pob){
+  FUN <- match.fun(FUN)
+  # Definir t_0
+  casos_confirmados <- real$casos_acumulados[real$dia == 0]
+  t_0 <- c(S = (pob - casos_confirmados) / pob,
+           E = 0,
+           I = casos_confirmados / pob,
+           R = 0.0)
+  
+  sims <- modelos %>%
+    bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
+    pmap_dfr(function(T_inc, T_inf, R_hat, modelo, n_dias, FUN, t_0){
+      parametros <- c(R_t = R_hat, T_inf = T_inf, T_inc = T_inc)
+      sir_simular(t_0 = t_0, parametros = parametros, n_dias = n_dias, FUN = FUN) %>%
+        mutate(casos_acumulados = floor(pob * (I + R))) %>%
+        select(dia, casos_acumulados) %>%
+        mutate(modelo = modelo)
+    }, n_dias = max(real$dia), FUN = FUN, t_0 = t_0)
+  sims
+}
+sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Tab, pob = pob)
+
 
 
 
