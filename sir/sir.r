@@ -111,6 +111,27 @@ encontrar_R_0 <- function(Tab, dias_retraso = 15,
   Dat
 }
 
+simular_multiples_modelos <- function(modelos, FUN, real, pob){
+  FUN <- match.fun(FUN)
+  # Definir t_0
+  casos_confirmados <- real$casos_acumulados[real$dia == 0]
+  t_0 <- c(S = (pob - casos_confirmados) / pob,
+           E = 0,
+           I = casos_confirmados / pob,
+           R = 0.0)
+  
+  sims <- modelos %>%
+    bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
+    pmap_dfr(function(T_inc, T_inf, R_hat, modelo, n_dias, FUN, t_0){
+      parametros <- c(R_t = R_hat, T_inf = T_inf, T_inc = T_inc)
+      sir_simular(t_0 = t_0, parametros = parametros, n_dias = n_dias, FUN = FUN) %>%
+        mutate(casos_acumulados = floor(pob * (I + R))) %>%
+        select(dia, casos_acumulados) %>%
+        mutate(modelo = modelo)
+    }, n_dias = max(real$dia), FUN = FUN, t_0 = t_0)
+  sims
+}
+
 
 args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
              reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
@@ -141,27 +162,6 @@ R_hat <- encontrar_R_0(Tab, dias_retraso = args$dias_retraso,
 R_hat
 
 # Simular con parámetros estimados
-
-simular_multiples_modelos <- function(modelos, FUN, real, pob){
-  FUN <- match.fun(FUN)
-  # Definir t_0
-  casos_confirmados <- real$casos_acumulados[real$dia == 0]
-  t_0 <- c(S = (pob - casos_confirmados) / pob,
-           E = 0,
-           I = casos_confirmados / pob,
-           R = 0.0)
-  
-  sims <- modelos %>%
-    bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
-    pmap_dfr(function(T_inc, T_inf, R_hat, modelo, n_dias, FUN, t_0){
-      parametros <- c(R_t = R_hat, T_inf = T_inf, T_inc = T_inc)
-      sir_simular(t_0 = t_0, parametros = parametros, n_dias = n_dias, FUN = FUN) %>%
-        mutate(casos_acumulados = floor(pob * (I + R))) %>%
-        select(dia, casos_acumulados) %>%
-        mutate(modelo = modelo)
-    }, n_dias = max(real$dia), FUN = FUN, t_0 = t_0)
-  sims
-}
 sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Tab, pob = pob)
 ctds <- read_csv(args$reportes_diarios) %>%
   select(fecha, casos_acumulados) %>%
