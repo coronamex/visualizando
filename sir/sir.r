@@ -89,12 +89,21 @@ sir_optmizable <- function(R_0, real, pob, T_inf = 3, T_inc = 5){
   return(ss)
 }
 
+# Parameters to make optimization
 pob <- 135552447
+T_inc <- c(4.1, 5.2, 7.9)
+T_inf <- c(1.5, 2.9, 6)
 
-R_0_optim <- optim(2, fn = sir_optmizable,
-                   method = "Brent", lower = 0.5, upper = 5,
-                   real = Tab, pob = pob, T_inf = 3, T_inc = 5)
-R_0_optim
+
+Dat <- expand.grid(T_inc = T_inc, T_inf = T_inf) %>%
+  as_tibble() 
+Dat$R_hat <- Dat %>%
+  pmap_dbl(function(T_inc, T_inf){
+    optim(2, fn = sir_optmizable,
+          method = "Brent", lower = 0.5, upper = 5,
+          real = Tab, pob = pob, T_inf = T_inf, T_inc = T_inc)$par
+  })
+Dat
 
 
 Tab
