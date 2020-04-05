@@ -1,3 +1,18 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 library(tidyverse)
 library(deSolve)
 # https://rstudio-pubs-static.s3.amazonaws.com/6852_c59c5a2e8ea3456abbeb017185de603e.html
@@ -173,11 +188,14 @@ p1 <- Tab %>%
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
+        legend.text = element_text(size = 12),
         axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10),
+        axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
 archivo <- file.path(args$dir_salida, "sir_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+summary(R_hat$R_hat)     
