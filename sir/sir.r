@@ -174,7 +174,7 @@ p1 <- Tab %>%
   mutate(fecha = min(Tab$fecha) + dia) %>%
   select(-dia) %>%
   bind_rows(ctds) %>%
-  mutate(grupo = "Estimadow") %>%
+  mutate(grupo = "Estimado (SEIR)") %>%
   mutate(grupo = replace(grupo, modelo == "real", "Inicio de síntomas")) %>%
   mutate(grupo = replace(grupo, modelo == "Confirmado", "Confirmado")) %>%
   filter(fecha >= as.Date("2020-02-27")) %>%
@@ -188,7 +188,7 @@ p1 <- Tab %>%
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
-        legend.text = element_text(size = 12),
+        legend.text = element_text(size = 14),
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
