@@ -185,6 +185,7 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
+  AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
