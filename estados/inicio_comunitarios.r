@@ -1,7 +1,8 @@
 library(tidyverse)
 
 args <- list(casos_positivos = "../datos/ssa_dge/tabla_casos_confirmados.csv",
-             dge_dir = "../datos/ssa_dge/")
+             dge_dir = "../datos/ssa_dge/",
+             dir_salida = "../sitio_hugo/static/imagenes/")
 estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          `BAJA CALIFORNIA` = "Baja California",
                          `BAJA CALIFORNIA SUR` = "Baja California Sur",
@@ -132,14 +133,15 @@ dat$inicio[dat$grupo == "fecha_deteccion"] <- dat$fecha[dat$grupo == "fecha_sint
 dat
 
 p1 <- dat %>%
+  mutate(grupo = factor(grupo, levels = c("fecha_sintomas", "fecha_deteccion"))) %>%
   ggplot(aes(x = fecha, y = estado, col = grupo)) +
   geom_vline(xintercept = as.Date("2020-03-23", "%Y-%m-%d"), col = "red", size = 2) +
   # facet_grid(region ~ ., scales = "free_y", space = "free_y", switch = "y") +
   geom_segment(aes(x=inicio, y = estado, xend = fecha, yend = estado)) +
-  geom_point(size = 1.5) +
+  geom_point(size = 2) +
   xlab("Fecha") +
-  scale_color_manual(values = c("darkgrey", "black"), name = "Transmisión\ncomunitaria",
-                     labels = c("Primer detectado", "Primer caso")) +
+  scale_color_manual(values = c("black", "darkgrey"), name = "Transmisión\ncomunitaria",
+                     labels = c("Primer caso", "Primer detectado")) +
   theme(panel.background = element_blank(),
         panel.grid.minor = element_line(color = "grey"),
         panel.border = element_rect(color = "black", size = 3, fill = NA),
@@ -152,22 +154,41 @@ p1 <- dat %>%
         legend.title = element_text(size = 14, face = "bold"),
         plot.margin = margin(l = 20, r = 20))
 p1
-archivo <- file.path("test.png")
+# archivo <- file.path("test.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "inicio_comunitarios.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "inicio_comunitarios@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-dat %>%
-  mutate(retraso = as.numeric(as.Date("2020-03-23", "%Y-%m-%d") - fecha) + 1) %>%
-  filter(grupo == "fecha_sintomas") %>%
-  filter(retraso > 0) %>%
+# dat %>%
+#   filter(grupo == "fecha_sintomas") %>%
+#   arrange(fecha) %>%
+#   print(n = 100)
+# dat %>%
+#   filter(grupo == "fecha_deteccion") %>%
+#   arrange(fecha) %>%
+#   print(n = 100)
+# 
+# dat %>%
+#   mutate(retraso = as.numeric(as.Date("2020-03-23", "%Y-%m-%d") - fecha) + 1) %>%
+#   filter(grupo == "fecha_sintomas") %>%
+#   # filter(retraso > 0) %>%
+#   arrange(retraso) %>%
+#   mutate(min = min(retraso), max = max(retraso), mediana = median(retraso)) %>%
+#   print(n = 100)
+# 
+# 
+# dat %>%
+#   mutate(retraso = as.numeric(as.Date("2020-03-23", "%Y-%m-%d") - fecha) + 1) %>%
+#   filter(grupo == "fecha_deteccion") %>%
+#   filter(retraso > 0) %>%
+#   arrange(retraso) %>%
+#   mutate(min = min(retraso), max = max(retraso), mediana = median(retraso)) %>%
+#   print(n = 100)
+Tab %>%
+  mutate(retraso = as.numeric(fecha_deteccion - fecha_sintomas)) %>%
+  select(estado, retraso) %>%
   arrange(retraso) %>%
-  mutate(min = min(retraso), max = max(retraso), mediana = median(retraso)) %>%
-  print(n = 100)
-
-
-dat %>%
-  mutate(retraso = as.numeric(as.Date("2020-03-23", "%Y-%m-%d") - fecha) + 1) %>%
-  filter(grupo == "fecha_deteccion") %>%
-  filter(retraso > 0) %>%
-  arrange(retraso) %>%
-  mutate(min = min(retraso), max = max(retraso), mediana = median(retraso)) %>%
-  print(n = 100)
+  print(n=100) %>%
+  summary
