@@ -89,9 +89,9 @@ pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
                                    "#66c2a4", "#41ae76",
                                    "#238b45", "#006d2c",
                                    "#00441b"))
-
-estados <- "Guanajuato"
+# Para graficar subconjunto de estados
 estados <- NULL
+# estados <- "Guanajuato"
 p1 <- Dat %>% 
   left_join(pob, by = "estado") %>%
   mutate(casos_100mil = casos_acumulados / (poblacion_2015/1e5)) %>%
@@ -107,8 +107,8 @@ p1 <- Dat %>%
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
-                       high = pal(11)[11], midpoint = 2.5,
-                       name = expression(frac(Muertes, "100 mil habitantes"))) +
+                       high = pal(11)[11], midpoint = 3,
+                       name = expression(frac(Casos, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -117,9 +117,15 @@ p1 <- Dat %>%
         axis.title = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "top",
-        plot.margin = margin(l = 20, r = 0, b = 20))
+        plot.margin = margin(l = 20, r = 20, b = 20))
 p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "casos_100mil_estados.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "casos_100mil_estados@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
+# Añadri mortalidad por estado
 p2 <- situacion_estados %>%
   filter(estado %in% levels(p1$data$estado)) %>%
   mutate(estado = factor(estado, levels = levels(p1$data$estado))) %>%
@@ -138,17 +144,10 @@ p2 <- situacion_estados %>%
         panel.background = element_blank(),
         panel.border = element_rect(size = 1.5, color = "black", fill = NA),
         axis.title.x = element_text(size = 10))
-p2
-
 g1 <- cowplot::plot_grid(plotlist=list(p1,
                                        p2),
                          ncol=2, align='h', axis = 'tb',
                          rel_widths = c(2,1))
 g1
-
-#ggsave("estados_mas_guanajuato.jpeg", p1, width = 7, height = 6.7, dpi = 150)
 ggsave("test.png", g1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados.jpeg")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "casos_100mil_estados@2x.jpeg")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
