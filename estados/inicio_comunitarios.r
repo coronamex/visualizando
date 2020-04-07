@@ -1,6 +1,6 @@
 library(tidyverse)
 
-args <- list(casos_positivos = "../datos/ssa_dge/tabla_casos_confirmados.csv",
+args <- list(casos_positivos = "../datos/ssa_dge/2020-04-05/tabla_casos_confirmados.csv",
              dge_dir = "../datos/ssa_dge/",
              dir_salida = "../sitio_hugo/static/imagenes/")
 estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
@@ -71,6 +71,8 @@ Tab <- Tab %>%
 Tab
 
 fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
+# Usando datos hasta 2020-04-05
+fechas_dirs <- fechas_dirs[ 1:which(str_detect(fechas_dirs, pattern = "2020-04-05")) ]
 Detecciones <- fechas_dirs %>%
   map_dfr(function(dir, Tab, estados_lut){
     # dir <- fechas_dirs[18]
