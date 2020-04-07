@@ -105,7 +105,7 @@ encontrar_R_0 <- function(Tab, dias_retraso = 15,
   Dat$R_hat <- Dat %>%
     pmap_dbl(function(T_inc, T_inf, Tab, pob){
       optim(2, fn = sir_optmizable,
-            method = "Brent", lower = 0.5, upper = 5,
+            method = "Brent", lower = 0.5, upper = 10,
             real = Tab, pob = pob, T_inf = T_inf, T_inc = T_inc)$par
     }, Tab = Tab, pob = pob)
   Dat
@@ -144,8 +144,7 @@ Tab <- read_csv(args$tabla_sintomas,
                                  sexo = col_character(),
                                  edad = col_number(),
                                  fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                 procedencia = col_character(),
-                                 fecha_llegada = col_date(format = "%d/%m/%Y")))
+                                 procedencia = col_character()))
 Tab <- table(Tab$fecha_sintomas)
 Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
               casos_nuevos = as.vector(Tab)) %>%
@@ -178,6 +177,9 @@ p1 <- Tab %>%
   mutate(grupo = replace(grupo, modelo == "real", "Inicio de síntomas")) %>%
   mutate(grupo = replace(grupo, modelo == "Confirmado", "Confirmado")) %>%
   filter(fecha >= as.Date("2020-02-27")) %>%
+  
+  filter(modelo != "m2") %>%
+  
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
   geom_line(aes(col = grupo, size = grupo)) +
   scale_color_brewer(palette = "Dark2", name = NULL) +

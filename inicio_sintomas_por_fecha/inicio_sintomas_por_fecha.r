@@ -8,8 +8,7 @@ Tab <- read_csv(args$tabla_sintomas,
                                  sexo = col_character(),
                                  edad = col_number(),
                                  fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                 procedencia = col_character(),
-                                 fecha_llegada = col_date(format = "%d/%m/%Y")))
+                                 procedencia = col_character()))
 
 # Todo el país
 fecha_inicio <- min(Tab$fecha_sintomas) - 0.5
