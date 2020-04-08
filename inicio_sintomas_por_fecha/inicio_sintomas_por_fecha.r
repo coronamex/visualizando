@@ -19,7 +19,7 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
             fill = "pink") +
   geom_bar(aes(y=..count..)) +
   annotate("text",
-           x = fecha_final - 5,
+           x = fecha_final - 4,
            y = 0.85 * max(table(Tab$fecha_sintomas)),
            label = 'italic("Estos\nnúmeros\npueden\naumentar")',
            hjust = "middle",
@@ -63,3 +63,4 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   theme(panel.background = element_blank(),
 #         axis.text.x = element_text(angle = 0))
 # ggsave("inicio_sintomas_por_fecha_estado.png", p1, width = 10, height = 6, dpi = 150)
+

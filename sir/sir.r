@@ -188,6 +188,7 @@ p1 <- Tab %>%
   ylab("Casos acumulados") +
   xlab("Fecha") +
   AMOR::theme_blackbox() +
+  # ylim(c(0,18000)) +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",

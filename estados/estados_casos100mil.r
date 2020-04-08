@@ -91,11 +91,24 @@ Dat <- Dat %>%
 # Dat %>% print(n=100)
 
 # Añadir datos de población
-pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
-                                   "#ccece6", "#99d8c9",
-                                   "#66c2a4", "#41ae76",
-                                   "#238b45", "#006d2c",
-                                   "#00441b"))
+# pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
+#                                    "#ccece6", "#99d8c9",
+#                                    "#66c2a4", "#41ae76",
+#                                    "#238b45", "#006d2c",
+#                                    "#00441b"))
+pal <- colorRampPalette(colors = rev(c("#a50026",
+                                   "#d73027",
+                                   "#f46d43",
+                                   "#fdae61",
+                                   "#fee090",
+                                   "#ffffbf",
+                                   "#e0f3f8",
+                                   "#abd9e9",
+                                   "#74add1",
+                                   "#4575b4",
+                                   "#313695")))
+
+
 # Para graficar subconjunto de estados
 estados <- NULL
 # estados <- "Guanajuato"
