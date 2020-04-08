@@ -1,3 +1,18 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 library(tidyverse)
 library(deSolve)
 # https://rstudio-pubs-static.s3.amazonaws.com/6852_c59c5a2e8ea3456abbeb017185de603e.html
@@ -90,42 +105,11 @@ encontrar_R_0 <- function(Tab, dias_retraso = 15,
   Dat$R_hat <- Dat %>%
     pmap_dbl(function(T_inc, T_inf, Tab, pob){
       optim(2, fn = sir_optmizable,
-            method = "Brent", lower = 0.5, upper = 5,
+            method = "Brent", lower = 0.5, upper = 10,
             real = Tab, pob = pob, T_inf = T_inf, T_inc = T_inc)$par
     }, Tab = Tab, pob = pob)
   Dat
 }
-
-
-args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
-             reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
-             dias_retraso = 15,
-             dir_salida = "../sitio_hugo/static/imagenes/")
-
-# Leer 
-Tab <- read_csv(args$tabla_sintomas,
-                col_types = cols(estado = col_character(),
-                                 sexo = col_character(),
-                                 edad = col_number(),
-                                 fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                 procedencia = col_character(),
-                                 fecha_llegada = col_date(format = "%d/%m/%Y")))
-Tab <- table(Tab$fecha_sintomas)
-Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
-              casos_nuevos = as.vector(Tab)) %>%
-  mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
-  mutate(dia = as.numeric(fecha - min(fecha)))
-
-# Parameters to make optimization
-pob <- 135552447
-T_inc <- c(2, 3, 4, 5, 6, 7, 8)
-T_inf <- c(1, 2, 3, 4, 5, 6)
-
-R_hat <- encontrar_R_0(Tab, dias_retraso = args$dias_retraso,
-                       T_inc = T_inc, T_inf = T_inf, pob = pob)
-R_hat
-
-# Simular con parámetros estimados
 
 simular_multiples_modelos <- function(modelos, FUN, real, pob){
   FUN <- match.fun(FUN)
@@ -147,6 +131,36 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob){
     }, n_dias = max(real$dia), FUN = FUN, t_0 = t_0)
   sims
 }
+
+
+args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
+             reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
+             dias_retraso = 15,
+             dir_salida = "../sitio_hugo/static/imagenes/")
+
+# Leer 
+Tab <- read_csv(args$tabla_sintomas,
+                col_types = cols(estado = col_character(),
+                                 sexo = col_character(),
+                                 edad = col_number(),
+                                 fecha_sintomas = col_date(format = "%d/%m/%Y"),
+                                 procedencia = col_character()))
+Tab <- table(Tab$fecha_sintomas)
+Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
+              casos_nuevos = as.vector(Tab)) %>%
+  mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+  mutate(dia = as.numeric(fecha - min(fecha)))
+
+# Parameters to make optimization
+pob <- 135552447
+T_inc <- c(2, 3, 4, 5, 6, 7, 8)
+T_inf <- c(1, 2, 3, 4, 5, 6)
+
+R_hat <- encontrar_R_0(Tab, dias_retraso = args$dias_retraso,
+                       T_inc = T_inc, T_inf = T_inf, pob = pob)
+R_hat
+
+# Simular con parámetros estimados
 sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Tab, pob = pob)
 ctds <- read_csv(args$reportes_diarios) %>%
   select(fecha, casos_acumulados) %>%
@@ -159,10 +173,13 @@ p1 <- Tab %>%
   mutate(fecha = min(Tab$fecha) + dia) %>%
   select(-dia) %>%
   bind_rows(ctds) %>%
-  mutate(grupo = "Estimadow") %>%
+  mutate(grupo = "Estimado (SEIR)") %>%
   mutate(grupo = replace(grupo, modelo == "real", "Inicio de síntomas")) %>%
   mutate(grupo = replace(grupo, modelo == "Confirmado", "Confirmado")) %>%
   filter(fecha >= as.Date("2020-02-27")) %>%
+  
+  filter(modelo != "m2") %>%
+  
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
   geom_line(aes(col = grupo, size = grupo)) +
   scale_color_brewer(palette = "Dark2", name = NULL) +
@@ -170,14 +187,19 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
+  AMOR::theme_blackbox() +
+  # ylim(c(0,18000)) +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
+        legend.text = element_text(size = 14),
         axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10),
+        axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
 archivo <- file.path(args$dir_salida, "sir_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+summary(R_hat$R_hat)     

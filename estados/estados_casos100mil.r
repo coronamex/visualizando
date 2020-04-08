@@ -12,6 +12,7 @@ estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          "BAJA CALIFORNIA \nSUR" = "Baja California Sur",
                          `CAMPECHE` = "Campeche",
                          `CIUDAD DE MÉXICO` = "Ciudad de México",
+                         `DISTRITO FEDERAL` = "Ciudad de México",
                          COAHUILA = "Coahuila",
                          COLIMA = "Colima",
                          CHIAPAS = "Chiapas",
@@ -22,15 +23,19 @@ estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          HIDALGO = "Hidalgo",
                          JALISCO = "Jalisco",
                          `MÉXICO` = "México",
+                         `MEXICO` = "México",
                          `MICHOACÁN` = "Michoacán",
+                         `MICHOACAN` = "Michoacán",
                          MORELOS = "Morelos",
                          NAYARIT = "Nayarit",
                          `NUEVO LEÓN` = "Nuevo León",
+                         `NUEVO LEON` = "Nuevo León",
                          OAXACA = "Oaxaca",
                          PUEBLA = "Puebla",
                          QUERETARO = "Querétaro",
                          `QUINTANA ROO` = "Quintana Roo",
                          `SAN LUIS POTOSÍ` = "San Luis Potosí",
+                         `SAN LUIS POTOSI` = "San Luis Potosí",
                          SINALOA = "Sinaloa",
                          SONORA = "Sonora",
                          TABASCO = "Tabasco",
@@ -38,6 +43,7 @@ estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          TLAXCALA = "Tlaxcala",
                          VERACRUZ = "Veracruz",
                          `YUCATÁN` = "Yucatán",
+                         `YUCATAN` = "Yucatán",
                          ZACATECAS = "Zacatecas")
 
 # Leer poblaciones
@@ -60,6 +66,7 @@ situacion_estados <- situacion_estados %>% left_join(pob, by = "estado") %>%
 fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
 Dat <- fechas_dirs %>%
   map_dfr(function(fecha_dir){
+    # fecha_dir <- "../datos/ssa_dge/2020-04-06/"
     archivo_tabla <- file.path(fecha_dir, "tabla_casos_confirmados.csv")
     if(file.exists(archivo_tabla)){
       Tab <- read_csv(archivo_tabla,
@@ -67,8 +74,7 @@ Dat <- fechas_dirs %>%
                                        sexo = col_character(),
                                        edad = col_number(),
                                        fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                       procedencia = col_character(),
-                                       fecha_llegada = col_date(format = "%d/%m/%Y")))
+                                       procedencia = col_character()))
       fecha <- basename(fecha_dir) %>% as.Date()
       acum_estado <- table(Tab$estado)
       res <- tibble(estado = names(acum_estado),
@@ -78,17 +84,31 @@ Dat <- fechas_dirs %>%
       return(res)
     }
   })
-
+# Dat <- res
 # Renombrar estados
 Dat <- Dat %>%
   mutate(estado = as.character(estados_nombres_dge[match(estado, names(estados_nombres_dge))]))
+# Dat %>% print(n=100)
 
 # Añadir datos de población
-pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
-                                   "#ccece6", "#99d8c9",
-                                   "#66c2a4", "#41ae76",
-                                   "#238b45", "#006d2c",
-                                   "#00441b"))
+# pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
+#                                    "#ccece6", "#99d8c9",
+#                                    "#66c2a4", "#41ae76",
+#                                    "#238b45", "#006d2c",
+#                                    "#00441b"))
+pal <- colorRampPalette(colors = rev(c("#a50026",
+                                   "#d73027",
+                                   "#f46d43",
+                                   "#fdae61",
+                                   "#fee090",
+                                   "#ffffbf",
+                                   "#e0f3f8",
+                                   "#abd9e9",
+                                   "#74add1",
+                                   "#4575b4",
+                                   "#313695")))
+
+
 # Para graficar subconjunto de estados
 estados <- NULL
 # estados <- "Guanajuato"
@@ -107,7 +127,7 @@ p1 <- Dat %>%
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
-                       high = pal(11)[11], midpoint = 2.5,
+                       high = pal(11)[11], midpoint = 3,
                        name = expression(frac(Casos, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +

@@ -8,8 +8,7 @@ Tab <- read_csv(args$tabla_sintomas,
                                  sexo = col_character(),
                                  edad = col_number(),
                                  fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                 procedencia = col_character(),
-                                 fecha_llegada = col_date(format = "%d/%m/%Y")))
+                                 procedencia = col_character()))
 
 # Todo el país
 fecha_inicio <- min(Tab$fecha_sintomas) - 0.5
@@ -20,9 +19,9 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
             fill = "pink") +
   geom_bar(aes(y=..count..)) +
   annotate("text",
-           x = fecha_final - 5,
-           y = 0.95 * max(table(Tab$fecha_sintomas)),
-           label = 'italic("Estos números\npueden aumentar")',
+           x = fecha_final - 4,
+           y = 0.85 * max(table(Tab$fecha_sintomas)),
+           label = 'italic("Estos\nnúmeros\npueden\naumentar")',
            hjust = "middle",
            parse = TRUE) +
   xlim(c(fecha_inicio, fecha_final)) +
@@ -64,3 +63,4 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   theme(panel.background = element_blank(),
 #         axis.text.x = element_text(angle = 0))
 # ggsave("inicio_sintomas_por_fecha_estado.png", p1, width = 10, height = 6, dpi = 150)
+
