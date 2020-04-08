@@ -17,9 +17,8 @@ estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          "BAJA CALIFORNIA \nSUR" = "Baja California Sur",
                          `CAMPECHE` = "Campeche",
                          `CIUDAD DE MÉXICO` = "Ciudad de México",
-                         "CIUDAD DE MÉXICO  M" = "Ciudad de México",
+                         `DISTRITO FEDERAL` = "Ciudad de México",
                          COAHUILA = "Coahuila",
-                         "COAHUILA*" = "Coahuila",
                          COLIMA = "Colima",
                          CHIAPAS = "Chiapas",
                          CHIHUAHUA = "Chihuahua",
@@ -29,26 +28,28 @@ estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
                          HIDALGO = "Hidalgo",
                          JALISCO = "Jalisco",
                          `MÉXICO` = "México",
+                         `MEXICO` = "México",
                          `MICHOACÁN` = "Michoacán",
+                         `MICHOACAN` = "Michoacán",
                          MORELOS = "Morelos",
                          NAYARIT = "Nayarit",
                          `NUEVO LEÓN` = "Nuevo León",
+                         `NUEVO LEON` = "Nuevo León",
                          OAXACA = "Oaxaca",
                          PUEBLA = "Puebla",
                          QUERETARO = "Querétaro",
                          `QUINTANA ROO` = "Quintana Roo",
                          `SAN LUIS POTOSÍ` = "San Luis Potosí",
+                         `SAN LUIS POTOSI` = "San Luis Potosí",
                          SINALOA = "Sinaloa",
-                         "SINALOA*" = "Sinaloa",
                          SONORA = "Sonora",
                          TABASCO = "Tabasco",
                          TAMAULIPAS = "Tamaulipas",
                          TLAXCALA = "Tlaxcala",
                          VERACRUZ = "Veracruz",
                          `YUCATÁN` = "Yucatán",
+                         `YUCATAN` = "Yucatán",
                          ZACATECAS = "Zacatecas")
-
-
 
 # Leer datos mundiales de John Hopkins
 datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
@@ -101,18 +102,26 @@ datos_mx <- fechas_dirs %>%
     # lu_tab <- estados_nombres_dge
     archivo_tabla <- file.path(fecha_dir, "tabla_casos_confirmados.csv")
     if(file.exists(archivo_tabla)){
+      # Tab <- read_csv(archivo_tabla,
+      #                 col_types = cols(estado = col_character(),
+      #                                  sexo = col_character(),
+      #                                  edad = col_number(),
+      #                                  fecha_sintomas = col_date(format = "%d/%m/%Y"),
+      #                                  procedencia = col_character(),
+      #                                  fecha_llegada = col_date(format = "%d/%m/%Y")))
       Tab <- read_csv(archivo_tabla,
                       col_types = cols(estado = col_character(),
                                        sexo = col_character(),
                                        edad = col_number(),
                                        fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                       procedencia = col_character(),
-                                       fecha_llegada = col_date(format = "%d/%m/%Y")))
+                                       procedencia = col_character()))
+      
       Tab$estado <- as.vector(lu_tab[Tab$estado])
       fecha <- basename(fecha_dir) %>% as.Date()
       
       res <- Tab %>%
-        split(.$procedencia == "Contacto" & is.na(.$fecha_llegada)) %>%
+        # split(.$procedencia == "Contacto" & is.na(.$fecha_llegada)) %>%
+        split(.$procedencia == "Contacto") %>%
         map_dfr(function(d, fecha){
           acum_estado <- table(d$estado)
           res <- tibble(estado = names(acum_estado),
@@ -158,7 +167,7 @@ p1 <- Dat %>%
                      guide = guide_legend(nrow = 2)) +
   scale_size_manual(values = c(2,2,1), guide = NULL) +
   scale_y_log10(limits = c(60, 1e5)) +
-  xlim(c(0,25)) +
+  xlim(c(0,30)) +
   # ylim(c(60,1e5)) +
   ylab("Total de casos confirmados") +
   xlab("Días desde el caso 60") +
