@@ -135,7 +135,7 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob){
 
 args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
              reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
-             dias_retraso = 15,
+             dias_retraso = 18,
              dir_salida = "../sitio_hugo/static/imagenes/")
 
 # Leer 
@@ -189,6 +189,7 @@ p1 <- Tab %>%
   xlab("Fecha") +
   AMOR::theme_blackbox() +
   # ylim(c(0,18000)) +
+  # scale_y_log10() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
