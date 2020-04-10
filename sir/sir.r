@@ -35,10 +35,10 @@ sir <- function(time, state, parameters) {
     dI <- ((1 / T_inc) * E) - ((1 / T_inf) * I)
     dR <- (1 / T_inf) * I
     
-    dS <- max(0, dS)
-    dE <- max(0, dE)
-    dI <- max(0, dI)
-    dR <- max(0, dR)
+    # dS <- max(0, dS)
+    # dE <- max(0, dE)
+    # dI <- max(0, dI)
+    # dR <- max(0, dR)
     
     return(list(c(dS, dE, dI, dR)))
   })
@@ -128,7 +128,7 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob){
         mutate(casos_acumulados = floor(pob * (I + R))) %>%
         select(dia, casos_acumulados) %>%
         mutate(modelo = modelo)
-    }, n_dias = max(real$dia), FUN = FUN, t_0 = t_0)
+    }, n_dias = max(real$dia)+2, FUN = FUN, t_0 = t_0)
   sims
 }
 
@@ -136,7 +136,8 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob){
 args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
              reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
              dias_retraso = 15,
-             dir_salida = "../sitio_hugo/static/imagenes/")
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             fecha_hoy = "2020-04-09")
 
 # Leer 
 Tab <- read_csv(args$tabla_sintomas,
@@ -188,7 +189,8 @@ p1 <- Tab %>%
   ylab("Casos acumulados") +
   xlab("Fecha") +
   AMOR::theme_blackbox() +
-  # ylim(c(0,18000)) +
+  ylim(c(0,18000)) +
+  scale_y_log10() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
