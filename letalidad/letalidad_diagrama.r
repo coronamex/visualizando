@@ -64,8 +64,8 @@ p1 <- dat %>%
   filter(grupo != "casos_acumulados") %>%
   mutate(grupo = replace(grupo, grupo == "casos_nuevos", "Casos\nnuevos")) %>%
   mutate(grupo = replace(grupo, grupo == "muertes_acumuladas", "Muertes\ntotales")) %>%
-  mutate(grupo = replace(grupo, grupo == "letalidad2", "Letalidad\ninstantanea")) %>%
-  mutate(grupo = replace(grupo, grupo == "letalidad", "Letalidad\ncon retraso")) %>%
+  mutate(grupo = replace(grupo, grupo == "letalidad2", "Letalidad\ncon retraso")) %>%
+  mutate(grupo = replace(grupo, grupo == "letalidad", "Letalidad\ninstantánea")) %>%
   ggplot(aes(x = dia, y = porcentage_poblacion)) +
   geom_line(aes(color = grupo), size = 3) +
   geom_hline(yintercept = 0.04) +
