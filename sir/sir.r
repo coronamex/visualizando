@@ -128,15 +128,16 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob){
         mutate(casos_acumulados = floor(pob * (I + R))) %>%
         select(dia, casos_acumulados) %>%
         mutate(modelo = modelo)
-    }, n_dias = max(real$dia), FUN = FUN, t_0 = t_0)
+    }, n_dias = max(real$dia)+2, FUN = FUN, t_0 = t_0)
   sims
 }
 
 
 args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
              reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
-             dias_retraso = 18,
-             dir_salida = "../sitio_hugo/static/imagenes/")
+             dias_retraso = 15,
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             fecha_hoy = "2020-04-09")
 
 # Leer 
 Tab <- read_csv(args$tabla_sintomas,
