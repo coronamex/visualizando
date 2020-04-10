@@ -35,10 +35,10 @@ sir <- function(time, state, parameters) {
     dI <- ((1 / T_inc) * E) - ((1 / T_inf) * I)
     dR <- (1 / T_inf) * I
     
-    dS <- max(0, dS)
-    dE <- max(0, dE)
-    dI <- max(0, dI)
-    dR <- max(0, dR)
+    # dS <- max(0, dS)
+    # dE <- max(0, dE)
+    # dI <- max(0, dI)
+    # dR <- max(0, dR)
     
     return(list(c(dS, dE, dI, dR)))
   })
@@ -189,8 +189,8 @@ p1 <- Tab %>%
   ylab("Casos acumulados") +
   xlab("Fecha") +
   AMOR::theme_blackbox() +
-  # ylim(c(0,18000)) +
-  # scale_y_log10() +
+  ylim(c(0,18000)) +
+  scale_y_log10() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",
