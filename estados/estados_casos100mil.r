@@ -127,7 +127,7 @@ p1 <- Dat %>%
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
-                       high = pal(11)[11], midpoint = 3,
+                       high = pal(11)[11], midpoint = 4,
                        name = expression(frac(Casos, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +

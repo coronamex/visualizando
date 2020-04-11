@@ -25,7 +25,7 @@ p1 <- ggplot(Tab, aes(x = fecha_sintomas)) +
            hjust = "middle",
            parse = TRUE) +
   xlim(c(fecha_inicio, fecha_final)) +
-  ylab(label = "Número de casos") +
+  ylab(label = "Número de nuevos casos") +
   xlab(label = "Fecha de inicio de síntomas") +
   AMOR::theme_blackbox() +
   theme(axis.title = element_text(size = 20),

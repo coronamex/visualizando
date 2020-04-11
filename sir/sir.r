@@ -179,7 +179,7 @@ p1 <- Tab %>%
   mutate(grupo = replace(grupo, modelo == "Confirmado", "Confirmado")) %>%
   filter(fecha >= as.Date("2020-02-27")) %>%
   
-  filter(modelo != "m2") %>%
+  # filter(modelo != "m2") %>%
   
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
   geom_line(aes(col = grupo, size = grupo)) +
@@ -189,8 +189,6 @@ p1 <- Tab %>%
   ylab("Casos acumulados") +
   xlab("Fecha") +
   AMOR::theme_blackbox() +
-  ylim(c(0,18000)) +
-  scale_y_log10() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
         legend.position = "top",

@@ -77,7 +77,7 @@ p1 <- Dat %>%
   geom_line(aes(col = pais, size = pais)) +
   scale_color_brewer(palette = "Paired", name = "País") +
   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::comma) +
   ylab("Total de casos confirmados") +
   xlab("Días desde el caso 60") +
   AMOR::theme_blackbox() +
@@ -106,7 +106,7 @@ p1 <- Dat %>%
   geom_line(aes(col = pais, size = pais)) +
   scale_color_brewer(palette = "Paired", name = "País") +
   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-  scale_y_log10() +
+  scale_y_log10(labels = scales::comma) +
   ylab("Total de muertes") +
   xlab("Días desde el caso 60") +
   AMOR::theme_blackbox() +
@@ -158,7 +158,7 @@ p1 <- Dat %>%
   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
   # scale_y_log10(labels = scales::percent) +
   scale_y_continuous(labels = scales::percent) +
-  scale_x_log10() +
+  scale_x_log10(labels = scales::comma) +
   ylab("Incremento (%)") +
   xlab("Total de casos confirmados") +
   AMOR::theme_blackbox() +
