@@ -183,8 +183,8 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   geom_line(aes(col = pais, size = pais)) +
 #   scale_color_brewer(palette = "Paired", name = "País") +
 #   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-#   scale_y_log10() +
-#   scale_x_log10() +
+#   scale_y_log10(labels = scales::comma) +
+#   scale_x_log10(labels = scales::comma) +
 #   ylab("Total de muertes") +
 #   xlab("Total de casos confirmados") +
 #   AMOR::theme_blackbox()
