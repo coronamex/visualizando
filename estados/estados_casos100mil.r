@@ -1,67 +1,24 @@
 library(tidyverse)
 
 args <- list(dge_dir = "../datos/ssa_dge/",
-             poblacion = "../datos/demograficos/2015_pob_estado.tsv",
+             poblacion = "../datos/demograficos/pob_estado.tsv",
              tasa_min = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              max_dias = 10,
              archivo_estados = "../datos/ssa_dge/datos_mapa.csv")
-estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
-                         `BAJA CALIFORNIA` = "Baja California",
-                         `BAJA CALIFORNIA SUR` = "Baja California Sur",
-                         "BAJA CALIFORNIA \nSUR" = "Baja California Sur",
-                         `CAMPECHE` = "Campeche",
-                         `CIUDAD DE MÉXICO` = "Ciudad de México",
-                         `DISTRITO FEDERAL` = "Ciudad de México",
-                         COAHUILA = "Coahuila",
-                         COLIMA = "Colima",
-                         CHIAPAS = "Chiapas",
-                         CHIHUAHUA = "Chihuahua",
-                         DURANGO = "Durango",
-                         GUANAJUATO = "Guanajuato",
-                         GUERRERO = "Guerrero",
-                         HIDALGO = "Hidalgo",
-                         JALISCO = "Jalisco",
-                         `MÉXICO` = "México",
-                         `MEXICO` = "México",
-                         `MICHOACÁN` = "Michoacán",
-                         `MICHOACAN` = "Michoacán",
-                         MORELOS = "Morelos",
-                         NAYARIT = "Nayarit",
-                         `NUEVO LEÓN` = "Nuevo León",
-                         `NUEVO LEON` = "Nuevo León",
-                         OAXACA = "Oaxaca",
-                         PUEBLA = "Puebla",
-                         QUERETARO = "Querétaro",
-                         `QUINTANA ROO` = "Quintana Roo",
-                         `SAN LUIS POTOSÍ` = "San Luis Potosí",
-                         `SAN LUIS POTOSI` = "San Luis Potosí",
-                         SINALOA = "Sinaloa",
-                         SONORA = "Sonora",
-                         TABASCO = "Tabasco",
-                         TAMAULIPAS = "Tamaulipas",
-                         TLAXCALA = "Tlaxcala",
-                         VERACRUZ = "Veracruz",
-                         `YUCATÁN` = "Yucatán",
-                         `YUCATAN` = "Yucatán",
-                         ZACATECAS = "Zacatecas")
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion)
-estados_nombres_pob <- set_names(sort(pob$estado), sort(pob$estado))
-estados_nombres_pob["Coahuila de Zaragoza"] <- "Coahuila"
-estados_nombres_pob["Estado de México"] <- "México"
-pob <- pob %>%
-  mutate(estado = as.character(estados_nombres_pob[match(estado, names(estados_nombres_pob))]))
+pob
 
-situacion_estados <- read_csv(args$archivo_estados)
-estados_nombres_situacion <- set_names(sort(situacion_estados$estado), sort(situacion_estados$estado))
-estados_nombres_situacion["Queretaro"] <- "Querétaro"
-situacion_estados <- situacion_estados %>%
-  mutate(estado = as.character(estados_nombres_situacion[match(estado, names(estados_nombres_situacion))]))
-situacion_estados <- situacion_estados %>% left_join(pob, by = "estado") %>%
-  select(estado, muertes_acumuladas, poblacion_2015) %>%
-  mutate(mortalidad = 100000*muertes_acumuladas/poblacion_2015)
+# situacion_estados <- read_csv(args$archivo_estados)
+# estados_nombres_situacion <- set_names(sort(situacion_estados$estado), sort(situacion_estados$estado))
+# estados_nombres_situacion["Queretaro"] <- "Querétaro"
+# situacion_estados <- situacion_estados %>%
+#   mutate(estado = as.character(estados_nombres_situacion[match(estado, names(estados_nombres_situacion))]))
+# situacion_estados <- situacion_estados %>% left_join(pob, by = "estado") %>%
+#   select(estado, muertes_acumuladas, poblacion_2015) %>%
+#   mutate(mortalidad = 100000*muertes_acumuladas/poblacion_2015)
 
 fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
 Dat <- fechas_dirs %>%
@@ -73,8 +30,10 @@ Dat <- fechas_dirs %>%
                       col_types = cols(estado = col_character(),
                                        sexo = col_character(),
                                        edad = col_number(),
-                                       fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                       procedencia = col_character()))
+                                       fecha_sintomas = col_date(format = "%Y-%m-%d"),
+                                       procedencia = col_character(),
+                                       fecha_llegada = col_date(format = "%Y-%m-%d")))
+      stop_for_problems(Tab)
       fecha <- basename(fecha_dir) %>% as.Date()
       acum_estado <- table(Tab$estado)
       res <- tibble(estado = names(acum_estado),
@@ -84,11 +43,6 @@ Dat <- fechas_dirs %>%
       return(res)
     }
   })
-# Dat <- res
-# Renombrar estados
-Dat <- Dat %>%
-  mutate(estado = as.character(estados_nombres_dge[match(estado, names(estados_nombres_dge))]))
-# Dat %>% print(n=100)
 
 # Añadir datos de población
 # pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",

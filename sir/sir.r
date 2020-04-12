@@ -22,7 +22,7 @@ source("sir/sir_funciones.r")
 
 args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
              reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
-             dias_retraso = 16,
+             dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              periodo_ajuste = 100,
              fecha1 = "2020-03-16")
@@ -116,7 +116,8 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-summary(R_hat$R_hat)     
+summary(R_hat$R_hat)
+summary(R_hat$f1_hat)
 
 ############
 Centinela <- tibble(semana = 8:13,total_usmer = c(43329, 43113, 45420, 42072, 48679, 33500),
@@ -200,3 +201,7 @@ archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+
+summary(R_hat$R_hat)     
+summary(R_hat$f1_hat)
