@@ -1,49 +1,25 @@
 library(tidyverse)
 
-args <- list(dge_dir = "../datos/ssa_dge/",
-             poblacion = "../datos/demograficos/pob_estado.tsv",
+args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              tasa_min = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              max_dias = 10,
-             archivo_estados = "../datos/ssa_dge/datos_mapa.csv")
+             serie_tiempo_estados = "../datos/ssa_dge/serie_tiempo_estados_casos.csv")
 
 # Leer poblaciones
-pob <- read_tsv(args$poblacion)
-pob
+pob <- read_tsv(args$poblacion,
+                col_types = cols(estado = col_character(),
+                                 .default = col_number()))
+stop_for_problems(pob)
+# pob
 
-# situacion_estados <- read_csv(args$archivo_estados)
-# estados_nombres_situacion <- set_names(sort(situacion_estados$estado), sort(situacion_estados$estado))
-# estados_nombres_situacion["Queretaro"] <- "Querétaro"
-# situacion_estados <- situacion_estados %>%
-#   mutate(estado = as.character(estados_nombres_situacion[match(estado, names(estados_nombres_situacion))]))
-# situacion_estados <- situacion_estados %>% left_join(pob, by = "estado") %>%
-#   select(estado, muertes_acumuladas, poblacion_2015) %>%
-#   mutate(mortalidad = 100000*muertes_acumuladas/poblacion_2015)
-
-fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
-Dat <- fechas_dirs %>%
-  map_dfr(function(fecha_dir){
-    # fecha_dir <- "../datos/ssa_dge/2020-04-06/"
-    archivo_tabla <- file.path(fecha_dir, "tabla_casos_confirmados.csv")
-    if(file.exists(archivo_tabla)){
-      Tab <- read_csv(archivo_tabla,
-                      col_types = cols(estado = col_character(),
-                                       sexo = col_character(),
-                                       edad = col_number(),
-                                       fecha_sintomas = col_date(format = "%Y-%m-%d"),
-                                       procedencia = col_character(),
-                                       fecha_llegada = col_date(format = "%Y-%m-%d")))
-      stop_for_problems(Tab)
-      fecha <- basename(fecha_dir) %>% as.Date()
-      acum_estado <- table(Tab$estado)
-      res <- tibble(estado = names(acum_estado),
-                    casos_acumulados = as.numeric(acum_estado),
-                    fecha = fecha)
-      
-      return(res)
-    }
-  })
-
+Dat <- read_csv(args$serie_tiempo_estados,
+                col_types = cols(estado = col_character(),
+                                 casos_acumulados = col_number(),
+                                 fecha = col_date(format = "%Y-%m-%d"),
+                                 casos_nuevos = col_number()))
+stop_for_problems(Dat)
+# Dat
 # Añadir datos de población
 # pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
 #                                    "#ccece6", "#99d8c9",
@@ -67,8 +43,9 @@ pal <- colorRampPalette(colors = rev(c("#a50026",
 estados <- NULL
 # estados <- "Guanajuato"
 p1 <- Dat %>% 
-  left_join(pob, by = "estado") %>%
-  mutate(casos_100mil = casos_acumulados / (poblacion_2015/1e5)) %>%
+  left_join(pob %>% select(estado, pob = conapo_2020), 
+            by = "estado") %>%
+  mutate(casos_100mil = casos_acumulados / (pob/1e5)) %>%
   split(.$estado) %>%
   map_dfr(function(d, tasa_min){
     if(max(d$casos_100mil >= tasa_min) || d$estado[1] %in% estados){
