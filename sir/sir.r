@@ -158,8 +158,8 @@ Centinela <- Centinela %>%
 
 T_inc <- c(5,5.2,5.4)
 T_inf <- c(2.5,3,3.5)
-# T_inc <- c(2, 3, 4, 5, 6, 7, 8)
-# T_inf <- c(1, 2, 3, 4, 5, 6)
+T_inc <- c(2, 3, 4, 5, 6, 7, 8)
+T_inf <- c(1, 2, 3, 4, 5, 6)
 
 R_hat <- encontrar_R_0(Centinela, dias_retraso = args$dias_retraso,
                        periodo_ajuste = args$periodo_ajuste,
@@ -172,13 +172,15 @@ sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Centinela, 
                                   n_dias = args$dias_retraso + args$periodo_ajuste,
                                   fecha1 = args$fecha1)
 
-# sims %>%
-#   filter(dia == max(Tab$fecha) - min(Tab$fecha)) %>%
-#   arrange(casos_acumulados) %>%
-#   filter(casos_acumulados < max(Tab$casos_acumulados)) %>%
-#   print(n = 100) %>%
-#   select(modelo) %>%
-#   unlist -> para_quitar
+sims %>%
+  # filter(dia == Sys.Date() - min(Centinela$fecha)) %>%
+  filter(dia == max(Centinela$fecha) - min(Centinela$fecha)) %>%
+  # arrange(desc(casos_acumulados)) %>%
+  # print(n = 1000)
+  filter(casos_acumulados < 21000) %>%
+  print(n = 100) %>%
+  select(modelo) %>%
+  unlist -> para_quitar
 
 
 p1 <- Centinela %>%
@@ -198,6 +200,7 @@ p1 <- Centinela %>%
   # filter(modelo != "m2") %>%
   # filter(grupo != "Inicio de síntomas") %>%
   # filter(!(modelo %in% para_quitar)) %>%
+  filter(!(modelo %in% para_quitar)) %>%
   
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
   geom_line(aes(col = grupo, size = grupo)) +
