@@ -5,15 +5,20 @@ args <- list(mundo_dir = "../COVID-19/csse_covid_19_data/csse_covid_19_daily_rep
              dias_ventana = 7,
              tabla_mx = "../datos/ssa_dge/reportes_diarios.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
+lut_paises <- set_names(c("EEUU", "España", "Italia",
+                          "Irán", "China", "Francia",
+                          "Brasil", "Corea del Sur", "Japón",
+                          "Corea del Sur", "China"),
+                        c("US", "Spain", "Italy", 
+                          "Iran", "China", "France",
+                          "Brazil", "South Korea", "Japan",
+                          "Korea, South", "Mainland China"))
 
-paises <- c("US", "Spain", "Italy", "Iran", "China",
-            "France", "Brazil", "South Korea", "Japan")
-nuevos_nombres <- c("EEUU", "España", "Italia", "Irán",
-                    "China", "Francia", "Brasil", "Corea del Sur",
-                    "Japón")
 
 # Leer daots México
-datos_mx <- read_csv(args$tabla_mx)
+datos_mx <- read_csv(args$tabla_mx,
+                     col_types = cols(fecha = col_date(format = "%Y-%m-%d")))
+stop_for_problems(datos_mx)
 datos_mx$pais <- "México"
 
 # Leer datos mundiales de John Hopkins
@@ -25,13 +30,14 @@ datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
     fecha <- strptime(fecha, "%m-%d-%Y") %>% format("%Y-%m-%d") %>% as.Date()
     
     tab <- read_csv(file)
+    stop_for_problems(tab)
     names(tab)[names(tab) == "Country/Region"] <- "Country_Region"
-    tab <- tab %>%
-      mutate(Country_Region = replace(Country_Region, Country_Region == "Korea, South", "South Korea")) %>%
-      mutate(Country_Region = replace(Country_Region, Country_Region == "Mainland China", "China"))
+    # tab <- tab %>%
+    #   mutate(Country_Region = replace(Country_Region, Country_Region == "Korea, South", "South Korea")) %>%
+    #   mutate(Country_Region = replace(Country_Region, Country_Region == "Mainland China", "China"))
     
     tab %>%
-      filter(Country_Region %in% paises) %>%
+      filter(Country_Region %in% names(lut_paises)) %>%
       split(.$Country_Region) %>%
       map_dfr(function(d){
         tibble(casos_acumulados = sum(d$Confirmed, na.rm = TRUE),
@@ -40,6 +46,8 @@ datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
       mutate(fecha = fecha)
     
   })
+datos_mundo$pais <- as.vector(lut_paises[datos_mundo$pais])
+table(datos_mundo$pais)
 
 # Calcular casos por día
 datos_mundo <- datos_mundo %>%
@@ -51,12 +59,6 @@ datos_mundo <- datos_mundo %>%
       bind_cols(casos_nuevos = c(NA, diff(d$casos_acumulados)),
                 muertes_nuevas = c(NA, diff(d$muertes_acumuladas)))
   })
-
-# Reemplazar nombres
-for(i in 1:length(paises)){
-  datos_mundo <- datos_mundo %>%
-    mutate(pais = replace(pais, pais == paises[i], nuevos_nombres[i]))
-}
 
 # Combinar datos
 Dat <- datos_mundo %>%
