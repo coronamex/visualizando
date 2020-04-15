@@ -4,7 +4,7 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              tasa_min = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              max_dias = 10,
-             serie_tiempo_estados = "../datos/ssa_dge/serie_tiempo_estados_casos.csv")
+             serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv")
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,
@@ -15,17 +15,10 @@ stop_for_problems(pob)
 
 Dat <- read_csv(args$serie_tiempo_estados,
                 col_types = cols(estado = col_character(),
-                                 casos_acumulados = col_number(),
                                  fecha = col_date(format = "%Y-%m-%d"),
-                                 casos_nuevos = col_number()))
+                                 .default = col_number()))
 stop_for_problems(Dat)
-# Dat
-# Añadir datos de población
-# pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
-#                                    "#ccece6", "#99d8c9",
-#                                    "#66c2a4", "#41ae76",
-#                                    "#238b45", "#006d2c",
-#                                    "#00441b"))
+
 pal <- colorRampPalette(colors = rev(c("#a50026",
                                    "#d73027",
                                    "#f46d43",
@@ -38,6 +31,19 @@ pal <- colorRampPalette(colors = rev(c("#a50026",
                                    "#4575b4",
                                    "#313695")))
 
+Dat <- Dat %>%
+  select(estado, fecha, sintomas_nuevos) %>%
+  pivot_wider(names_from = "fecha", values_from = "sintomas_nuevos", values_fill = list(sintomas_nuevos = 0)) %>%
+  pivot_longer(-estado, names_to = "fecha", values_to = "sintomas_nuevos") %>%
+  mutate(fecha = parse_date(fecha, format = "%Y-%m-%d")) %>%
+  split(.$estado) %>%
+  map_dfr(function(d){
+    d %>%
+      mutate(sintomas_acumulados = cumsum(sintomas_nuevos))
+  }) %>%
+  select(-sintomas_nuevos) %>%
+  filter(fecha > max(fecha) - args$max_dias)
+  
 
 # Para graficar subconjunto de estados
 estados <- NULL
@@ -45,7 +51,7 @@ estados <- NULL
 p1 <- Dat %>% 
   left_join(pob %>% select(estado, pob = conapo_2020), 
             by = "estado") %>%
-  mutate(casos_100mil = casos_acumulados / (pob/1e5)) %>%
+  mutate(casos_100mil = sintomas_acumulados / (pob/1e5)) %>%
   split(.$estado) %>%
   map_dfr(function(d, tasa_min){
     if(max(d$casos_100mil >= tasa_min) || d$estado[1] %in% estados){
