@@ -11,7 +11,6 @@ pob <- read_tsv(args$poblacion,
                 col_types = cols(estado = col_character(),
                                  .default = col_number()))
 stop_for_problems(pob)
-# pob
 
 Dat <- read_csv(args$serie_tiempo_estados,
                 col_types = cols(estado = col_character(),
@@ -30,20 +29,6 @@ pal <- colorRampPalette(colors = rev(c("#a50026",
                                    "#74add1",
                                    "#4575b4",
                                    "#313695")))
-
-Dat <- Dat %>%
-  select(estado, fecha, sintomas_nuevos) %>%
-  pivot_wider(names_from = "fecha", values_from = "sintomas_nuevos", values_fill = list(sintomas_nuevos = 0)) %>%
-  pivot_longer(-estado, names_to = "fecha", values_to = "sintomas_nuevos") %>%
-  mutate(fecha = parse_date(fecha, format = "%Y-%m-%d")) %>%
-  split(.$estado) %>%
-  map_dfr(function(d){
-    d %>%
-      mutate(sintomas_acumulados = cumsum(sintomas_nuevos))
-  }) %>%
-  select(-sintomas_nuevos) %>%
-  filter(fecha > max(fecha) - args$max_dias)
-  
 
 # Para graficar subconjunto de estados
 estados <- NULL
@@ -64,7 +49,7 @@ p1 <- Dat %>%
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
-                       high = pal(11)[11], midpoint = 4,
+                       high = pal(11)[11], midpoint = 5,
                        name = expression(frac(Casos, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +
