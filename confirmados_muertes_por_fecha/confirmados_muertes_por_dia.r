@@ -153,7 +153,7 @@ p1 <- Dat %>%
       mutate(crecimiento = roll_incremento(casos_acumulados))
   }, min_casos = args$min_casos, dias_ventana = args$dias_ventana) %>%
   filter(!is.na(crecimiento)) %>%
-  select(pais, casos_acumulados, crecimiento) %>%
+  select(pais, casos_acumulados, crecimiento,) %>%
   ggplot(aes(x = casos_acumulados, y = crecimiento, group = pais)) +
   geom_line(aes(col = pais, size = pais)) +
   scale_color_brewer(palette = "Paired", name = "País") +
