@@ -20,8 +20,8 @@ Dat <- Dat %>%
   filter(RESULTADO == "1")
 Dat
 
-comorb <- c("HABLA_LENGUA_INDI", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
-            "HIPERTENSION", "OTRA_CON", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
+comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
+            "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
             "TABAQUISMO", "EMBARAZO", "SEXO")
 comorb <- set_names(comorb, comorb)
 
@@ -79,8 +79,8 @@ rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inm
                       "Hipertensión", "Otro", "Enfermedad cardiovascular", "Obesidad",
                       "Insuficiencia renal crónica",
                       "Tabaquismo", "Embarazo", "Hombre"),
-                    c("HABLA_LENGUA_INDI", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
-                      "HIPERTENSION", "OTRA_CON", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
+                    c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
+                      "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
                       "TABAQUISMO", "EMBARAZO", "SEXO"))
 RR_hosp
 RR_hosp$Riesgo <- "Hospitalización"

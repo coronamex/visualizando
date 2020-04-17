@@ -35,8 +35,8 @@ Dat <- Dat %>%
   filter(ORIGEN == "1") %>%
   # filter(RESULTADO != "3") %>%
   select(-FECHA_ACTUALIZACION, -ENTIDAD_NAC, -ENTIDAD_RES, -MUNICIPIO_RES,
-         -NEUMONIA, -NACIONALIDAD, -EMBARAZO, -HABLA_LENGUA_INDI, -DIABETES,
-         -EPOC, -ASMA, -INMUSUPR, - HIPERTENSION, -OTRA_CON, -RENAL_CRONICA,
+         -NEUMONIA, -NACIONALIDAD, -EMBARAZO, -HABLA_LENGUA_INDIG, -DIABETES,
+         -EPOC, -ASMA, -INMUSUPR, - HIPERTENSION, -OTRA_COM, -RENAL_CRONICA,
          -CARDIOVASCULAR, -OBESIDAD, -TABAQUISMO, -MIGRANTE,
          -PAIS_NACIONALIDAD, -PAIS_ORIGEN)
 Dat
@@ -89,7 +89,7 @@ Centinela <- Centinela %>%
 Centinela
 
 Centinela %>%
-  filter(fecha_sintomas == "2020-03-28")
+  filter(fecha_sintomas == "2020-04-03")
 
 p1 <- Centinela %>%
   pivot_longer(-fecha_sintomas,

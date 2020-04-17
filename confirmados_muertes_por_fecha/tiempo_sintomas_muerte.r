@@ -22,7 +22,7 @@ Dat
 dat <- Dat %>%
   filter(!is.na(FECHA_DEF)) %>%
   filter(RESULTADO == "1") %>%
-  select(SECTOR, SEXO, FECHA_SINTOMAS, FECHA_DEF, HABLA_LENGUA_INDI, EDAD) %>%
+  select(SECTOR, SEXO, FECHA_SINTOMAS, FECHA_DEF, HABLA_LENGUA_INDIG, EDAD) %>%
   mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS),
          sector = "Público",
          sexo = "Hombre") %>%
@@ -55,89 +55,89 @@ m1 <- lm(numero_dias ~ ., data = dat)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI, data = dat)
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR, data = dat)
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO, data = dat)
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
          -OTRA_CON, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CON - OBESIDAD, data = dat)
+         -OTRA_CONM - OBESIDAD, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CON - OBESIDAD - EMBARAZO, data = dat)
+         -OTRA_COM - OBESIDAD - EMBARAZO, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CON - OBESIDAD - EMBARAZO - TABAQUISMO, data = dat)
+         -OTRA_COM - OBESIDAD - EMBARAZO - TABAQUISMO, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CON - OBESIDAD - EMBARAZO - TABAQUISMO - SECTOR, data = dat)
+         -OTRA_COM - OBESIDAD - EMBARAZO - TABAQUISMO - SECTOR, data = dat)
 summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
-m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDI - CARDIOVASCULAR - SEXO
+m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CON - OBESIDAD - EMBARAZO - TABAQUISMO - NEUMONIA, data = dat)
+         -OTRA_COM - OBESIDAD - EMBARAZO - TABAQUISMO - NEUMONIA, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
@@ -149,12 +149,12 @@ dat <- dat %>%
          ASMA = ASMA == "1",
          INMUSUPR = INMUSUPR == "1",
          HIPERTENSION = HIPERTENSION == "1",
-         OTRA_CON = OTRA_CON == "1",
+         OTRA_COM = OTRA_COM == "1",
          CARDIOVASCULAR = CARDIOVASCULAR =="1",
          OBESIDAD = OBESIDAD == "1",
          RENAL_CRONICA = RENAL_CRONICA == "1",
          TABAQUISMO = TABAQUISMO == "1") %>%
-  mutate(num_condiciones = DIABETES + EPOC + ASMA + INMUSUPR + HIPERTENSION + OTRA_CON + CARDIOVASCULAR + OBESIDAD + RENAL_CRONICA + TABAQUISMO)
+  mutate(num_condiciones = DIABETES + EPOC + ASMA + INMUSUPR + HIPERTENSION + OTRA_COM + CARDIOVASCULAR + OBESIDAD + RENAL_CRONICA + TABAQUISMO)
 
 ggplot(dat, aes(x = num_condiciones, y = numero_dias )) +
   geom_point()
