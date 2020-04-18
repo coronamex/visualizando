@@ -86,8 +86,8 @@ R_hat %>%
        
 # Simular con parámetros estimados
 sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Tab, pob = pob,
-                                  n_dias = args$dias_retraso + args$periodo_ajuste,
-                                  fecha1 = args$fecha1)
+                                  n_dias = n_dias,
+                                  fecha1_dia = fecha1_dia)
 ctds <- read_csv(args$reportes_diarios) %>%
   select(fecha, casos_acumulados) %>%
   mutate(modelo = "Confirmado")

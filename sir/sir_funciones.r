@@ -197,30 +197,19 @@ encontrar_R_0 <- function(real,
     bind_cols(Est)
 }
 
-simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias = 43,
-                                      fecha_final = Sys.Date(),
-                                      fecha1 = "2020-03-16" %>% as.Date(format = "%Y-%m-%d")){
-  # n_dias = args$dias_retraso + args$periodo_ajuste
+simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias,
+                                      fecha1_dia){
   # modelos = R_hat
   # FUN = sir
   # real = Tab
-  # fecha_final <- Sys.Date()
-  # fecha1 = "2020-03-16" %>% as.Date(format = "%Y-%m-%d")
   
   FUN <- match.fun(FUN)
   # Definir t_0
   real <- real %>%
     mutate(R_actuales = lag(casos_acumulados, 2, default = 0)) %>%
-    mutate(I_actuales = casos_acumulados - R_actuales) %>%
-    filter(fecha >= (fecha_final - n_dias + 1)) %>%
-    mutate(dia = as.numeric(fecha - min(fecha)))
+    mutate(I_actuales = casos_acumulados - R_actuales) 
   
-  # Calcular dia de intervención
-  dia1 <- real$dia[ real$fecha == fecha1 ]
-  if(length(dia1) == 0){
-    dia1 <- 0
-  }
-  
+  # Definir t_0
   I_actuales <- real$I_actuales[real$dia == 0]
   R_actuales <- real$R_actuales[real$dia == 0]
   t_0 <- c(S = (pob - I_actuales - R_actuales) / pob,
@@ -230,8 +219,8 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias = 43,
            t = 0)
   
   sims <- modelos %>%
-    bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
-    pmap_dfr(function(T_inc, T_inf, R_hat, f1_hat, modelo, n_dias, FUN, t_0, dia1){
+    # bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
+    pmap_dfr(function(T_inc, T_inf, modelo, R_hat, f1_hat, metodo, n_dias, FUN, t_0, dia1){
       # 5     2.5  4.04  0.262
       cat(modelo, "\n")
       parametros <- list(R_0 = R_hat, T_inf = T_inf, T_inc = T_inc,
@@ -242,6 +231,6 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias = 43,
         mutate(casos_acumulados = floor(pob * (I + R))) %>%
         select(dia, casos_acumulados) %>%
         mutate(modelo = modelo)
-    }, n_dias = n_dias , FUN = FUN, t_0 = t_0, dia1 = dia1)
+    }, n_dias = n_dias , FUN = FUN, t_0 = t_0, dia1 = fecha1_dia)
   sims
 }
