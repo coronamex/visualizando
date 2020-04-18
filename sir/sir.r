@@ -24,8 +24,8 @@ args <- list(reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              periodo_ajuste = 100,
-             fecha1 = "2020-03-07",
-             fecha2 = "2020-03-23",
+             fecha1 = "2020-03-01",
+             fecha2 = "2020-03-15",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
 args$fecha1 <- args$fecha1 %>% as.Date(format = "%Y-%m-%d")
 args$fecha2 <- args$fecha2 %>% as.Date(format = "%Y-%m-%d")
@@ -67,6 +67,8 @@ fecha2_dia
 # pob <- 135552447
 T_inc <- c(3, 4, 5, 6)
 T_inf <- c(1, 2, 3)
+# T_inc <- c(4, 5)
+# T_inf <- c(1, 2)
 pob <- 127792286
 # T_inc <- c(5,5.2,5.4)
 # T_inf <- c(2.5,3,3.5)
@@ -81,7 +83,9 @@ R_hat %>%
   print(n = 100)
 
 # Simular con parámetros estimados
-sims <- simular_multiples_modelos(modelos = R_hat, FUN = sir, real = Tab, pob = pob,
+sims <- simular_multiples_modelos(modelos = R_hat %>%
+                                    filter(!is.na(metodo)),
+                                  FUN = sir, real = Tab, pob = pob,
                                   n_dias = n_dias,
                                   fecha1_dia = fecha1_dia,
                                   fecha2_dia = fecha2_dia)
@@ -98,6 +102,25 @@ ctds <- read_csv(args$reportes_diarios) %>%
 #   print(n = 100) %>%
 #   select(modelo) %>%
 #   unlist -> para_quitar
+
+sims <- sims %>%
+  split(.$modelo) %>%
+  map_dfr(function(d){
+    # d <- sims %>% filter(modelo == "m1")
+    
+    max_diff <- Tab %>%
+      select(dia, casos_acumulados) %>%
+      mutate(modelo = "real") %>%
+      filter(dia < n_dias_ajuste) %>%
+      left_join(d, by = "dia") %>%
+      mutate(diff = abs(casos_acumulados.x - casos_acumulados.y)) %>%
+      # arrange(desc(diff))
+      select(diff) %>%
+      max
+      
+    if(max_diff < 500)
+      return(d)
+  })
 
 p1 <- Tab %>%
   select(fecha, dia, casos_acumulados) %>%
@@ -117,19 +140,24 @@ p1 <- Tab %>%
   geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
   annotate("text", label = "Fin ajuste de curva",
            x = Sys.Date() - args$dias_retraso - 1.5,
-           y = 20000, angle = 90,
+           y = 10000, angle = 90,
            size = 6) +
   geom_vline(xintercept = args$fecha1, col = "red") +
-  annotate("text", label = "Medidas de mitigación",
+  annotate("text", label = "Transmisión comunitaria",
            x = args$fecha1 - 1.5,
-           y = 20000, angle = 90,
+           y = 10000, angle = 90,
            size = 6) +
   scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02")) +
-  scale_size_manual(values = c(2, 2, 0.1)) +
+  geom_vline(xintercept = args$fecha2, col = "red") +
+  annotate("text", label = "Medidas de mitigación",
+           x = args$fecha2 - 1.5,
+           y = 10000, angle = 90,
+           size = 6) +
+  scale_size_manual(values = c(2, 2, 0.2)) +
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
-  scale_y_continuous(labels = scales::comma, limits = c(0, 20000)) +
+  scale_y_continuous(labels = scales::comma) +
   # scale_y_log10() +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -142,13 +170,14 @@ p1 <- Tab %>%
         plot.margin = margin(l = 20, r = 20))
 p1
 ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-# archivo <- file.path(args$dir_salida, "sir_nacional.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "sir_nacional.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 summary(R_hat$R_hat)
 summary(R_hat$f1_hat)
+summary(R_hat$f2_hat)
 
 ############
 # Centinela <- tibble(semana = 8:13,total_usmer = c(43329, 43113, 45420, 42072, 48679, 33500),
