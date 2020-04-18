@@ -20,30 +20,13 @@ source("sir/sir_funciones.r")
 # https://gabgoh.github.io/COVID/index.html
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology
 
-args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
-             reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
+args <- list(reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              periodo_ajuste = 100,
              fecha1 = "2020-03-16",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
 args$fecha1 <- args$fecha1 %>% as.Date(format = "%Y-%m-%d")
-
-# Leer 
-# Tab <- read_csv(args$tabla_sintomas,
-#                 col_types = cols(estado = col_character(),
-#                                  sexo = col_character(),
-#                                  edad = col_number(),
-#                                  fecha_sintomas = col_date(format = "%Y-%m-%d"),
-#                                  procedencia = col_character(),
-#                                  fecha_llegada = col_date(format = "%Y-%m-%d")))
-# stop_for_problems(Tab)
-# Tab <- table(Tab$fecha_sintomas)
-# Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
-#               casos_nuevos = as.vector(Tab)) %>%
-#   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
-#   mutate(dia = as.numeric(fecha - min(fecha)))
-
 
 # Lee base de datos
 Tab <- read_csv(args$base_de_datos,
@@ -68,19 +51,33 @@ Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
   mutate(dia = as.numeric(fecha - min(fecha)))
 Tab
 
+
+fecha_inicio <- min(Tab$fecha)
+fecha_final <- Sys.Date()
+fecha_inicio
+fecha_final
+n_dias <- as.numeric(fecha_final - fecha_inicio)
+n_dias_ajuste <- n_dias - args$dias_retraso + 1
+fecha1_dia <- as.numeric(fecha_final - args$fecha1)
+n_dias
+n_dias_ajuste
+fecha1_dia
+
 # Parameters to make optimization
 # pob <- 135552447
-T_inc <- c(2, 3, 4, 5, 6, 7, 8)
-T_inf <- c(1, 2, 3, 4, 5, 6)
+T_inc <- c(1, 3, 4, 5, 6, 10, 14)
+T_inf <- c(1, 2, 3, 4)
 pob <- 127792286
-# T_inc <- c(5,5.2,5.4)
-# T_inf <- c(2.5,3,3.5)
+T_inc <- c(5,5.2,5.4)
+T_inf <- c(2.5,3,3.5)
+# T_inc <- 2
+# T_inf <- 1
 
-R_hat <- encontrar_R_0(Tab, dias_retraso = args$dias_retraso,
-                       periodo_ajuste = args$periodo_ajuste,
-                       T_inc = T_inc, T_inf = T_inf, pob = pob,
-                       fecha1 = args$fecha1 )
-R_hat
+R_hat <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
+                       fecha1_dia = fecha1_dia,
+                       T_inc = T_inc, T_inf = T_inf, pob = pob)
+R_hat %>%
+  print(n = 100)
 # R_hat %>%
 #   mutate(modelo = paste0("m", 1:42)) %>%
 #   filter(R_hat < 1 || f1_hat == 0) %>%
@@ -98,7 +95,8 @@ ctds <- read_csv(args$reportes_diarios) %>%
 sims %>%
   filter(dia == max(Tab$fecha) - min(Tab$fecha)) %>%
   arrange(casos_acumulados) %>%
-  filter(casos_acumulados < max(Tab$casos_acumulados)) %>%
+  # filter(casos_acumulados < max(Tab$casos_acumulados)) %>%
+  filter(casos_acumulados < 0) %>%
   print(n = 100) %>%
   select(modelo) %>%
   unlist -> para_quitar

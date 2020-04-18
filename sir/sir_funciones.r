@@ -124,54 +124,74 @@ sir_optmizable <- function(x, real, pob,
   return(ss)
 }
 
-encontrar_R_0 <- function(Tab, dias_retraso = 15,
-                          periodo_ajuste = 28,
+encontrar_R_0 <- function(real, 
+                          n_dias_ajuste,
+                          fecha1_dia,
                           T_inc =c(4.1, 5.2, 7.9),
                           T_inf = c(1.5, 2.9, 6),
-                          pob = 135552447,
-                          fecha_final = Sys.Date(),
-                          fecha1 = "2020-03-16" %>% as.Date(format = "%Y-%m-%d")){
-  # dias_retraso <- 16 
+                          pob = 135552447){
+  # dias_retraso <- 16
   # periodo_ajuste = 100
   # T_inc = c(4.1, 5.2, 7.9)
   # T_inf = c(1.5, 2.9, 6)
   # pob = 127792286
-  # fecha_final = Sys.Date()
-  # fecha1 <- args$fecha1
-  
-  Tab <- Tab %>%
+  # real <- Tab
+  # n_dias_ajuste
+  # fecha1_dia
+
+  cat("Formateando datos reales\n")
+  real <- tibble(fecha = min(real$fecha) + 0:(n_dias_ajuste - 1),
+         dia = 0:(n_dias_ajuste - 1)) %>%
+    left_join(real, by = c("fecha", "dia")) %>%
+    mutate(casos_nuevos = replace_na(casos_nuevos, 0)) %>%
+    mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
     mutate(R_actuales = lag(casos_acumulados, 2, default = 0)) %>%
-    mutate(I_actuales = casos_acumulados - R_actuales) %>%
-    filter(fecha <= (fecha_final - dias_retraso)) %>%
-    filter(fecha >= (fecha_final - dias_retraso - periodo_ajuste + 1)) %>%
-    mutate(dia = as.numeric(fecha - min(fecha))) 
-  
-  # Calcular dia de intervención
-  dia1 <- Tab$dia[ Tab$fecha == fecha1 ]
-  if(length(dia1) == 0){
-    dia1 <- 0
-  }
+    mutate(I_actuales = casos_acumulados - R_actuales)
   
   # Optimizar en matriz de parámetros
+  cat("Expandiendo matríz de búsqueda\n")
   Dat <- expand.grid(T_inc = T_inc, T_inf = T_inf) %>%
-    as_tibble() 
-  Est <- Dat %>% pmap_dfr(function(T_inc, T_inf, Tab, pob, dia1){
+    as_tibble() %>%
+    mutate(modelo = paste0("m", 1:length(T_inc)))
+  cat("Estimando parámetros\n")
+  Est <- Dat %>% pmap_dfr(function(T_inc, T_inf, modelo, real, pob, dia1){
     # T_inc <- 4.1
     # T_inf <- 1.5
     cat(T_inc, T_inf, "\n")
-    sombrero <- optim(par = c(2, 0.8),
+    cat(">intentando optimización L-BFGS-B\n")
+    metodo <- "L-BFGS-B"
+    sombrero <- optim(par = c(3, 0.8),
                       fn = sir_optmizable,
+                      # method = "SANN",
                       method = "L-BFGS-B",
-                      lower = c(0.1,0),
+                      lower = c(0.01,0.01),
                       upper = c(10,1),
-                      real = Tab, 
+                      real = real, 
                       pob = pob,
                       T_inf = T_inf,
                       T_inc = T_inc,
                       T_int1 = dia1)$par
+    if(sombrero[1] < 1){
+      cat(">Aproximando con SANN\n")
+      sombrero <- optim(par = c(3, 0.8),
+                        fn = sir_optmizable,
+                        method = "SANN",
+                        real = real, 
+                        pob = pob,
+                        T_inf = T_inf,
+                        T_inc = T_inc,
+                        T_int1 = dia1)$par
+      if(sombrero[1] > 1 && sombrero[2] > 0 && sombrero[2] <= 1){
+        metodo <- "SANN"
+      }else{
+        sombrero <- c(NA, NA)
+      }
+    }
+    
     tibble(R_hat = sombrero[1],
-           f1_hat = sombrero[2])
-  }, Tab = Tab, pob = pob, dia1 = dia1)
+           f1_hat = sombrero[2],
+           metodo = metodo)
+  }, real = real, pob = pob, dia1 = fecha1_dia)
   
   Dat %>%
     bind_cols(Est)
