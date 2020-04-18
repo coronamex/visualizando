@@ -102,14 +102,14 @@ drop1(m1, test = "F")
 
 m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CON, data = dat)
+         -OTRA_COM, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")
 
 m1 <- lm(numero_dias ~ . - HABLA_LENGUA_INDIG - CARDIOVASCULAR - SEXO
          - EPOC - HIPERTENSION - EDAD - INMUSUPR - DIABETES
-         -OTRA_CONM - OBESIDAD, data = dat)
+         -OTRA_COM - OBESIDAD, data = dat)
 # summary(m1)
 anova(m1)
 drop1(m1, test = "F")

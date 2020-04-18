@@ -1,7 +1,6 @@
 library(tidyverse)
 
-args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
-             dir_salida = "../sitio_hugo/static/imagenes/",
+args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
 
 # Tab <- read_csv(args$tabla_sintomas,

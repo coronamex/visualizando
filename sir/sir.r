@@ -25,23 +25,48 @@ args <- list(tabla_sintomas = "../datos/ssa_dge/tabla_casos_confirmados.csv",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              periodo_ajuste = 100,
-             fecha1 = "2020-03-16")
+             fecha1 = "2020-03-16",
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
 args$fecha1 <- args$fecha1 %>% as.Date(format = "%Y-%m-%d")
 
 # Leer 
-Tab <- read_csv(args$tabla_sintomas,
-                col_types = cols(estado = col_character(),
-                                 sexo = col_character(),
-                                 edad = col_number(),
-                                 fecha_sintomas = col_date(format = "%Y-%m-%d"),
-                                 procedencia = col_character(),
-                                 fecha_llegada = col_date(format = "%Y-%m-%d")))
+# Tab <- read_csv(args$tabla_sintomas,
+#                 col_types = cols(estado = col_character(),
+#                                  sexo = col_character(),
+#                                  edad = col_number(),
+#                                  fecha_sintomas = col_date(format = "%Y-%m-%d"),
+#                                  procedencia = col_character(),
+#                                  fecha_llegada = col_date(format = "%Y-%m-%d")))
+# stop_for_problems(Tab)
+# Tab <- table(Tab$fecha_sintomas)
+# Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
+#               casos_nuevos = as.vector(Tab)) %>%
+#   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+#   mutate(dia = as.numeric(fecha - min(fecha)))
+
+
+# Lee base de datos
+Tab <- read_csv(args$base_de_datos,
+                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
+                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
+                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
+                                 FECHA_DEF = col_character(),
+                                 EDAD = col_number(),
+                                 .default = col_character())) 
 stop_for_problems(Tab)
+Tab <- Tab %>%
+  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
+         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
+         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
+Tab <- Tab %>%
+  filter(RESULTADO == "1") %>%
+  select(fecha_sintomas = FECHA_SINTOMAS)
 Tab <- table(Tab$fecha_sintomas)
 Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
               casos_nuevos = as.vector(Tab)) %>%
   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
+Tab
 
 # Parameters to make optimization
 # pob <- 135552447
@@ -104,12 +129,12 @@ p1 <- Tab %>%
   geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
   annotate("text", label = "Fin ajuste de curva",
            x = Sys.Date() - args$dias_retraso - 1.5,
-           y = 5000, angle = 90,
+           y = 20000, angle = 90,
            size = 6) +
   geom_vline(xintercept = args$fecha1, col = "red") +
   annotate("text", label = "Medidas de mitigación",
            x = args$fecha1 - 1.5,
-           y = 5000, angle = 90,
+           y = 20000, angle = 90,
            size = 6) +
   scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02")) +
   scale_size_manual(values = c(2, 2, 0.1)) +
