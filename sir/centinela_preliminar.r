@@ -121,6 +121,7 @@ p1 <- Centinela %>%
         legend.text = element_text(size = 14),
         legend.background = element_blank(),
         legend.box.background = element_blank(),
+        legend.key = element_blank(),
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
