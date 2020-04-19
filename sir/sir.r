@@ -147,7 +147,8 @@ p1 <- Tab %>%
            x = args$fecha1 - 1.5,
            y = 10000, angle = 90,
            size = 6) +
-  scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02")) +
+  scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02"),
+                     name = "") +
   geom_vline(xintercept = args$fecha2, col = "red") +
   annotate("text", label = "Medidas de mitigación",
            x = args$fecha2 - 1.5,
