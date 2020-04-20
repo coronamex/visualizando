@@ -42,7 +42,7 @@ p1 <- dat %>%
         plot.margin = margin(l = 20, r = 20))
 p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "top_municipios_muertes.png")
+archivo <- file.path(args$dir_salida, "estados_muertes_recientes.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "top_municipios_muertes@2x.png")
+archivo <- file.path(args$dir_salida, "estados_muertes_recientes@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
