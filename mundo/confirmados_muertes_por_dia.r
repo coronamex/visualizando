@@ -2,19 +2,11 @@ library(tidyverse)
 
 args <- list(min_casos = 60,
              dias_ventana = 7,
-             tabla_mx = "../datos/ssa_dge/reportes_diarios.csv",
+             # tabla_mx = "../datos/ssa_dge_2020-04-19//reportes_diarios.csv",
+             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
              serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
              serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
-# lut_paises <- set_names(c("EEUU", "España", "Italia",
-#                           "Irán", "China", "Francia",
-#                           "Brasil", "Corea del Sur", "Japón",
-#                           "Corea del Sur", "China"),
-#                         c("US", "Spain", "Italy", 
-#                           "Iran", "China", "France",
-#                           "Brazil", "South Korea", "Japan",
-#                           "Korea, South", "Mainland China"))
-
 
 lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Irán", "China", "Francia",
@@ -40,8 +32,6 @@ casos_mundo <- read_csv(args$serie_tiempo_casos_mundo,
 stop_for_problems(casos_mundo)
 casos_mundo <- casos_mundo %>%
   filter(`Country/Region` %in% names(lut_paises)) %>%
-  # print(n = 100) %>%
-  # select("Province/State", "Country/Region") %>%
   filter(is.na(`Province/State`)) %>%
   mutate(pais = `Country/Region`) %>%
   mutate(pais = lut_paises[pais]) %>%
@@ -57,8 +47,6 @@ muertes_mundo <- read_csv(args$serie_tiempo_muertes_mundo,
 stop_for_problems(muertes_mundo)
 muertes_mundo <- muertes_mundo %>%
   filter(`Country/Region` %in% names(lut_paises)) %>%
-  # print(n = 100) %>%
-  # select("Province/State", "Country/Region") %>%
   filter(is.na(`Province/State`)) %>%
   mutate(pais = `Country/Region`) %>%
   mutate(pais = lut_paises[pais]) %>%
@@ -180,14 +168,16 @@ p1 <- Dat %>%
       mutate(crecimiento = roll_incremento(casos_acumulados))
   }, min_casos = args$min_casos, dias_ventana = args$dias_ventana) %>%
   filter(!is.na(crecimiento)) %>%
+  filter(casos_acumulados >= 1000) %>%
+  
   select(pais, casos_acumulados, crecimiento,) %>%
   ggplot(aes(x = casos_acumulados, y = crecimiento, group = pais)) +
   geom_line(aes(col = pais, size = pais)) +
   scale_color_brewer(palette = "Paired", name = "") +
   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "") +
   # scale_y_log10(labels = scales::percent) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 0.85)) +
-  scale_x_log10(labels = scales::comma, limits = c(1000, max(Dat$casos_acumulados))) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_log10(labels = scales::comma) +
   ylab("Incremento (%)") +
   xlab("Total de casos confirmados") +
   AMOR::theme_blackbox() +
