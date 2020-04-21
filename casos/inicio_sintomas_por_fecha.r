@@ -30,8 +30,10 @@ Dat
 
 # Todo el país
 fecha_inicio <- min(Dat$FECHA_SINTOMAS) - 0.5
+fecha_inicio <- parse_date("2020-02-01", format = "%Y-%m-%d") - 0.5
 fecha_final <- max(Dat$FECHA_SINTOMAS) + 0.5
-p1 <- ggplot(Dat, aes(x = FECHA_SINTOMAS)) +
+p1 <- Dat %>%
+  ggplot(aes(x = FECHA_SINTOMAS)) +
   geom_rect(aes(xmin = fecha_final - 15, xmax = fecha_final,
                 ymin = -Inf, ymax = Inf),
             fill = "pink") +

@@ -22,7 +22,8 @@ dat <- Tab %>%
   }, dias_previos = args$dias_previos) %>%
   # print(n = 100) %>%
   group_by(fecha) %>%
-  summarise(n_municipios = sum(casos_recientes > 0))
+  summarise(n_municipios = sum(casos_recientes > 0)) %>%
+  filter(fecha >= "2020-02-01")
 p1 <- dat  %>%
   ggplot(aes(x = fecha, y = n_municipios)) +
   geom_rect(aes(xmin = max(fecha) - 15, xmax = max(fecha),
@@ -31,7 +32,7 @@ p1 <- dat  %>%
   geom_line(size = 3) +
   annotate("text",
            x = Sys.Date() - 8,
-           y = 150,
+           y = 100,
            label = 'italic("Faltan casos\npor reportar\nen estos días")',
            hjust = "middle",
            parse = TRUE) +
