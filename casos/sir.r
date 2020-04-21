@@ -15,12 +15,13 @@
 
 library(tidyverse)
 library(deSolve)
-source("sir/sir_funciones.r")
+source("casos/sir_funciones.r")
 # https://rstudio-pubs-static.s3.amazonaws.com/6852_c59c5a2e8ea3456abbeb017185de603e.html
 # https://gabgoh.github.io/COVID/index.html
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology
 
-args <- list(reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
+args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+             # reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              periodo_ajuste = 100,
@@ -72,8 +73,8 @@ T_inf <- c(1, 2, 3)
 pob <- 127792286
 # T_inc <- c(5,5.2,5.4)
 # T_inf <- c(2.5,3,3.5)
-# T_inc <- 2
-# T_inf <- 1
+# T_inc <- 5
+# T_inf <- 2
 
 R_hat <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                        fecha1_dia = fecha1_dia,
@@ -89,19 +90,12 @@ sims <- simular_multiples_modelos(modelos = R_hat %>%
                                   n_dias = n_dias,
                                   fecha1_dia = fecha1_dia,
                                   fecha2_dia = fecha2_dia)
-ctds <- read_csv(args$reportes_diarios) %>%
+ctds <- read_csv(args$reportes_diarios,
+                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"))) %>%
   select(fecha, casos_acumulados) %>%
   mutate(dia = as.numeric(fecha - fecha_inicio),
          modelo = "Confirmado")
 # ctds
-# sims %>%
-#   filter(dia == max(Tab$fecha) - min(Tab$fecha)) %>%
-#   arrange(casos_acumulados) %>%
-#   # filter(casos_acumulados < max(Tab$casos_acumulados)) %>%
-#   filter(casos_acumulados < 0) %>%
-#   print(n = 100) %>%
-#   select(modelo) %>%
-#   unlist -> para_quitar
 
 sims <- sims %>%
   split(.$modelo) %>%
@@ -133,6 +127,7 @@ p1 <- Tab %>%
   mutate(grupo = factor(grupo, levels = c("Confirmado", "Inicio de síntomas", "Estimado (SEIR)"))) %>%
   mutate(modelo = factor(modelo, levels = c("Confirmado", "real", unique(sims$modelo)))) %>%
   
+  filter(fecha >= "2020-02-15") %>%
   # filter(!(modelo %in% para_quitar)) %>%
 
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
@@ -170,7 +165,7 @@ p1 <- Tab %>%
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
-ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "sir_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
