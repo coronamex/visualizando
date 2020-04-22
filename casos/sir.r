@@ -52,24 +52,24 @@ Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
               casos_nuevos = as.vector(Tab)) %>%
   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
-Tab
 
 # Precalcular dias
 fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso + 1
-fecha1_dia <- as.numeric(args$fecha1 - fecha_inicio)
-fecha2_dia <- as.numeric(args$fecha2 - fecha_inicio)
-fecha1_dia
-fecha2_dia
+fechas <- c("2020-03-02", "2020-03-09", "2020-03-16") %>% parse_date(format = "%Y-%m-%d")
+fechas <- c("2020-03-09", "2020-03-16", "2020-03-23") %>% parse_date(format = "%Y-%m-%d")
+fechas <- c("2020-03-02", "2020-03-16", "2020-03-23", "2020-03-30") %>% parse_date(format = "%Y-%m-%d")
+fechas_dias <- as.numeric(fechas - fecha_inicio)
+fechas_dias
 
 # Parameters to make optimization
 # pob <- 135552447
 T_inc <- c(3, 4, 5, 6)
 T_inf <- c(1, 2, 3)
-# T_inc <- c(4, 5)
-# T_inf <- c(1, 2)
+T_inc <- c(4, 5)
+T_inf <- c(2)
 pob <- 127792286
 # T_inc <- c(5,5.2,5.4)
 # T_inf <- c(2.5,3,3.5)
@@ -77,26 +77,20 @@ pob <- 127792286
 # T_inf <- 2
 
 R_hat <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
-                       fecha1_dia = fecha1_dia,
-                       fecha2_dia = fecha2_dia,
+                       dias_int = fechas_dias,
                        T_inc = T_inc, T_inf = T_inf, pob = pob)
-R_hat %>%
-  print(n = 100)
+R_hat 
 
 # Simular con parámetros estimados
-sims <- simular_multiples_modelos(modelos = R_hat %>%
-                                    filter(!is.na(metodo)),
+sims <- simular_multiples_modelos(modelos = R_hat,
                                   FUN = sir, real = Tab, pob = pob,
-                                  n_dias = n_dias,
-                                  fecha1_dia = fecha1_dia,
-                                  fecha2_dia = fecha2_dia)
+                                  n_dias = n_dias)
 ctds <- read_csv(args$reportes_diarios,
                  col_types = cols(fecha = col_date(format = "%Y-%m-%d"))) %>%
   select(fecha, casos_acumulados) %>%
   mutate(dia = as.numeric(fecha - fecha_inicio),
          modelo = "Confirmado")
 # ctds
-
 sims <- sims %>%
   split(.$modelo) %>%
   map_dfr(function(d){
@@ -111,10 +105,14 @@ sims <- sims %>%
       # arrange(desc(diff))
       select(diff) %>%
       max
-      
-    if(max_diff < 500)
-      return(d)
+    
+    d
+    # if(max_diff < 500)
+    #   return(d)
   })
+sims %>%
+  filter(dia >= 50) %>%
+  print(n = 300)
 
 p1 <- Tab %>%
   select(fecha, dia, casos_acumulados) %>%
@@ -137,18 +135,19 @@ p1 <- Tab %>%
            x = Sys.Date() - args$dias_retraso - 1.5,
            y = 10000, angle = 90,
            size = 6) +
-  geom_vline(xintercept = args$fecha1, col = "red") +
-  annotate("text", label = "Transmisión comunitaria",
-           x = args$fecha1 - 1.5,
-           y = 10000, angle = 90,
-           size = 6) +
+  # geom_vline(xintercept = args$fecha1, col = "red") +
+  # annotate("text", label = "Transmisión comunitaria",
+  #          x = args$fecha1 - 1.5,
+  #          y = 10000, angle = 90,
+  #          size = 6) +
+  geom_vline(xintercept = fechas, col = "red") +
   scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02"),
                      name = "") +
-  geom_vline(xintercept = args$fecha2, col = "red") +
-  annotate("text", label = "Medidas de mitigación",
-           x = args$fecha2 - 1.5,
-           y = 10000, angle = 90,
-           size = 6) +
+  # geom_vline(xintercept = args$fecha2, col = "red") +
+  # annotate("text", label = "Medidas de mitigación",
+  #          x = args$fecha2 - 1.5,
+  #          y = 10000, angle = 90,
+  #          size = 6) +
   scale_size_manual(values = c(2, 2, 0.2)) +
   guides(size = FALSE) +
   ylab("Casos acumulados") +
@@ -165,11 +164,11 @@ p1 <- Tab %>%
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-archivo <- file.path(args$dir_salida, "sir_nacional.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+# archivo <- file.path(args$dir_salida, "sir_nacional.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+# archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 summary(R_hat$R_hat)
 summary(R_hat$f1_hat)
