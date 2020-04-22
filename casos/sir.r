@@ -51,7 +51,10 @@ Tab <- table(Tab$fecha_sintomas)
 Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
               casos_nuevos = as.vector(Tab)) %>%
   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+  filter(casos_acumulados >= 5) %>%
+  # filter(fecha >= "2020-03-01") %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
+Tab
 
 # Precalcular dias
 fecha_inicio <- min(Tab$fecha)
@@ -60,16 +63,20 @@ n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso + 1
 fechas <- c("2020-03-02", "2020-03-09", "2020-03-16") %>% parse_date(format = "%Y-%m-%d")
 fechas <- c("2020-03-09", "2020-03-16", "2020-03-23") %>% parse_date(format = "%Y-%m-%d")
-fechas <- c("2020-03-02", "2020-03-16", "2020-03-23", "2020-03-30") %>% parse_date(format = "%Y-%m-%d")
+fechas <- c("2020-03-02", "2020-03-09","2020-03-16", "2020-03-23", "2020-03-30") %>% parse_date(format = "%Y-%m-%d")
+fechas <- c("2020-03-01","2020-03-08", "2020-03-15", "2020-03-22", "2020-03-29", "2020-04-05") %>% parse_date(format = "%Y-%m-%d")
+# fechas <- fechas - 3
+fechas
 fechas_dias <- as.numeric(fechas - fecha_inicio)
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
 fechas_dias
 
 # Parameters to make optimization
 # pob <- 135552447
-T_inc <- c(3, 4, 5, 6)
-T_inf <- c(1, 2, 3)
-T_inc <- c(4, 5)
-T_inf <- c(2)
+T_inc <- c(4, 5, 6)
+T_inf <- c(2, 3, 4)
+# T_inc <- c(4, 5)
+# T_inf <- c(2)
 pob <- 127792286
 # T_inc <- c(5,5.2,5.4)
 # T_inf <- c(2.5,3,3.5)
@@ -125,7 +132,7 @@ p1 <- Tab %>%
   mutate(grupo = factor(grupo, levels = c("Confirmado", "Inicio de síntomas", "Estimado (SEIR)"))) %>%
   mutate(modelo = factor(modelo, levels = c("Confirmado", "real", unique(sims$modelo)))) %>%
   
-  filter(fecha >= "2020-02-15") %>%
+  # filter(fecha >= "2020-02-15") %>%
   # filter(!(modelo %in% para_quitar)) %>%
 
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
@@ -140,7 +147,7 @@ p1 <- Tab %>%
   #          x = args$fecha1 - 1.5,
   #          y = 10000, angle = 90,
   #          size = 6) +
-  geom_vline(xintercept = fechas, col = "red") +
+  geom_vline(xintercept = fecha_inicio + fechas_dias, col = "red") +
   scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02"),
                      name = "") +
   # geom_vline(xintercept = args$fecha2, col = "red") +
@@ -164,12 +171,98 @@ p1 <- Tab %>%
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
-ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-# archivo <- file.path(args$dir_salida, "sir_nacional.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "sir_nacional.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-summary(R_hat$R_hat)
-summary(R_hat$f1_hat)
-summary(R_hat$f2_hat)
+R_hat %>%
+  map_dfr(~ tibble(R0 = c(.x$R_0, .x$R_0 * .x$efectos_int),
+               dias = c(0, fechas_dias),
+               modelo = .x$modelo)) %>%
+  mutate(fecha = fecha_inicio + dias) %>%
+  
+  ggplot(aes(x = fecha, y = R0, group = modelo)) +
+  geom_line() +
+  ylab("Promedio de infectados por enfermo (R0)") +
+  AMOR::theme_blackbox() +
+  theme(panel.background = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", size = 3),
+        legend.position = "top",
+        legend.text = element_text(size = 14),
+        legend.key = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10, color = "black"),
+        plot.margin = margin(l = 20, r = 20))
+
+
+l <- R_hat[[1]]
+
+
+ggplot(d, aes(x = dias, y = efectos)) +
+  geom_point() 
+
+
+
+dgamma_otimizable <- function(x, dat, dias_cambio = 10){
+  dat$efectos_norm <- dat$efectos / sum(dat$efectos)
+  
+  dat$pred <- dgamma(x = (dat$dias / dias_cambio) + 1, shape = x[1], rate = x[2])
+  
+  ss <- sum((dat$efectos_norm - dat$pred) ^ 2)
+  
+  ss
+}
+
+function(l, n_dias = 365, dias_cambio = 10){
+  n_dias <- 100
+  dias_cambio <- 10
+  
+  # Crear tibble con datos
+  d <- tibble(dias = c(0, l$tiempos_int),
+              efectos = c(l$R_0, l$R_0 * l$efectos_int))
+  # d <- tibble(dias = c(0, 10, 20, 30, 40),
+  #             efectos = c(2, 4, 2.5, 1.8, 1.4))
+  # d
+  
+  # m1 <- MASS::fitdistr(x = d$efectos / sum(d$efectos), densfun = "gamma")
+  # m1 <- MASS::fitdistr(x = d$efectos / sum(d$efectos), densfun = "gamma")
+  # m1
+  ajuste_R_0 <- nlm(f = dgamma_otimizable , p = c(4,2), dat = d, dias_cambio = dias_cambio)
+  # ajuste_R_0
+  
+  # plot(d$dias , d$efectos / sum(d$efectos), ylim = c(0, 0.35))
+  # plot(d$dias, dgamma(x = (d$dias / dias_cambio) + 1, shape = ajuste_R_0$estimate[1], rate = ajuste_R_0$estimate[2]), ylim =  c(0, 0.35))
+  # # plot(d$dias, dgamma(x = 1:length(d$dias), shape = 7.72, rate = 38.6))
+  # plot(d$dias , d$efectos , ylim = c(0, 4.5))
+  # plot(d$dias,
+  #      dgamma(x = (d$dias / dias_cambio) + 1, shape = ajuste_R_0$estimate[1], rate = ajuste_R_0$estimate[2]) * sum(d$efectos),
+  #      ylim =  c(0, 4.5))
+  
+  
+  dias_nuevos_R_0 <- seq(from = max(d$dias) + dias_cambio , to = n_dias, by = dias_cambio)
+  R_0_proyectadas <- dgamma(x = (dias_nuevos_R_0 / dias_cambio) + 1, shape = ajuste_R_0$estimate) * sum(d$efectos)
+  # plot(c(d$dias, dias_nuevos_R_0), c(d$efectos, R_0_proyectadas), ylim = c(0, 4.5))
+  
+  l$tiempos_int <- c(l$tiempos_int, dias_nuevos_R_0)
+  l$efectos_int <- c(l$efectos_int, R_0_proyectadas)
+  
+  l
+}
+
+
+# dsfs
+plot(1:10, 3 * (exp(-2 * (1:10))))
+
+simular_multiples_modelos(modelos = R_hat,
+                          FUN = sir, real = Tab, pob = pob,
+                          # n_dias = as.numeric(parse_date("2020-07-01", format = "%Y-%m-%d") - fecha_inicio),
+                          n_dias = 365) %>%
+  split(.$modelo) %>%
+  map_dfr(~.x %>% mutate(casos_nuevos = casos_acumulados - lag(casos_acumulados, 1, default = min(casos_acumulados)))) %>%
+  mutate(fecha = fecha_inicio + dia) %>%
+  
+  ggplot(aes(x = fecha, y = casos_nuevos, group = modelo)) +
+  geom_line()
+

@@ -101,11 +101,11 @@ sir_optmizable <- function(x, real, pob,
                            T_inf = 3, T_inc = 5,
                            tiempos_int = c(10, 20),
                            n_dias){
-  # real <- Tab
+  # real <- real
   # T_inf <- 2
   # T_inc <- 4
-  # x <- c(3, 0.8, 0.7)
-  # tiempos_int <- c(10,20)
+  # x <- c(2.5, 2.2, 2, 1.5 , 1.2)
+  # tiempos_int <- fechas_dias
   
   R_0 <- x[1]
   efectos_int <- x[-1]
@@ -148,7 +148,7 @@ encontrar_R_0 <- function(real,
                           pob = 135552447){
   # real = Tab
   # n_dias_ajuste = n_dias_ajuste
-  # dias_int = c(fecha1_dia, fecha2_dia)
+  # dias_int = fechas_dias
   # T_inc = T_inc
   # T_inf = T_inf
   # pob = pob
@@ -158,7 +158,7 @@ encontrar_R_0 <- function(real,
          dia = 0:(n_dias_ajuste - 1)) %>%
     left_join(real, by = c("fecha", "dia")) %>%
     mutate(casos_nuevos = replace_na(casos_nuevos, 0)) %>%
-    mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+    mutate(casos_acumulados = cumsum(casos_nuevos) + min(casos_acumulados,na.rm = TRUE) - casos_nuevos) %>%
     mutate(R_actuales = lag(casos_acumulados, 2, default = 0)) %>%
     mutate(I_actuales = casos_acumulados - R_actuales)
   
@@ -175,18 +175,18 @@ encontrar_R_0 <- function(real,
     cat(T_inc, T_inf, "\n")
     cat(">intentando optimización L-BFGS-B\n")
     metodo <- "L-BFGS-B"
-    sombrero <- optim(par = c(3, rep(0.8, length(dias))),
+    sombrero <- optim(par = c(1.5, rep(2, length(dias))),
                       fn = sir_optmizable,
                       method = "L-BFGS-B",
                       lower = c(1, rep(0.01, length(dias))),
-                      upper = c(10, rep(1, length(dias))),
+                      upper = c(10, rep(5, length(dias))),
                       real = real, 
                       pob = pob,
                       n_dias = n_dias_ajuste,
                       T_inc = T_inc,
                       T_inf = T_inf,
                       tiempos_int = dias)$par
-    if(sombrero[1] < 1.5){
+    if(sombrero[1] > 0){
       cat(">Aproximando con SANN\n")
       metodo <- "SANN"
       sombrero <- optim(par = sombrero,
@@ -199,6 +199,7 @@ encontrar_R_0 <- function(real,
                         T_inc = T_inc,
                         tiempos_int = dias)$par
       if(sombrero[1] < 1 || any(sombrero[-1] < 0)){
+        cat("===", sombrero, "===\n")
         cat("--Falló\n")
         sombrero <- rep(NA, length(sombrero))
         metodo <- NA
