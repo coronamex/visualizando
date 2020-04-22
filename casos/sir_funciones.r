@@ -24,10 +24,14 @@ sir <- function(time, state, parameters) {
   R_0 <- parameters$R_0
   T_inf <- parameters$T_inf
   T_inc <- parameters$T_inc
-  T_int1 <- parameters$T_int1
-  T_int2 <- parameters$T_int2
-  Int_f1 <- parameters$Int_f1
-  Int_f2 <- parameters$Int_f2
+  
+  # T_int1 <- parameters$T_int1
+  # T_int2 <- parameters$T_int2
+  # Int_f1 <- parameters$Int_f1
+  # Int_f2 <- parameters$Int_f2
+  
+  tiempos_int <- parameters$tiempos_int
+  efectos_int <- parameters$efectos_int
   
   state <- as.list(state)
   S <- state$S
@@ -36,13 +40,19 @@ sir <- function(time, state, parameters) {
   R <- state$R
   t <- state$t
   
-  if(t >= T_int1){
-    R_t <- Int_f1 * R_0
-  }else if(t >= T_int2){
-    R_t <- Int_f2 * R_0
-  }else{
-    R_t <- R_0
+  R_t <- R_0
+  for(i in 1:length(tiempos_int)){
+    if(t >= tiempos_int[i]){
+      R_t <- efectos_int[i]
+    }
   }
+  # if(t >= T_int1){
+  #   R_t <- Int_f1 * R_0
+  # }else if(t >= T_int2){
+  #   R_t <- Int_f2 * R_0
+  # }else{
+  #   R_t <- R_0
+  # }
   
   # Parametrización alternativa
   # beta <- R_t / T_inf
@@ -66,7 +76,7 @@ sir_simular <- function(t_0, parametros, n_dias, FUN = sir){
   #          I = 1/pob,
   #          R = 0,
   #          t = 0)
-  # parametros <- list(R_0 = 2.5, T_inf = 2, T_inc = 5, T_int1 = 30, Int_f1 = 0.3)
+  # parametros <- list(R_0 = 3, T_inf = 2, T_inc = 5, tiempos_int = c(10, 20), efectos_int = c(0.8, 0.7))
   # n_dias <- 100
   # FUN <- sir
   
@@ -89,17 +99,16 @@ sir_simular <- function(t_0, parametros, n_dias, FUN = sir){
 
 sir_optmizable <- function(x, real, pob,
                            T_inf = 3, T_inc = 5,
-                           T_int1 = 0, T_int2 = 0,
+                           tiempos_int = c(10, 20),
                            n_dias){
-  # real <- Tab
-  # T_inf = 1.5
-  # T_inc = 4.1
-  # x <- c(2, 0.8)
-  # T_int1 <- 17
+  # real <- real
+  # T_inf <- 2
+  # T_inc <- 4
+  # x <- c(2.5, 2.2, 2, 1.5 , 1.2)
+  # tiempos_int <- fechas_dias
   
   R_0 <- x[1]
-  Int_f1 <- x[2]
-  Int_f2 <- x[3]
+  efectos_int <- x[-1]
   
   # Definir Condiciones iniciales
   I_actuales <- real$I_actuales[real$dia == 0]
@@ -111,10 +120,8 @@ sir_optmizable <- function(x, real, pob,
            t = 0)
   # Parámetros
   parametros <- list(R_0 = R_0, T_inf = T_inf, T_inc = T_inc,
-                     T_int1 = T_int1,
-                     T_int2 = T_int2,
-                     Int_f1 = Int_f1,
-                     Int_f2 = Int_f2)
+                     tiempos_int = tiempos_int,
+                     efectos_int = efectos_int)
   
   pred <- sir_simular(t_0 = t_0, parametros = parametros,
                       n_dias = n_dias, FUN = sir)
@@ -135,24 +142,23 @@ sir_optmizable <- function(x, real, pob,
 
 encontrar_R_0 <- function(real, 
                           n_dias_ajuste,
-                          fecha1_dia,
-                          fecha2_dia,
+                          dias_int,
                           T_inc =c(4.1, 5.2, 7.9),
                           T_inf = c(1.5, 2.9, 6),
                           pob = 135552447){
-  # T_inc = 1
-  # T_inf = 2
-  # pob = 127792286
-  # real <- Tab
-  # n_dias_ajuste
-  # fecha1_dia
+  # real = Tab
+  # n_dias_ajuste = n_dias_ajuste
+  # dias_int = fechas_dias
+  # T_inc = T_inc
+  # T_inf = T_inf
+  # pob = pob
 
   cat("Formateando datos reales\n")
   real <- tibble(fecha = min(real$fecha) + 0:(n_dias_ajuste - 1),
          dia = 0:(n_dias_ajuste - 1)) %>%
     left_join(real, by = c("fecha", "dia")) %>%
     mutate(casos_nuevos = replace_na(casos_nuevos, 0)) %>%
-    mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+    mutate(casos_acumulados = cumsum(casos_nuevos) + min(casos_acumulados,na.rm = TRUE) - casos_nuevos) %>%
     mutate(R_actuales = lag(casos_acumulados, 2, default = 0)) %>%
     mutate(I_actuales = casos_acumulados - R_actuales)
   
@@ -162,27 +168,25 @@ encontrar_R_0 <- function(real,
     as_tibble() %>%
     mutate(modelo = paste0("m", 1:length(T_inc)))
   cat("Estimando parámetros\n")
-  Est <- Dat %>% pmap_dfr(function(T_inc, T_inf, modelo, real, pob, dia1, dia2){
-    # T_inc <- 4.1
-    # T_inf <- 1.5
-    # dia1 = fecha1_dia
-    # dia2 = fecha2_dia
+  Est <- Dat %>% pmap(function(T_inc, T_inf, modelo, real, pob, dias){
+    # T_inc <- 4
+    # T_inf <- 2
+    # dias <- dias_int
     cat(T_inc, T_inf, "\n")
     cat(">intentando optimización L-BFGS-B\n")
     metodo <- "L-BFGS-B"
-    sombrero <- optim(par = c(3, 0.8, 0.8),
+    sombrero <- optim(par = c(1.5, rep(2, length(dias))),
                       fn = sir_optmizable,
                       method = "L-BFGS-B",
-                      lower = c(1,0.01, 0.01),
-                      upper = c(10, 1, 1),
+                      lower = c(1, rep(0.01, length(dias))),
+                      upper = c(10, rep(5, length(dias))),
                       real = real, 
                       pob = pob,
                       n_dias = n_dias_ajuste,
-                      T_inf = T_inf,
                       T_inc = T_inc,
-                      T_int1 = dia1,
-                      T_int2 = dia2)$par
-    if(sombrero[1] < 1.5){
+                      T_inf = T_inf,
+                      tiempos_int = dias)$par
+    if(sombrero[1] > 0){
       cat(">Aproximando con SANN\n")
       metodo <- "SANN"
       sombrero <- optim(par = sombrero,
@@ -193,51 +197,34 @@ encontrar_R_0 <- function(real,
                         n_dias = n_dias_ajuste,
                         T_inf = T_inf,
                         T_inc = T_inc,
-                        T_int1 = dia1,
-                        T_int2 = dia2)$par
-      # cat(sombrero, "\n")
-      # optim(par = c(3, 0.8, 0.8),
-      #       fn = sir_optmizable,
-      #       method = "L-BFGS-B",
-      #       lower = c(2.5, 0.6, 0.1),
-      #       upper = c(3.5, 1, 1),
-      #       real = real, 
-      #       pob = pob,
-      #       n_dias = n_dias_ajuste,
-      #       T_inf = T_inf,
-      #       T_inc = T_inc,
-      #       T_int1 = dia1,
-      #       T_int2 = dia2)$par
-      # 
-      # optim(par = c(2.5, 0.6, 0.8),
-      #       fn = sir_optmizable,
-      #       method = "SANN",
-      #       real = real, 
-      #       pob = pob,
-      #       n_dias = n_dias_ajuste,
-      #       T_inf = T_inf,
-      #       T_inc = T_inc,
-      #       T_int1 = dia1,
-      #       T_int2 = dia2)$par
-      if(sombrero[1] < 1 || sombrero[2] <= 0 || sombrero[3] <= 0){
+                        tiempos_int = dias)$par
+      if(sombrero[1] < 1 || any(sombrero[-1] < 0)){
+        cat("===", sombrero, "===\n")
         cat("--Falló\n")
-        sombrero <- c(NA, NA, NA)
+        sombrero <- rep(NA, length(sombrero))
         metodo <- NA
       }
     }
     
-    tibble(R_hat = sombrero[1],
-           f1_hat = sombrero[2],
-           f2_hat = sombrero[3],
-           metodo = metodo)
-  }, real = real, pob = pob, dia1 = fecha1_dia, dia2 = fecha2_dia)
+    list(modelo = modelo,
+         T_inc = T_inc,
+         T_inf = T_inf,
+         R_0 = sombrero[1],
+         tiempos_int = dias,
+         efectos_int = sombrero[-1],
+         metodo = metodo)
+    # set_names(sombrero,
+    #           c("R0", paste0(rep("f", length(sombrero) - 1), 1:(length(sombrero) - 1))))  %>%
+    #   bind_rows() %>%
+    #   bind_cols(metodo = metodo)
+  }, real = real, pob = pob, dias = dias_int)
   
-  Dat %>%
-    bind_cols(Est)
+  # Dat %>%
+  #   bind_cols(Est)
+  Est
 }
 
-simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias,
-                                      fecha1_dia, fecha2_dia){
+simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
   # modelos = R_hat
   # FUN = sir
   # real = Tab
@@ -259,22 +246,17 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias,
   
   sims <- modelos %>%
     # bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
-    pmap_dfr(function(T_inc, T_inf, modelo,
-                      R_hat, f1_hat, f2_hat,
-                      metodo, n_dias, FUN, t_0,
-                      dia1, dia2){
+    map_dfr(function(l, n_dias, FUN, t_0){
       # 5     2.5  4.04  0.262
-      cat(modelo, "\n")
-      parametros <- list(R_0 = R_hat, T_inf = T_inf, T_inc = T_inc,
-                         T_int1 = dia1,
-                         T_int2 = dia2,
-                         Int_f1 = f1_hat,
-                         Int_f2 = f2_hat)
+      cat(l$modelo, "\n")
+      parametros <- list(R_0 = l$R_0, T_inf = l$T_inf, T_inc = l$T_inc,
+                         tiempos_int = l$tiempos_int,
+                         efectos_int = l$efectos_int)
       
       sir_simular(t_0 = t_0, parametros = parametros, n_dias = n_dias, FUN = FUN) %>%
         mutate(casos_acumulados = floor(pob * (I + R))) %>%
         select(dia, casos_acumulados) %>%
-        mutate(modelo = modelo)
-    }, n_dias = n_dias , FUN = FUN, t_0 = t_0, dia1 = fecha1_dia, dia2 = fecha2_dia)
+        mutate(modelo = l$modelo)
+    }, n_dias = n_dias , FUN = FUN, t_0 = t_0)
   sims
 }
