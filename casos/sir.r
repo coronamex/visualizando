@@ -76,12 +76,12 @@ fechas_dias
 T_inc <- c(4, 5, 6)
 T_inf <- c(2, 3, 4)
 # T_inc <- c(4, 5)
-# T_inf <- c(2)
+# T_inf <- c(2)   
 pob <- 127792286
 # T_inc <- c(5,5.2,5.4)
 # T_inf <- c(2.5,3,3.5)
-T_inc <- 5
-T_inf <- 3
+# T_inc <- 5
+# T_inf <- 3
 
 R_hat <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                        dias_int = fechas_dias,
@@ -187,7 +187,7 @@ p1 <- R_hat %>%
   
   ggplot(aes(x = fecha, y = R0, group = modelo)) +
   geom_line() +
-  ylab("Promedio de infectados por enfermo (R0)") +
+  ylab("Promedio de infectados por enfermo (R_t)") +
   xlab("Fecha") +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -198,6 +198,7 @@ p1 <- R_hat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
+p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "sir_nacional_r0.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
