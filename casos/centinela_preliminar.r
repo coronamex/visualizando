@@ -20,7 +20,7 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
-             centinela_official = "../datos/centinela/semana_14/tabla_estimados.csv",
+             centinela_official = "../datos/centinela/semana_14/estimados_nacionales.csv",
              semana1_fecha = "2019-12-29" %>% parse_date(format = "%Y-%m-%d"),
              dias_suavizado = 7,
              dias_retraso = 15)
@@ -67,28 +67,6 @@ Dat <- Dat %>%
          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
 Dat
 
-# usmer_props <- Dat %>%
-#   split(.$ENTIDAD_UM) %>%
-#   map_dfr(function(d){
-#     d %>%
-#       split(.$FECHA_SINTOMAS) %>%
-#       map_dfr(function(d){
-#         d <- d %>%
-#           filter(RESULTADO != "3") 
-#         tibble(positivos_en_usmer = (sum(d$RESULTADO == "1" & d$ORIGEN == "1")) / sum(d$RESULTADO == "1"),
-#                positivos_entre_posibles_usmer = (sum(d$RESULTADO == "1" & d$ORIGEN == "1")) / sum(d$ORIGEN == "1"))
-#         
-#       }, .id = "fecha")
-#   }, .id = "estado") %>%
-#   filter(!is.na(positivos_en_usmer)) %>%
-#   filter(!is.na(positivos_entre_posibles_usmer))
-# usmer_props %>%
-#   print(n = 100)
-# usmer_props %>%
-#   filter(estado %in% c("01", "02")) %>%
-#   ggplot(aes(x = fecha, y = positivos_entre_posibles_usmer, group = estado)) +
-#   geom_line() +
-#   geom_smooth()
 
 Cen_oficial %>%
   mutate(prop_usmer = total_usmer / totales_nacional) %>%
@@ -106,8 +84,36 @@ Dat <- Dat %>%
          RESULTADO)
 Dat
 
-# Estimación rápida por fecha síntomas, estado, género (10%/100% de ambulatorio/hospitalizado )
+########### Rellenar centinela oficial con "factor de corrección" de la SSA
 
+Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FECHA_SINTOMAS) - min(Dat$FECHA_SINTOMAS)))) %>%
+  left_join(Dat %>%
+              mutate(fecha = FECHA_SINTOMAS) %>%
+              group_by(fecha) %>%
+              summarise(casos_usmer = sum(RESULTADO == "1"))) %>%
+  mutate(casos_usmer = replace_na(casos_usmer, 0)) %>%
+  arrange(fecha) %>%
+  mutate(acumulados_usmer = cumsum(casos_usmer)) %>%
+  left_join(Cen_oficial %>%
+              mutate(acumulados_usmer_oficial = cumsum(replace_na(positivos_usmer))),
+            by = "fecha") %>%
+  select(-total_usmer, -posibles_usmer, -estimados_positivos_nacional,
+         -totales_nacional, -estimados_posibles_nacional, -pruebas_usmer,
+         -positivos_usmer, -acumulados_usmer_oficial) %>% 
+  mutate(factor_ssa = estimados_acumulados_nacional / acumulados_usmer) %>%
+  filter(fecha <= "2020-04-05" ) %>%
+  mutate(factor_ssa_extendido = rep(factor_ssa[!is.na(factor_ssa)], each = 7)) %>%
+  mutate(acumulados_estimados = floor(factor_ssa_extendido * acumulados_usmer)) %>%
+  select(fecha, dia, acumulados_estimados) %>%
+  filter(acumulados_estimados > 0 ) %>%
+  mutate(casos_estimados = acumulados_estimados - lag(acumulados_estimados, 1, default = 0),
+         dia = as.numeric(fecha - min(fecha))) %>%
+  print(n = 20)
+
+  
+#########
+
+# Estimación rápida por fecha síntomas, estado, (10%/100% de ambulatorio/hospitalizado )
 # Calcular agregados para estratificación.
 # Falta desagregado por edad
 Dat <- Dat %>%
@@ -184,14 +190,14 @@ dat <- Cen %>%
   select(fecha, casos_nuevos = casos_estimados, casos_acumulados = casos_acumulados_estimados) %>%
   mutate(estimado = "CoronaMex") %>%
   bind_rows(Cen_oficial %>%
-              select(fecha, casos_nuevos = estimados_positivos_nacional, casos_acumulados = estimados_acumulados_nacional) %>%
+              select(fecha, casos_nuevos = casos_estimados, casos_acumulados = acumulados_estimados) %>%
               mutate(estimado = "SSA"))
-
-
 
 ############# SEIR
 T_inc <- c(4, 5, 6)
 T_inf <- c(2, 3, 4)
+T_inc <- c(5)
+T_inf <- c(2)
 pob <- 127792286
 
 # Precalcular dias
@@ -202,9 +208,9 @@ Tab
 fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
-n_dias_ajuste <- n_dias - args$dias_retraso + 1
+n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
 fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 12, by = 10, length.out = 3))
+# fechas_dias <- sort(n_dias_ajuste - seq(from = 12, by = 10, length.out = 3))
 
 R_hat_cen_oficial <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                    dias_int = fechas_dias,
@@ -225,7 +231,7 @@ Tab <- dat %>% filter(estimado == "CoronaMex") %>%
 fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
-n_dias_ajuste <- n_dias - args$dias_retraso + 1
+n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
 fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
@@ -245,6 +251,10 @@ sims <- sims_cen_coronames  %>%
   bind_rows(sims_cen_oficial %>%
               select(fecha, casos_acumulados, estimado, tipo, modelo))
 sims
+sims <- sims_cen_oficial %>%
+              select(fecha, casos_acumulados, estimado, tipo, modelo)
+sims
+
 #############
 
 # Unir centinela y sims
@@ -257,7 +267,7 @@ p1 <- dat %>%
          grupo_col = paste(estimado, tipo, sep = ".")) %>%
   
   filter(fecha >= "2020-02-15") %>%
-  filter(!(tipo == "simulacion" & estimado == "SSA")) %>%
+  # filter(!(tipo == "simulacion" & estimado == "SSA")) %>%
   
   ggplot(aes(x = fecha, y = casos_acumulados,  group = grupo)) +
   geom_line(aes(col = grupo_col, size = tipo)) +
