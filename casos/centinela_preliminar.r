@@ -1,11 +1,14 @@
 library(tidyverse)
+library(deSolve)
+source("casos/sir_funciones.r")
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
              centinela_official = "../datos/centinela/semana_14/tabla_estimados.csv",
              semana1_fecha = "2019-12-29" %>% parse_date(format = "%Y-%m-%d"),
-             dias_suavizado = 7)
+             dias_suavizado = 7,
+             dias_retraso = 15)
 
 
 # Leer Centinela oficial
@@ -169,13 +172,85 @@ dat <- Cen %>%
               select(fecha, casos_nuevos = estimados_positivos_nacional, casos_acumulados = estimados_acumulados_nacional) %>%
               mutate(estimado = "SSA"))
 
+
+
+############# SEIR
+T_inc <- c(4, 5, 6)
+T_inf <- c(2, 3, 4)
+pob <- 127792286
+
+# Precalcular dias
+Tab <- dat %>% filter(estimado == "SSA") %>%
+  filter(casos_acumulados > 0) %>%
+  mutate(dia = as.numeric(fecha - min(fecha)))
+Tab
+fecha_inicio <- min(Tab$fecha)
+fecha_final <- Sys.Date()
+n_dias <- as.numeric(fecha_final - fecha_inicio)
+n_dias_ajuste <- n_dias - args$dias_retraso + 1
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 12, by = 10, length.out = 3))
+
+R_hat_cen_oficial <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
+                                   dias_int = fechas_dias,
+                                   T_inc = T_inc, T_inf = T_inf, pob = pob)
+R_hat_cen_oficial
+sims_cen_oficial <- simular_multiples_modelos(modelos = R_hat_cen_oficial,
+                                  FUN = sir, real = Tab, pob = pob,
+                                  n_dias = n_dias)
+sims_cen_oficial <- sims_cen_oficial %>%
+  mutate(estimado = "SSA", tipo="simulacion",
+         fecha = fecha_inicio + dia)
+
+# Precalcular dias
+Tab <- dat %>% filter(estimado == "CoronaMex") %>%
+  filter(casos_acumulados > 0) %>%
+  filter(fecha >= "2020-02-15") %>%
+  mutate(dia = as.numeric(fecha - min(fecha)))
+fecha_inicio <- min(Tab$fecha)
+fecha_final <- Sys.Date()
+n_dias <- as.numeric(fecha_final - fecha_inicio)
+n_dias_ajuste <- n_dias - args$dias_retraso + 1
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
+
+R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
+                                     dias_int = fechas_dias,
+                                     T_inc = T_inc, T_inf = T_inf, pob = pob)
+R_hat_cen_coronamex
+sims_cen_coronames <- simular_multiples_modelos(modelos = R_hat_cen_coronamex,
+                                                FUN = sir, real = Tab, pob = pob,
+                                                n_dias = n_dias)
+sims_cen_coronames <- sims_cen_coronames %>%
+  mutate(estimado = "CoronaMex", tipo = "simulacion",
+         fecha = fecha_inicio + dia)
+
+# Unir simulaciones
+sims <- sims_cen_coronames  %>%
+  select(fecha, casos_acumulados, estimado, tipo, modelo) %>%
+  bind_rows(sims_cen_oficial %>%
+              select(fecha, casos_acumulados, estimado, tipo, modelo))
+sims
+#############
+
+# Unir centinela y sims
 p1 <- dat %>%
+  select(fecha, casos_acumulados, estimado) %>%
+  mutate(tipo = "centinela",
+         modelo = "real") %>%
+  bind_rows(sims) %>%
+  mutate(grupo = paste(estimado, tipo , modelo, sep = "."),
+         grupo_col = paste(estimado, tipo, sep = ".")) %>%
+  
   filter(fecha >= "2020-02-15") %>%
   
-  ggplot(aes(x = fecha, y = casos_acumulados,  group = estimado)) +
-  geom_line(aes(col = estimado), size = 3) +
-  scale_color_manual(values = c("#a6cee3", "#b2df8a"),
-                       labels = c("Centinela\n(CoronaMex)", "Centinela\n(SSA)"), name = "") +
+  ggplot(aes(x = fecha, y = casos_acumulados,  group = grupo)) +
+  geom_line(aes(col = grupo_col, size = tipo)) +
+  scale_color_manual(values = c("#a6cee3", "#1f78b4",
+                                "#b2df8a", "#33a02c"),
+                       labels = c("Centinela\n(CoronaMex)", "CoronaMex\n+\nSEIR",
+                                  "Centinela\n(SSA)", "SSA\n+\nSEIR"),
+                     name = "") +
+  scale_size_manual(values = c(3, 0.2), guide = FALSE) +
   geom_vline(xintercept = Sys.Date() - 15) +
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
@@ -192,10 +267,11 @@ p1 <- dat %>%
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
-archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+# archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+# archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
 
