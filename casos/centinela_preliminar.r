@@ -242,6 +242,7 @@ p1 <- dat %>%
          grupo_col = paste(estimado, tipo, sep = ".")) %>%
   
   filter(fecha >= "2020-02-15") %>%
+  filter(!(tipo == "simulacion" & estimado == "SSA")) %>%
   
   ggplot(aes(x = fecha, y = casos_acumulados,  group = grupo)) +
   geom_line(aes(col = grupo_col, size = tipo)) +
@@ -267,11 +268,11 @@ p1 <- dat %>%
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
-ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-# archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
 
