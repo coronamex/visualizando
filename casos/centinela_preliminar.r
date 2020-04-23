@@ -196,8 +196,6 @@ dat <- Cen %>%
 ############# SEIR
 T_inc <- c(4, 5, 6)
 T_inf <- c(2, 3, 4)
-T_inc <- c(5)
-T_inf <- c(2)
 pob <- 127792286
 
 # Precalcular dias
@@ -251,9 +249,9 @@ sims <- sims_cen_coronames  %>%
   bind_rows(sims_cen_oficial %>%
               select(fecha, casos_acumulados, estimado, tipo, modelo))
 sims
-sims <- sims_cen_oficial %>%
-              select(fecha, casos_acumulados, estimado, tipo, modelo)
-sims
+# sims <- sims_cen_oficial %>%
+#               select(fecha, casos_acumulados, estimado, tipo, modelo)
+# sims
 
 #############
 
@@ -281,6 +279,7 @@ p1 <- dat %>%
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
   scale_y_continuous(labels = scales::comma) +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
