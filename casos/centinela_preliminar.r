@@ -276,6 +276,10 @@ p1 <- dat %>%
                      name = "") +
   scale_size_manual(values = c(3, 0.2), guide = FALSE) +
   geom_vline(xintercept = Sys.Date() - 15) +
+  annotate("text", label = "Fin ajuste de curva",
+           x = Sys.Date() - args$dias_retraso - 1.5,
+           y = 200000, angle = 90,
+           size = 6) +
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
   scale_y_continuous(labels = scales::comma) +
@@ -297,6 +301,51 @@ archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+
+########### R_hat
+
+# R_hat <- bind_rows(R_hat_cen_coronamex %>%
+#             map_dfr(~ tibble(R0 = c(.x$R_0, .x$R_0 * .x$efectos_int),
+#                              dias = c(0, .x$tiempos_int),
+#                              modelo = .x$modelo)) %>%
+#             mutate(fecha = parse_date("2020-02-15") + dias,
+#                    grupo = "CoronaMex") %>%
+#             mutate(modelo = paste(modelo, grupo, sep = ".")),
+#           R_hat_cen_oficial %>%
+#             map_dfr(~ tibble(R0 = c(.x$R_0, .x$R_0 * .x$efectos_int),
+#                              dias = c(0, .x$tiempos_int),
+#                              modelo = .x$modelo)) %>%
+#             mutate(fecha = parse_date("2020-02-17") + dias,
+#                    grupo = "SSA") %>%
+#             mutate(modelo = paste(modelo, grupo, sep = ".")))
+# R_hat
+# 
+# p1 <- R_hat %>%
+#   ggplot(aes(x = fecha, y = R0, group = modelo)) +
+#   geom_line(aes(col = grupo), size = 2) +
+#   scale_color_manual(values = c("#1f78b4", "#33a02c"),
+#                      labels = c("Centinela\n(CoronaMex)", "CoronaMex\n+\nSEIR",
+#                                 "Centinela\n(SSA)", "SSA\n+\nSEIR"),
+#                      name = "") +
+#   ylab("Promedio de infectados por enfermo (R_t)") +
+#   xlab("Fecha") +
+#   guides(color = guide_legend(override.aes = list(size = 3))) +
+#   AMOR::theme_blackbox() +
+#   theme(panel.background = element_blank(),
+#         panel.border = element_rect(fill = NA, color = "black", size = 3),
+#         legend.position = "top",
+#         legend.text = element_text(size = 14),
+#         legend.key = element_blank(),
+#         axis.title = element_text(size = 20),
+#         axis.text = element_text(size = 10, color = "black"),
+#         plot.margin = margin(l = 20, r = 20))
+# p1
+# # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+# archivo <- file.path(args$dir_salida, "centinela_nacional_r0.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+# archivo <- file.path(args$dir_salida, "centinela_nacional_r0@2x.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
 
