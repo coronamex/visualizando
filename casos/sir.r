@@ -206,7 +206,7 @@ archivo <- file.path(args$dir_salida, "sir_nacional_r0@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
-# dgamma_otimizable <- function(x, dat, dias_cambio = 10){
+  # dgamma_otimizable <- function(x, dat, dias_cambio = 10){
 #   # dat <- d
 #   # x <- c(4.2, 1.32)
 #   
