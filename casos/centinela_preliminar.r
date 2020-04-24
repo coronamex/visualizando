@@ -320,7 +320,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #                    grupo = "SSA") %>%
 #             mutate(modelo = paste(modelo, grupo, sep = ".")))
 # R_hat
-# 
+#  
 # p1 <- R_hat %>%
 #   ggplot(aes(x = fecha, y = R0, group = modelo)) +
 #   geom_line(aes(col = grupo), size = 2) +
@@ -348,4 +348,15 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 # ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
-
+# simular_multiples_modelos(modelos = R_hat_cen_coronamex,
+#                           FUN = sir, real = Tab, pob = pob,
+#                           n_dias = 400) %>%
+#   mutate(fecha = fecha_inicio + dia) %>%
+#   split(.$modelo) %>%
+#   map_dfr(function(d){
+#     d %>%
+#       arrange(fecha) %>%
+#       mutate(casos_nuevos = casos_acumulados - lag(casos_acumulados))
+#   }) %>%
+#   ggplot(aes(x = fecha, y = casos_nuevos, group = modelo)) +
+#   geom_line()
