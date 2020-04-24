@@ -95,6 +95,7 @@ p1 <- Dat %>%
   scale_y_log10(labels = scales::comma) +
   ylab("Total de casos confirmados") +
   xlab("Días desde el caso 60") +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),
@@ -125,6 +126,7 @@ p1 <- Dat %>%
   scale_y_log10(labels = scales::comma) +
   ylab("Total de muertes") +
   xlab("Días desde el caso 60") +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),
@@ -180,6 +182,7 @@ p1 <- Dat %>%
   scale_x_log10(labels = scales::comma) +
   ylab("Incremento (%)") +
   xlab("Total de casos confirmados") +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),

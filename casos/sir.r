@@ -161,6 +161,7 @@ p1 <- Tab %>%
   xlab("Fecha") +
   scale_y_continuous(labels = scales::comma) +
   # scale_y_log10() +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
         panel.border = element_rect(fill = NA, color = "black", size = 3),
@@ -171,11 +172,11 @@ p1 <- Tab %>%
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
 p1
-ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-# archivo <- file.path(args$dir_salida, "sir_nacional.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "sir_nacional.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 ##### R_hat
 
