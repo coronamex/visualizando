@@ -42,7 +42,7 @@ p1 <- Dat %>%
                      labels = c("Ambulatorio", "Hospitalizado"),
                      name = "") +
   annotate("text",
-           x = fecha_final - 4,
+           x = fecha_final - 5,
            y = 0.85 * max(table(Dat$FECHA_SINTOMAS)),
            label = 'italic("Estos\nnúmeros\npueden\naumentar")',
            hjust = "middle",

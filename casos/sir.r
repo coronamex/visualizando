@@ -159,7 +159,7 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 2500)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
@@ -177,6 +177,8 @@ archivo <- file.path(args$dir_salida, "sir_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+archivo <- "seir_estimados.csv"
+write_csv(p1$data, archivo)
 
 ##### R_hat
 
@@ -205,7 +207,6 @@ archivo <- file.path(args$dir_salida, "sir_nacional_r0.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_r0@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
 
   # dgamma_otimizable <- function(x, dat, dias_cambio = 10){
 #   # dat <- d

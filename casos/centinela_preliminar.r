@@ -282,7 +282,8 @@ p1 <- dat %>%
            size = 6) +
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma,
+                     breaks = function(lims){seq(from = 0, to = lims[2], by = 25000)}) +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -301,6 +302,8 @@ archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+archivo <- "centinela_seir_estimados.csv"
+write_csv(p1$data %>% select(-grupo, - grupo_col), archivo)
 
 
 ########### R_hat

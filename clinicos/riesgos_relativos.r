@@ -18,7 +18,8 @@ Dat <- Dat %>%
          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA"))) %>%
   filter(RESULTADO == "1")
-Dat
+Dat <- Dat %>%
+  filter(FECHA_SINTOMAS < Sys.Date() - 9)
 
 comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
             "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",

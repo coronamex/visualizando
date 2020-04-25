@@ -8,7 +8,8 @@ Dat <- read_csv(args$serie_tiempo,
                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
                                  .default = col_number()))
 Dat
-
+Dat %>%
+  filter(muertes_acumuladas > 0)
 
 p1 <- Dat %>%
   mutate(letalidad_retr = muertes_acumuladas / lag(sintomas_acumulados, args$dias_retraso, default = 0)) %>%
@@ -16,6 +17,8 @@ p1 <- Dat %>%
   filter(muertes_acumuladas > 0) %>%
   select(fecha, letalidad_inst, letalidad_retr) %>%
   pivot_longer(-fecha, names_to = "estimado", values_to = "letalidad") %>%
+  
+  filter(fecha >= "2020-03-01") %>%
   # print(n = 100)
   
   ggplot(aes(x = fecha, y = letalidad, group = estimado)) +
