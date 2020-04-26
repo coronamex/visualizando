@@ -1,827 +1,838 @@
-fecha,dia,casos_acumulados,modelo,grupo
-2020-02-07,0,6,real,Inicio de síntomas
-2020-02-14,7,7,real,Inicio de síntomas
-2020-02-17,10,9,real,Inicio de síntomas
-2020-02-18,11,10,real,Inicio de síntomas
-2020-02-19,12,12,real,Inicio de síntomas
-2020-02-21,14,13,real,Inicio de síntomas
-2020-02-22,15,15,real,Inicio de síntomas
-2020-02-23,16,17,real,Inicio de síntomas
-2020-02-25,18,19,real,Inicio de síntomas
-2020-02-26,19,20,real,Inicio de síntomas
-2020-02-27,20,21,real,Inicio de síntomas
-2020-02-28,21,23,real,Inicio de síntomas
-2020-02-29,22,25,real,Inicio de síntomas
-2020-03-01,23,31,real,Inicio de síntomas
-2020-03-02,24,38,real,Inicio de síntomas
-2020-03-03,25,44,real,Inicio de síntomas
-2020-03-04,26,51,real,Inicio de síntomas
-2020-03-05,27,58,real,Inicio de síntomas
-2020-03-06,28,67,real,Inicio de síntomas
-2020-03-07,29,86,real,Inicio de síntomas
-2020-03-08,30,107,real,Inicio de síntomas
-2020-03-09,31,167,real,Inicio de síntomas
-2020-03-10,32,215,real,Inicio de síntomas
-2020-03-11,33,264,real,Inicio de síntomas
-2020-03-12,34,321,real,Inicio de síntomas
-2020-03-13,35,404,real,Inicio de síntomas
-2020-03-14,36,494,real,Inicio de síntomas
-2020-03-15,37,590,real,Inicio de síntomas
-2020-03-16,38,721,real,Inicio de síntomas
-2020-03-17,39,822,real,Inicio de síntomas
-2020-03-18,40,943,real,Inicio de síntomas
-2020-03-19,41,1046,real,Inicio de síntomas
-2020-03-20,42,1221,real,Inicio de síntomas
-2020-03-21,43,1343,real,Inicio de síntomas
-2020-03-22,44,1473,real,Inicio de síntomas
-2020-03-23,45,1675,real,Inicio de síntomas
-2020-03-24,46,1839,real,Inicio de síntomas
-2020-03-25,47,2023,real,Inicio de síntomas
-2020-03-26,48,2251,real,Inicio de síntomas
-2020-03-27,49,2512,real,Inicio de síntomas
-2020-03-28,50,2761,real,Inicio de síntomas
-2020-03-29,51,3003,real,Inicio de síntomas
-2020-03-30,52,3348,real,Inicio de síntomas
-2020-03-31,53,3640,real,Inicio de síntomas
-2020-04-01,54,4041,real,Inicio de síntomas
-2020-04-02,55,4436,real,Inicio de síntomas
-2020-04-03,56,4842,real,Inicio de síntomas
-2020-04-04,57,5259,real,Inicio de síntomas
-2020-04-05,58,5639,real,Inicio de síntomas
-2020-04-06,59,6147,real,Inicio de síntomas
-2020-04-07,60,6585,real,Inicio de síntomas
-2020-04-08,61,7107,real,Inicio de síntomas
-2020-04-09,62,7612,real,Inicio de síntomas
-2020-04-10,63,8370,real,Inicio de síntomas
-2020-04-11,64,8920,real,Inicio de síntomas
-2020-04-12,65,9478,real,Inicio de síntomas
-2020-04-13,66,10122,real,Inicio de síntomas
-2020-04-14,67,10666,real,Inicio de síntomas
-2020-04-15,68,11193,real,Inicio de síntomas
-2020-04-16,69,11663,real,Inicio de síntomas
-2020-04-17,70,12063,real,Inicio de síntomas
-2020-04-18,71,12399,real,Inicio de síntomas
-2020-04-19,72,12620,real,Inicio de síntomas
-2020-04-20,73,12762,real,Inicio de síntomas
-2020-04-21,74,12827,real,Inicio de síntomas
-2020-04-22,75,12863,real,Inicio de síntomas
-2020-04-23,76,12872,real,Inicio de síntomas
-2020-02-07,0,6,m1,Estimado (SEIR)
-2020-02-08,1,6,m1,Estimado (SEIR)
-2020-02-09,2,6,m1,Estimado (SEIR)
-2020-02-10,3,8,m1,Estimado (SEIR)
-2020-02-11,4,9,m1,Estimado (SEIR)
-2020-02-12,5,11,m1,Estimado (SEIR)
-2020-02-13,6,13,m1,Estimado (SEIR)
-2020-02-14,7,16,m1,Estimado (SEIR)
-2020-02-15,8,18,m1,Estimado (SEIR)
-2020-02-16,9,21,m1,Estimado (SEIR)
-2020-02-17,10,24,m1,Estimado (SEIR)
-2020-02-18,11,27,m1,Estimado (SEIR)
-2020-02-19,12,31,m1,Estimado (SEIR)
-2020-02-20,13,34,m1,Estimado (SEIR)
-2020-02-21,14,38,m1,Estimado (SEIR)
-2020-02-22,15,42,m1,Estimado (SEIR)
-2020-02-23,16,47,m1,Estimado (SEIR)
-2020-02-24,17,52,m1,Estimado (SEIR)
-2020-02-25,18,57,m1,Estimado (SEIR)
-2020-02-26,19,63,m1,Estimado (SEIR)
-2020-02-27,20,69,m1,Estimado (SEIR)
-2020-02-28,21,76,m1,Estimado (SEIR)
-2020-02-29,22,83,m1,Estimado (SEIR)
-2020-03-01,23,92,m1,Estimado (SEIR)
-2020-03-02,24,103,m1,Estimado (SEIR)
-2020-03-03,25,115,m1,Estimado (SEIR)
-2020-03-04,26,129,m1,Estimado (SEIR)
-2020-03-05,27,146,m1,Estimado (SEIR)
-2020-03-06,28,166,m1,Estimado (SEIR)
-2020-03-07,29,189,m1,Estimado (SEIR)
-2020-03-08,30,216,m1,Estimado (SEIR)
-2020-03-09,31,248,m1,Estimado (SEIR)
-2020-03-10,32,285,m1,Estimado (SEIR)
-2020-03-11,33,328,m1,Estimado (SEIR)
-2020-03-12,34,376,m1,Estimado (SEIR)
-2020-03-13,35,433,m1,Estimado (SEIR)
-2020-03-14,36,493,m1,Estimado (SEIR)
-2020-03-15,37,562,m1,Estimado (SEIR)
-2020-03-16,38,641,m1,Estimado (SEIR)
-2020-03-17,39,730,m1,Estimado (SEIR)
-2020-03-18,40,833,m1,Estimado (SEIR)
-2020-03-19,41,951,m1,Estimado (SEIR)
-2020-03-20,42,1085,m1,Estimado (SEIR)
-2020-03-21,43,1233,m1,Estimado (SEIR)
-2020-03-22,44,1396,m1,Estimado (SEIR)
-2020-03-23,45,1580,m1,Estimado (SEIR)
-2020-03-24,46,1782,m1,Estimado (SEIR)
-2020-03-25,47,1994,m1,Estimado (SEIR)
-2020-03-26,48,2225,m1,Estimado (SEIR)
-2020-03-27,49,2477,m1,Estimado (SEIR)
-2020-03-28,50,2751,m1,Estimado (SEIR)
-2020-03-29,51,3052,m1,Estimado (SEIR)
-2020-03-30,52,3379,m1,Estimado (SEIR)
-2020-03-31,53,3728,m1,Estimado (SEIR)
-2020-04-01,54,4093,m1,Estimado (SEIR)
-2020-04-02,55,4468,m1,Estimado (SEIR)
-2020-04-03,56,4852,m1,Estimado (SEIR)
-2020-04-04,57,5247,m1,Estimado (SEIR)
-2020-04-05,58,5656,m1,Estimado (SEIR)
-2020-04-06,59,6078,m1,Estimado (SEIR)
-2020-04-07,60,6514,m1,Estimado (SEIR)
-2020-04-08,61,6965,m1,Estimado (SEIR)
-2020-04-09,62,7431,m1,Estimado (SEIR)
-2020-04-10,63,7914,m1,Estimado (SEIR)
-2020-04-11,64,8412,m1,Estimado (SEIR)
-2020-04-12,65,8927,m1,Estimado (SEIR)
-2020-04-13,66,9459,m1,Estimado (SEIR)
-2020-04-14,67,10010,m1,Estimado (SEIR)
-2020-04-15,68,10579,m1,Estimado (SEIR)
-2020-04-16,69,11167,m1,Estimado (SEIR)
-2020-04-17,70,11775,m1,Estimado (SEIR)
-2020-04-18,71,12404,m1,Estimado (SEIR)
-2020-04-19,72,13053,m1,Estimado (SEIR)
-2020-04-20,73,13725,m1,Estimado (SEIR)
-2020-04-21,74,14420,m1,Estimado (SEIR)
-2020-04-22,75,15137,m1,Estimado (SEIR)
-2020-04-23,76,15880,m1,Estimado (SEIR)
-2020-04-24,77,16647,m1,Estimado (SEIR)
-2020-02-07,0,6,m2,Estimado (SEIR)
-2020-02-08,1,6,m2,Estimado (SEIR)
-2020-02-09,2,6,m2,Estimado (SEIR)
-2020-02-10,3,7,m2,Estimado (SEIR)
-2020-02-11,4,9,m2,Estimado (SEIR)
-2020-02-12,5,10,m2,Estimado (SEIR)
-2020-02-13,6,12,m2,Estimado (SEIR)
-2020-02-14,7,13,m2,Estimado (SEIR)
-2020-02-15,8,15,m2,Estimado (SEIR)
-2020-02-16,9,17,m2,Estimado (SEIR)
-2020-02-17,10,19,m2,Estimado (SEIR)
-2020-02-18,11,21,m2,Estimado (SEIR)
-2020-02-19,12,23,m2,Estimado (SEIR)
-2020-02-20,13,26,m2,Estimado (SEIR)
-2020-02-21,14,28,m2,Estimado (SEIR)
-2020-02-22,15,31,m2,Estimado (SEIR)
-2020-02-23,16,33,m2,Estimado (SEIR)
-2020-02-24,17,36,m2,Estimado (SEIR)
-2020-02-25,18,39,m2,Estimado (SEIR)
-2020-02-26,19,42,m2,Estimado (SEIR)
-2020-02-27,20,46,m2,Estimado (SEIR)
-2020-02-28,21,49,m2,Estimado (SEIR)
-2020-02-29,22,53,m2,Estimado (SEIR)
-2020-03-01,23,58,m2,Estimado (SEIR)
-2020-03-02,24,64,m2,Estimado (SEIR)
-2020-03-03,25,72,m2,Estimado (SEIR)
-2020-03-04,26,82,m2,Estimado (SEIR)
-2020-03-05,27,95,m2,Estimado (SEIR)
-2020-03-06,28,112,m2,Estimado (SEIR)
-2020-03-07,29,134,m2,Estimado (SEIR)
-2020-03-08,30,163,m2,Estimado (SEIR)
-2020-03-09,31,199,m2,Estimado (SEIR)
-2020-03-10,32,247,m2,Estimado (SEIR)
-2020-03-11,33,303,m2,Estimado (SEIR)
-2020-03-12,34,364,m2,Estimado (SEIR)
-2020-03-13,35,435,m2,Estimado (SEIR)
-2020-03-14,36,512,m2,Estimado (SEIR)
-2020-03-15,37,593,m2,Estimado (SEIR)
-2020-03-16,38,682,m2,Estimado (SEIR)
-2020-03-17,39,780,m2,Estimado (SEIR)
-2020-03-18,40,887,m2,Estimado (SEIR)
-2020-03-19,41,1005,m2,Estimado (SEIR)
-2020-03-20,42,1134,m2,Estimado (SEIR)
-2020-03-21,43,1276,m2,Estimado (SEIR)
-2020-03-22,44,1431,m2,Estimado (SEIR)
-2020-03-23,45,1603,m2,Estimado (SEIR)
-2020-03-24,46,1791,m2,Estimado (SEIR)
-2020-03-25,47,1998,m2,Estimado (SEIR)
-2020-03-26,48,2226,m2,Estimado (SEIR)
-2020-03-27,49,2475,m2,Estimado (SEIR)
-2020-03-28,50,2749,m2,Estimado (SEIR)
-2020-03-29,51,3050,m2,Estimado (SEIR)
-2020-03-30,52,3380,m2,Estimado (SEIR)
-2020-03-31,53,3734,m2,Estimado (SEIR)
-2020-04-01,54,4105,m2,Estimado (SEIR)
-2020-04-02,55,4483,m2,Estimado (SEIR)
-2020-04-03,56,4868,m2,Estimado (SEIR)
-2020-04-04,57,5262,m2,Estimado (SEIR)
-2020-04-05,58,5667,m2,Estimado (SEIR)
-2020-04-06,59,6083,m2,Estimado (SEIR)
-2020-04-07,60,6512,m2,Estimado (SEIR)
-2020-04-08,61,6952,m2,Estimado (SEIR)
-2020-04-09,62,7405,m2,Estimado (SEIR)
-2020-04-10,63,7870,m2,Estimado (SEIR)
-2020-04-11,64,8350,m2,Estimado (SEIR)
-2020-04-12,65,8842,m2,Estimado (SEIR)
-2020-04-13,66,9349,m2,Estimado (SEIR)
-2020-04-14,67,9871,m2,Estimado (SEIR)
-2020-04-15,68,10407,m2,Estimado (SEIR)
-2020-04-16,69,10958,m2,Estimado (SEIR)
-2020-04-17,70,11526,m2,Estimado (SEIR)
-2020-04-18,71,12109,m2,Estimado (SEIR)
-2020-04-19,72,12709,m2,Estimado (SEIR)
-2020-04-20,73,13327,m2,Estimado (SEIR)
-2020-04-21,74,13962,m2,Estimado (SEIR)
-2020-04-22,75,14615,m2,Estimado (SEIR)
-2020-04-23,76,15287,m2,Estimado (SEIR)
-2020-04-24,77,15978,m2,Estimado (SEIR)
-2020-02-07,0,6,m3,Estimado (SEIR)
-2020-02-08,1,6,m3,Estimado (SEIR)
-2020-02-09,2,6,m3,Estimado (SEIR)
-2020-02-10,3,7,m3,Estimado (SEIR)
-2020-02-11,4,8,m3,Estimado (SEIR)
-2020-02-12,5,10,m3,Estimado (SEIR)
-2020-02-13,6,11,m3,Estimado (SEIR)
-2020-02-14,7,13,m3,Estimado (SEIR)
-2020-02-15,8,14,m3,Estimado (SEIR)
-2020-02-16,9,16,m3,Estimado (SEIR)
-2020-02-17,10,18,m3,Estimado (SEIR)
-2020-02-18,11,20,m3,Estimado (SEIR)
-2020-02-19,12,22,m3,Estimado (SEIR)
-2020-02-20,13,24,m3,Estimado (SEIR)
-2020-02-21,14,26,m3,Estimado (SEIR)
-2020-02-22,15,29,m3,Estimado (SEIR)
-2020-02-23,16,31,m3,Estimado (SEIR)
-2020-02-24,17,34,m3,Estimado (SEIR)
-2020-02-25,18,37,m3,Estimado (SEIR)
-2020-02-26,19,40,m3,Estimado (SEIR)
-2020-02-27,20,43,m3,Estimado (SEIR)
-2020-02-28,21,46,m3,Estimado (SEIR)
-2020-02-29,22,50,m3,Estimado (SEIR)
-2020-03-01,23,55,m3,Estimado (SEIR)
-2020-03-02,24,62,m3,Estimado (SEIR)
-2020-03-03,25,70,m3,Estimado (SEIR)
-2020-03-04,26,81,m3,Estimado (SEIR)
-2020-03-05,27,95,m3,Estimado (SEIR)
-2020-03-06,28,112,m3,Estimado (SEIR)
-2020-03-07,29,135,m3,Estimado (SEIR)
-2020-03-08,30,164,m3,Estimado (SEIR)
-2020-03-09,31,200,m3,Estimado (SEIR)
-2020-03-10,32,247,m3,Estimado (SEIR)
-2020-03-11,33,299,m3,Estimado (SEIR)
-2020-03-12,34,357,m3,Estimado (SEIR)
-2020-03-13,35,422,m3,Estimado (SEIR)
-2020-03-14,36,495,m3,Estimado (SEIR)
-2020-03-15,37,573,m3,Estimado (SEIR)
-2020-03-16,38,660,m3,Estimado (SEIR)
-2020-03-17,39,759,m3,Estimado (SEIR)
-2020-03-18,40,869,m3,Estimado (SEIR)
-2020-03-19,41,992,m3,Estimado (SEIR)
-2020-03-20,42,1131,m3,Estimado (SEIR)
-2020-03-21,43,1283,m3,Estimado (SEIR)
-2020-03-22,44,1449,m3,Estimado (SEIR)
-2020-03-23,45,1629,m3,Estimado (SEIR)
-2020-03-24,46,1824,m3,Estimado (SEIR)
-2020-03-25,47,2035,m3,Estimado (SEIR)
-2020-03-26,48,2265,m3,Estimado (SEIR)
-2020-03-27,49,2514,m3,Estimado (SEIR)
-2020-03-28,50,2785,m3,Estimado (SEIR)
-2020-03-29,51,3079,m3,Estimado (SEIR)
-2020-03-30,52,3397,m3,Estimado (SEIR)
-2020-03-31,53,3736,m3,Estimado (SEIR)
-2020-04-01,54,4093,m3,Estimado (SEIR)
-2020-04-02,55,4463,m3,Estimado (SEIR)
-2020-04-03,56,4844,m3,Estimado (SEIR)
-2020-04-04,57,5239,m3,Estimado (SEIR)
-2020-04-05,58,5649,m3,Estimado (SEIR)
-2020-04-06,59,6075,m3,Estimado (SEIR)
-2020-04-07,60,6518,m3,Estimado (SEIR)
-2020-04-08,61,6978,m3,Estimado (SEIR)
-2020-04-09,62,7457,m3,Estimado (SEIR)
-2020-04-10,63,7954,m3,Estimado (SEIR)
-2020-04-11,64,8470,m3,Estimado (SEIR)
-2020-04-12,65,9006,m3,Estimado (SEIR)
-2020-04-13,66,9564,m3,Estimado (SEIR)
-2020-04-14,67,10143,m3,Estimado (SEIR)
-2020-04-15,68,10744,m3,Estimado (SEIR)
-2020-04-16,69,11370,m3,Estimado (SEIR)
-2020-04-17,70,12019,m3,Estimado (SEIR)
-2020-04-18,71,12694,m3,Estimado (SEIR)
-2020-04-19,72,13396,m3,Estimado (SEIR)
-2020-04-20,73,14124,m3,Estimado (SEIR)
-2020-04-21,74,14882,m3,Estimado (SEIR)
-2020-04-22,75,15668,m3,Estimado (SEIR)
-2020-04-23,76,16486,m3,Estimado (SEIR)
-2020-04-24,77,17336,m3,Estimado (SEIR)
-2020-02-07,0,6,m4,Estimado (SEIR)
-2020-02-08,1,6,m4,Estimado (SEIR)
-2020-02-09,2,7,m4,Estimado (SEIR)
-2020-02-10,3,8,m4,Estimado (SEIR)
-2020-02-11,4,10,m4,Estimado (SEIR)
-2020-02-12,5,12,m4,Estimado (SEIR)
-2020-02-13,6,14,m4,Estimado (SEIR)
-2020-02-14,7,16,m4,Estimado (SEIR)
-2020-02-15,8,19,m4,Estimado (SEIR)
-2020-02-16,9,22,m4,Estimado (SEIR)
-2020-02-17,10,26,m4,Estimado (SEIR)
-2020-02-18,11,30,m4,Estimado (SEIR)
-2020-02-19,12,34,m4,Estimado (SEIR)
-2020-02-20,13,38,m4,Estimado (SEIR)
-2020-02-21,14,43,m4,Estimado (SEIR)
-2020-02-22,15,48,m4,Estimado (SEIR)
-2020-02-23,16,54,m4,Estimado (SEIR)
-2020-02-24,17,61,m4,Estimado (SEIR)
-2020-02-25,18,69,m4,Estimado (SEIR)
-2020-02-26,19,77,m4,Estimado (SEIR)
-2020-02-27,20,86,m4,Estimado (SEIR)
-2020-02-28,21,96,m4,Estimado (SEIR)
-2020-02-29,22,107,m4,Estimado (SEIR)
-2020-03-01,23,119,m4,Estimado (SEIR)
-2020-03-02,24,133,m4,Estimado (SEIR)
-2020-03-03,25,147,m4,Estimado (SEIR)
-2020-03-04,26,164,m4,Estimado (SEIR)
-2020-03-05,27,182,m4,Estimado (SEIR)
-2020-03-06,28,201,m4,Estimado (SEIR)
-2020-03-07,29,223,m4,Estimado (SEIR)
-2020-03-08,30,247,m4,Estimado (SEIR)
-2020-03-09,31,274,m4,Estimado (SEIR)
-2020-03-10,32,303,m4,Estimado (SEIR)
-2020-03-11,33,336,m4,Estimado (SEIR)
-2020-03-12,34,375,m4,Estimado (SEIR)
-2020-03-13,35,425,m4,Estimado (SEIR)
-2020-03-14,36,484,m4,Estimado (SEIR)
-2020-03-15,37,553,m4,Estimado (SEIR)
-2020-03-16,38,635,m4,Estimado (SEIR)
-2020-03-17,39,725,m4,Estimado (SEIR)
-2020-03-18,40,829,m4,Estimado (SEIR)
-2020-03-19,41,950,m4,Estimado (SEIR)
-2020-03-20,42,1092,m4,Estimado (SEIR)
-2020-03-21,43,1249,m4,Estimado (SEIR)
-2020-03-22,44,1418,m4,Estimado (SEIR)
-2020-03-23,45,1608,m4,Estimado (SEIR)
-2020-03-24,46,1813,m4,Estimado (SEIR)
-2020-03-25,47,2026,m4,Estimado (SEIR)
-2020-03-26,48,2257,m4,Estimado (SEIR)
-2020-03-27,49,2507,m4,Estimado (SEIR)
-2020-03-28,50,2778,m4,Estimado (SEIR)
-2020-03-29,51,3072,m4,Estimado (SEIR)
-2020-03-30,52,3392,m4,Estimado (SEIR)
-2020-03-31,53,3729,m4,Estimado (SEIR)
-2020-04-01,54,4082,m4,Estimado (SEIR)
-2020-04-02,55,4446,m4,Estimado (SEIR)
-2020-04-03,56,4822,m4,Estimado (SEIR)
-2020-04-04,57,5212,m4,Estimado (SEIR)
-2020-04-05,58,5617,m4,Estimado (SEIR)
-2020-04-06,59,6039,m4,Estimado (SEIR)
-2020-04-07,60,6477,m4,Estimado (SEIR)
-2020-04-08,61,6933,m4,Estimado (SEIR)
-2020-04-09,62,7408,m4,Estimado (SEIR)
-2020-04-10,63,7903,m4,Estimado (SEIR)
-2020-04-11,64,8417,m4,Estimado (SEIR)
-2020-04-12,65,8953,m4,Estimado (SEIR)
-2020-04-13,66,9511,m4,Estimado (SEIR)
-2020-04-14,67,10091,m4,Estimado (SEIR)
-2020-04-15,68,10695,m4,Estimado (SEIR)
-2020-04-16,69,11324,m4,Estimado (SEIR)
-2020-04-17,70,11979,m4,Estimado (SEIR)
-2020-04-18,71,12660,m4,Estimado (SEIR)
-2020-04-19,72,13370,m4,Estimado (SEIR)
-2020-04-20,73,14108,m4,Estimado (SEIR)
-2020-04-21,74,14877,m4,Estimado (SEIR)
-2020-04-22,75,15677,m4,Estimado (SEIR)
-2020-04-23,76,16510,m4,Estimado (SEIR)
-2020-04-24,77,17378,m4,Estimado (SEIR)
-2020-02-07,0,6,m5,Estimado (SEIR)
-2020-02-08,1,6,m5,Estimado (SEIR)
-2020-02-09,2,7,m5,Estimado (SEIR)
-2020-02-10,3,8,m5,Estimado (SEIR)
-2020-02-11,4,9,m5,Estimado (SEIR)
-2020-02-12,5,10,m5,Estimado (SEIR)
-2020-02-13,6,12,m5,Estimado (SEIR)
-2020-02-14,7,14,m5,Estimado (SEIR)
-2020-02-15,8,16,m5,Estimado (SEIR)
-2020-02-16,9,18,m5,Estimado (SEIR)
-2020-02-17,10,20,m5,Estimado (SEIR)
-2020-02-18,11,23,m5,Estimado (SEIR)
-2020-02-19,12,26,m5,Estimado (SEIR)
-2020-02-20,13,29,m5,Estimado (SEIR)
-2020-02-21,14,32,m5,Estimado (SEIR)
-2020-02-22,15,35,m5,Estimado (SEIR)
-2020-02-23,16,39,m5,Estimado (SEIR)
-2020-02-24,17,43,m5,Estimado (SEIR)
-2020-02-25,18,48,m5,Estimado (SEIR)
-2020-02-26,19,52,m5,Estimado (SEIR)
-2020-02-27,20,58,m5,Estimado (SEIR)
-2020-02-28,21,63,m5,Estimado (SEIR)
-2020-02-29,22,69,m5,Estimado (SEIR)
-2020-03-01,23,76,m5,Estimado (SEIR)
-2020-03-02,24,84,m5,Estimado (SEIR)
-2020-03-03,25,94,m5,Estimado (SEIR)
-2020-03-04,26,106,m5,Estimado (SEIR)
-2020-03-05,27,121,m5,Estimado (SEIR)
-2020-03-06,28,138,m5,Estimado (SEIR)
-2020-03-07,29,161,m5,Estimado (SEIR)
-2020-03-08,30,188,m5,Estimado (SEIR)
-2020-03-09,31,221,m5,Estimado (SEIR)
-2020-03-10,32,262,m5,Estimado (SEIR)
-2020-03-11,33,308,m5,Estimado (SEIR)
-2020-03-12,34,361,m5,Estimado (SEIR)
-2020-03-13,35,421,m5,Estimado (SEIR)
-2020-03-14,36,490,m5,Estimado (SEIR)
-2020-03-15,37,564,m5,Estimado (SEIR)
-2020-03-16,38,648,m5,Estimado (SEIR)
-2020-03-17,39,744,m5,Estimado (SEIR)
-2020-03-18,40,854,m5,Estimado (SEIR)
-2020-03-19,41,978,m5,Estimado (SEIR)
-2020-03-20,42,1119,m5,Estimado (SEIR)
-2020-03-21,43,1277,m5,Estimado (SEIR)
-2020-03-22,44,1448,m5,Estimado (SEIR)
-2020-03-23,45,1632,m5,Estimado (SEIR)
-2020-03-24,46,1838,m5,Estimado (SEIR)
-2020-03-25,47,2062,m5,Estimado (SEIR)
-2020-03-26,48,2294,m5,Estimado (SEIR)
-2020-03-27,49,2545,m5,Estimado (SEIR)
-2020-03-28,50,2817,m5,Estimado (SEIR)
-2020-03-29,51,3111,m5,Estimado (SEIR)
-2020-03-30,52,3430,m5,Estimado (SEIR)
-2020-03-31,53,3768,m5,Estimado (SEIR)
-2020-04-01,54,4126,m5,Estimado (SEIR)
-2020-04-02,55,4495,m5,Estimado (SEIR)
-2020-04-03,56,4877,m5,Estimado (SEIR)
-2020-04-04,57,5273,m5,Estimado (SEIR)
-2020-04-05,58,5675,m5,Estimado (SEIR)
-2020-04-06,59,6092,m5,Estimado (SEIR)
-2020-04-07,60,6524,m5,Estimado (SEIR)
-2020-04-08,61,6973,m5,Estimado (SEIR)
-2020-04-09,62,7438,m5,Estimado (SEIR)
-2020-04-10,63,7921,m5,Estimado (SEIR)
-2020-04-11,64,8422,m5,Estimado (SEIR)
-2020-04-12,65,8943,m5,Estimado (SEIR)
-2020-04-13,66,9483,m5,Estimado (SEIR)
-2020-04-14,67,10043,m5,Estimado (SEIR)
-2020-04-15,68,10625,m5,Estimado (SEIR)
-2020-04-16,69,11228,m5,Estimado (SEIR)
-2020-04-17,70,11855,m5,Estimado (SEIR)
-2020-04-18,71,12505,m5,Estimado (SEIR)
-2020-04-19,72,13180,m5,Estimado (SEIR)
-2020-04-20,73,13880,m5,Estimado (SEIR)
-2020-04-21,74,14607,m5,Estimado (SEIR)
-2020-04-22,75,15362,m5,Estimado (SEIR)
-2020-04-23,76,16145,m5,Estimado (SEIR)
-2020-04-24,77,16958,m5,Estimado (SEIR)
-2020-02-07,0,6,m6,Estimado (SEIR)
-2020-02-08,1,6,m6,Estimado (SEIR)
-2020-02-09,2,6,m6,Estimado (SEIR)
-2020-02-10,3,7,m6,Estimado (SEIR)
-2020-02-11,4,9,m6,Estimado (SEIR)
-2020-02-12,5,10,m6,Estimado (SEIR)
-2020-02-13,6,12,m6,Estimado (SEIR)
-2020-02-14,7,13,m6,Estimado (SEIR)
-2020-02-15,8,15,m6,Estimado (SEIR)
-2020-02-16,9,17,m6,Estimado (SEIR)
-2020-02-17,10,20,m6,Estimado (SEIR)
-2020-02-18,11,22,m6,Estimado (SEIR)
-2020-02-19,12,25,m6,Estimado (SEIR)
-2020-02-20,13,27,m6,Estimado (SEIR)
-2020-02-21,14,30,m6,Estimado (SEIR)
-2020-02-22,15,34,m6,Estimado (SEIR)
-2020-02-23,16,37,m6,Estimado (SEIR)
-2020-02-24,17,41,m6,Estimado (SEIR)
-2020-02-25,18,45,m6,Estimado (SEIR)
-2020-02-26,19,50,m6,Estimado (SEIR)
-2020-02-27,20,55,m6,Estimado (SEIR)
-2020-02-28,21,61,m6,Estimado (SEIR)
-2020-02-29,22,66,m6,Estimado (SEIR)
-2020-03-01,23,73,m6,Estimado (SEIR)
-2020-03-02,24,81,m6,Estimado (SEIR)
-2020-03-03,25,90,m6,Estimado (SEIR)
-2020-03-04,26,103,m6,Estimado (SEIR)
-2020-03-05,27,118,m6,Estimado (SEIR)
-2020-03-06,28,137,m6,Estimado (SEIR)
-2020-03-07,29,160,m6,Estimado (SEIR)
-2020-03-08,30,189,m6,Estimado (SEIR)
-2020-03-09,31,224,m6,Estimado (SEIR)
-2020-03-10,32,267,m6,Estimado (SEIR)
-2020-03-11,33,319,m6,Estimado (SEIR)
-2020-03-12,34,376,m6,Estimado (SEIR)
-2020-03-13,35,444,m6,Estimado (SEIR)
-2020-03-14,36,520,m6,Estimado (SEIR)
-2020-03-15,37,599,m6,Estimado (SEIR)
-2020-03-16,38,686,m6,Estimado (SEIR)
-2020-03-17,39,783,m6,Estimado (SEIR)
-2020-03-18,40,889,m6,Estimado (SEIR)
-2020-03-19,41,1008,m6,Estimado (SEIR)
-2020-03-20,42,1140,m6,Estimado (SEIR)
-2020-03-21,43,1285,m6,Estimado (SEIR)
-2020-03-22,44,1445,m6,Estimado (SEIR)
-2020-03-23,45,1619,m6,Estimado (SEIR)
-2020-03-24,46,1809,m6,Estimado (SEIR)
-2020-03-25,47,2017,m6,Estimado (SEIR)
-2020-03-26,48,2244,m6,Estimado (SEIR)
-2020-03-27,49,2493,m6,Estimado (SEIR)
-2020-03-28,50,2764,m6,Estimado (SEIR)
-2020-03-29,51,3061,m6,Estimado (SEIR)
-2020-03-30,52,3386,m6,Estimado (SEIR)
-2020-03-31,53,3738,m6,Estimado (SEIR)
-2020-04-01,54,4109,m6,Estimado (SEIR)
-2020-04-02,55,4493,m6,Estimado (SEIR)
-2020-04-03,56,4880,m6,Estimado (SEIR)
-2020-04-04,57,5272,m6,Estimado (SEIR)
-2020-04-05,58,5674,m6,Estimado (SEIR)
-2020-04-06,59,6085,m6,Estimado (SEIR)
-2020-04-07,60,6507,m6,Estimado (SEIR)
-2020-04-08,61,6941,m6,Estimado (SEIR)
-2020-04-09,62,7387,m6,Estimado (SEIR)
-2020-04-10,63,7844,m6,Estimado (SEIR)
-2020-04-11,64,8314,m6,Estimado (SEIR)
-2020-04-12,65,8797,m6,Estimado (SEIR)
-2020-04-13,66,9293,m6,Estimado (SEIR)
-2020-04-14,67,9802,m6,Estimado (SEIR)
-2020-04-15,68,10325,m6,Estimado (SEIR)
-2020-04-16,69,10863,m6,Estimado (SEIR)
-2020-04-17,70,11415,m6,Estimado (SEIR)
-2020-04-18,71,11982,m6,Estimado (SEIR)
-2020-04-19,72,12565,m6,Estimado (SEIR)
-2020-04-20,73,13163,m6,Estimado (SEIR)
-2020-04-21,74,13778,m6,Estimado (SEIR)
-2020-04-22,75,14410,m6,Estimado (SEIR)
-2020-04-23,76,15059,m6,Estimado (SEIR)
-2020-04-24,77,15725,m6,Estimado (SEIR)
-2020-02-07,0,6,m7,Estimado (SEIR)
-2020-02-08,1,6,m7,Estimado (SEIR)
-2020-02-09,2,7,m7,Estimado (SEIR)
-2020-02-10,3,8,m7,Estimado (SEIR)
-2020-02-11,4,9,m7,Estimado (SEIR)
-2020-02-12,5,11,m7,Estimado (SEIR)
-2020-02-13,6,13,m7,Estimado (SEIR)
-2020-02-14,7,15,m7,Estimado (SEIR)
-2020-02-15,8,17,m7,Estimado (SEIR)
-2020-02-16,9,20,m7,Estimado (SEIR)
-2020-02-17,10,23,m7,Estimado (SEIR)
-2020-02-18,11,26,m7,Estimado (SEIR)
-2020-02-19,12,29,m7,Estimado (SEIR)
-2020-02-20,13,33,m7,Estimado (SEIR)
-2020-02-21,14,37,m7,Estimado (SEIR)
-2020-02-22,15,41,m7,Estimado (SEIR)
-2020-02-23,16,46,m7,Estimado (SEIR)
-2020-02-24,17,52,m7,Estimado (SEIR)
-2020-02-25,18,58,m7,Estimado (SEIR)
-2020-02-26,19,64,m7,Estimado (SEIR)
-2020-02-27,20,71,m7,Estimado (SEIR)
-2020-02-28,21,79,m7,Estimado (SEIR)
-2020-02-29,22,88,m7,Estimado (SEIR)
-2020-03-01,23,98,m7,Estimado (SEIR)
-2020-03-02,24,109,m7,Estimado (SEIR)
-2020-03-03,25,121,m7,Estimado (SEIR)
-2020-03-04,26,135,m7,Estimado (SEIR)
-2020-03-05,27,150,m7,Estimado (SEIR)
-2020-03-06,28,168,m7,Estimado (SEIR)
-2020-03-07,29,187,m7,Estimado (SEIR)
-2020-03-08,30,209,m7,Estimado (SEIR)
-2020-03-09,31,233,m7,Estimado (SEIR)
-2020-03-10,32,261,m7,Estimado (SEIR)
-2020-03-11,33,293,m7,Estimado (SEIR)
-2020-03-12,34,330,m7,Estimado (SEIR)
-2020-03-13,35,380,m7,Estimado (SEIR)
-2020-03-14,36,438,m7,Estimado (SEIR)
-2020-03-15,37,509,m7,Estimado (SEIR)
-2020-03-16,38,593,m7,Estimado (SEIR)
-2020-03-17,39,685,m7,Estimado (SEIR)
-2020-03-18,40,793,m7,Estimado (SEIR)
-2020-03-19,41,920,m7,Estimado (SEIR)
-2020-03-20,42,1070,m7,Estimado (SEIR)
-2020-03-21,43,1236,m7,Estimado (SEIR)
-2020-03-22,44,1413,m7,Estimado (SEIR)
-2020-03-23,45,1608,m7,Estimado (SEIR)
-2020-03-24,46,1817,m7,Estimado (SEIR)
-2020-03-25,47,2034,m7,Estimado (SEIR)
-2020-03-26,48,2267,m7,Estimado (SEIR)
-2020-03-27,49,2519,m7,Estimado (SEIR)
-2020-03-28,50,2791,m7,Estimado (SEIR)
-2020-03-29,51,3085,m7,Estimado (SEIR)
-2020-03-30,52,3403,m7,Estimado (SEIR)
-2020-03-31,53,3738,m7,Estimado (SEIR)
-2020-04-01,54,4087,m7,Estimado (SEIR)
-2020-04-02,55,4448,m7,Estimado (SEIR)
-2020-04-03,56,4831,m7,Estimado (SEIR)
-2020-04-04,57,5231,m7,Estimado (SEIR)
-2020-04-05,58,5639,m7,Estimado (SEIR)
-2020-04-06,59,6065,m7,Estimado (SEIR)
-2020-04-07,60,6510,m7,Estimado (SEIR)
-2020-04-08,61,6976,m7,Estimado (SEIR)
-2020-04-09,62,7462,m7,Estimado (SEIR)
-2020-04-10,63,7970,m7,Estimado (SEIR)
-2020-04-11,64,8502,m7,Estimado (SEIR)
-2020-04-12,65,9057,m7,Estimado (SEIR)
-2020-04-13,66,9638,m7,Estimado (SEIR)
-2020-04-14,67,10245,m7,Estimado (SEIR)
-2020-04-15,68,10880,m7,Estimado (SEIR)
-2020-04-16,69,11543,m7,Estimado (SEIR)
-2020-04-17,70,12237,m7,Estimado (SEIR)
-2020-04-18,71,12962,m7,Estimado (SEIR)
-2020-04-19,72,13721,m7,Estimado (SEIR)
-2020-04-20,73,14514,m7,Estimado (SEIR)
-2020-04-21,74,15343,m7,Estimado (SEIR)
-2020-04-22,75,16209,m7,Estimado (SEIR)
-2020-04-23,76,17115,m7,Estimado (SEIR)
-2020-04-24,77,18063,m7,Estimado (SEIR)
-2020-02-07,0,6,m8,Estimado (SEIR)
-2020-02-08,1,6,m8,Estimado (SEIR)
-2020-02-09,2,6,m8,Estimado (SEIR)
-2020-02-10,3,7,m8,Estimado (SEIR)
-2020-02-11,4,8,m8,Estimado (SEIR)
-2020-02-12,5,10,m8,Estimado (SEIR)
-2020-02-13,6,11,m8,Estimado (SEIR)
-2020-02-14,7,13,m8,Estimado (SEIR)
-2020-02-15,8,15,m8,Estimado (SEIR)
-2020-02-16,9,17,m8,Estimado (SEIR)
-2020-02-17,10,19,m8,Estimado (SEIR)
-2020-02-18,11,21,m8,Estimado (SEIR)
-2020-02-19,12,23,m8,Estimado (SEIR)
-2020-02-20,13,26,m8,Estimado (SEIR)
-2020-02-21,14,29,m8,Estimado (SEIR)
-2020-02-22,15,32,m8,Estimado (SEIR)
-2020-02-23,16,35,m8,Estimado (SEIR)
-2020-02-24,17,39,m8,Estimado (SEIR)
-2020-02-25,18,43,m8,Estimado (SEIR)
-2020-02-26,19,47,m8,Estimado (SEIR)
-2020-02-27,20,52,m8,Estimado (SEIR)
-2020-02-28,21,57,m8,Estimado (SEIR)
-2020-02-29,22,62,m8,Estimado (SEIR)
-2020-03-01,23,68,m8,Estimado (SEIR)
-2020-03-02,24,76,m8,Estimado (SEIR)
-2020-03-03,25,86,m8,Estimado (SEIR)
-2020-03-04,26,98,m8,Estimado (SEIR)
-2020-03-05,27,113,m8,Estimado (SEIR)
-2020-03-06,28,131,m8,Estimado (SEIR)
-2020-03-07,29,155,m8,Estimado (SEIR)
-2020-03-08,30,185,m8,Estimado (SEIR)
-2020-03-09,31,222,m8,Estimado (SEIR)
-2020-03-10,32,268,m8,Estimado (SEIR)
-2020-03-11,33,318,m8,Estimado (SEIR)
-2020-03-12,34,373,m8,Estimado (SEIR)
-2020-03-13,35,436,m8,Estimado (SEIR)
-2020-03-14,36,506,m8,Estimado (SEIR)
-2020-03-15,37,581,m8,Estimado (SEIR)
-2020-03-16,38,665,m8,Estimado (SEIR)
-2020-03-17,39,760,m8,Estimado (SEIR)
-2020-03-18,40,866,m8,Estimado (SEIR)
-2020-03-19,41,985,m8,Estimado (SEIR)
-2020-03-20,42,1120,m8,Estimado (SEIR)
-2020-03-21,43,1268,m8,Estimado (SEIR)
-2020-03-22,44,1429,m8,Estimado (SEIR)
-2020-03-23,45,1604,m8,Estimado (SEIR)
-2020-03-24,46,1803,m8,Estimado (SEIR)
-2020-03-25,47,2020,m8,Estimado (SEIR)
-2020-03-26,48,2248,m8,Estimado (SEIR)
-2020-03-27,49,2496,m8,Estimado (SEIR)
-2020-03-28,50,2767,m8,Estimado (SEIR)
-2020-03-29,51,3063,m8,Estimado (SEIR)
-2020-03-30,52,3386,m8,Estimado (SEIR)
-2020-03-31,53,3727,m8,Estimado (SEIR)
-2020-04-01,54,4085,m8,Estimado (SEIR)
-2020-04-02,55,4455,m8,Estimado (SEIR)
-2020-04-03,56,4838,m8,Estimado (SEIR)
-2020-04-04,57,5236,m8,Estimado (SEIR)
-2020-04-05,58,5641,m8,Estimado (SEIR)
-2020-04-06,59,6062,m8,Estimado (SEIR)
-2020-04-07,60,6501,m8,Estimado (SEIR)
-2020-04-08,61,6957,m8,Estimado (SEIR)
-2020-04-09,62,7432,m8,Estimado (SEIR)
-2020-04-10,63,7926,m8,Estimado (SEIR)
-2020-04-11,64,8442,m8,Estimado (SEIR)
-2020-04-12,65,8979,m8,Estimado (SEIR)
-2020-04-13,66,9538,m8,Estimado (SEIR)
-2020-04-14,67,10120,m8,Estimado (SEIR)
-2020-04-15,68,10727,m8,Estimado (SEIR)
-2020-04-16,69,11359,m8,Estimado (SEIR)
-2020-04-17,70,12018,m8,Estimado (SEIR)
-2020-04-18,71,12705,m8,Estimado (SEIR)
-2020-04-19,72,13420,m8,Estimado (SEIR)
-2020-04-20,73,14165,m8,Estimado (SEIR)
-2020-04-21,74,14941,m8,Estimado (SEIR)
-2020-04-22,75,15750,m8,Estimado (SEIR)
-2020-04-23,76,16592,m8,Estimado (SEIR)
-2020-04-24,77,17470,m8,Estimado (SEIR)
-2020-02-07,0,6,m9,Estimado (SEIR)
-2020-02-08,1,6,m9,Estimado (SEIR)
-2020-02-09,2,6,m9,Estimado (SEIR)
-2020-02-10,3,7,m9,Estimado (SEIR)
-2020-02-11,4,8,m9,Estimado (SEIR)
-2020-02-12,5,9,m9,Estimado (SEIR)
-2020-02-13,6,10,m9,Estimado (SEIR)
-2020-02-14,7,11,m9,Estimado (SEIR)
-2020-02-15,8,13,m9,Estimado (SEIR)
-2020-02-16,9,14,m9,Estimado (SEIR)
-2020-02-17,10,16,m9,Estimado (SEIR)
-2020-02-18,11,17,m9,Estimado (SEIR)
-2020-02-19,12,19,m9,Estimado (SEIR)
-2020-02-20,13,21,m9,Estimado (SEIR)
-2020-02-21,14,23,m9,Estimado (SEIR)
-2020-02-22,15,25,m9,Estimado (SEIR)
-2020-02-23,16,28,m9,Estimado (SEIR)
-2020-02-24,17,30,m9,Estimado (SEIR)
-2020-02-25,18,33,m9,Estimado (SEIR)
-2020-02-26,19,36,m9,Estimado (SEIR)
-2020-02-27,20,39,m9,Estimado (SEIR)
-2020-02-28,21,42,m9,Estimado (SEIR)
-2020-02-29,22,46,m9,Estimado (SEIR)
-2020-03-01,23,50,m9,Estimado (SEIR)
-2020-03-02,24,56,m9,Estimado (SEIR)
-2020-03-03,25,63,m9,Estimado (SEIR)
-2020-03-04,26,74,m9,Estimado (SEIR)
-2020-03-05,27,88,m9,Estimado (SEIR)
-2020-03-06,28,106,m9,Estimado (SEIR)
-2020-03-07,29,130,m9,Estimado (SEIR)
-2020-03-08,30,160,m9,Estimado (SEIR)
-2020-03-09,31,200,m9,Estimado (SEIR)
-2020-03-10,32,252,m9,Estimado (SEIR)
-2020-03-11,33,311,m9,Estimado (SEIR)
-2020-03-12,34,375,m9,Estimado (SEIR)
-2020-03-13,35,448,m9,Estimado (SEIR)
-2020-03-14,36,525,m9,Estimado (SEIR)
-2020-03-15,37,610,m9,Estimado (SEIR)
-2020-03-16,38,703,m9,Estimado (SEIR)
-2020-03-17,39,801,m9,Estimado (SEIR)
-2020-03-18,40,907,m9,Estimado (SEIR)
-2020-03-19,41,1023,m9,Estimado (SEIR)
-2020-03-20,42,1150,m9,Estimado (SEIR)
-2020-03-21,43,1290,m9,Estimado (SEIR)
-2020-03-22,44,1443,m9,Estimado (SEIR)
-2020-03-23,45,1612,m9,Estimado (SEIR)
-2020-03-24,46,1798,m9,Estimado (SEIR)
-2020-03-25,47,2003,m9,Estimado (SEIR)
-2020-03-26,48,2227,m9,Estimado (SEIR)
-2020-03-27,49,2475,m9,Estimado (SEIR)
-2020-03-28,50,2747,m9,Estimado (SEIR)
-2020-03-29,51,3045,m9,Estimado (SEIR)
-2020-03-30,52,3373,m9,Estimado (SEIR)
-2020-03-31,53,3723,m9,Estimado (SEIR)
-2020-04-01,54,4091,m9,Estimado (SEIR)
-2020-04-02,55,4465,m9,Estimado (SEIR)
-2020-04-03,56,4848,m9,Estimado (SEIR)
-2020-04-04,57,5243,m9,Estimado (SEIR)
-2020-04-05,58,5650,m9,Estimado (SEIR)
-2020-04-06,59,6072,m9,Estimado (SEIR)
-2020-04-07,60,6509,m9,Estimado (SEIR)
-2020-04-08,61,6961,m9,Estimado (SEIR)
-2020-04-09,62,7430,m9,Estimado (SEIR)
-2020-04-10,63,7916,m9,Estimado (SEIR)
-2020-04-11,64,8421,m9,Estimado (SEIR)
-2020-04-12,65,8944,m9,Estimado (SEIR)
-2020-04-13,66,9487,m9,Estimado (SEIR)
-2020-04-14,67,10050,m9,Estimado (SEIR)
-2020-04-15,68,10633,m9,Estimado (SEIR)
-2020-04-16,69,11239,m9,Estimado (SEIR)
-2020-04-17,70,11867,m9,Estimado (SEIR)
-2020-04-18,71,12519,m9,Estimado (SEIR)
-2020-04-19,72,13195,m9,Estimado (SEIR)
-2020-04-20,73,13896,m9,Estimado (SEIR)
-2020-04-21,74,14623,m9,Estimado (SEIR)
-2020-04-22,75,15377,m9,Estimado (SEIR)
-2020-04-23,76,16160,m9,Estimado (SEIR)
-2020-04-24,77,16972,m9,Estimado (SEIR)
-2020-02-28,21,3,Confirmado,Confirmado
-2020-02-29,22,4,Confirmado,Confirmado
-2020-03-01,23,5,Confirmado,Confirmado
-2020-03-02,24,5,Confirmado,Confirmado
-2020-03-03,25,5,Confirmado,Confirmado
-2020-03-04,26,5,Confirmado,Confirmado
-2020-03-05,27,5,Confirmado,Confirmado
-2020-03-06,28,6,Confirmado,Confirmado
-2020-03-07,29,7,Confirmado,Confirmado
-2020-03-08,30,7,Confirmado,Confirmado
-2020-03-09,31,7,Confirmado,Confirmado
-2020-03-10,32,7,Confirmado,Confirmado
-2020-03-11,33,12,Confirmado,Confirmado
-2020-03-12,34,15,Confirmado,Confirmado
-2020-03-13,35,27,Confirmado,Confirmado
-2020-03-14,36,40,Confirmado,Confirmado
-2020-03-15,37,53,Confirmado,Confirmado
-2020-03-16,38,82,Confirmado,Confirmado
-2020-03-17,39,93,Confirmado,Confirmado
-2020-03-18,40,118,Confirmado,Confirmado
-2020-03-19,41,164,Confirmado,Confirmado
-2020-03-20,42,203,Confirmado,Confirmado
-2020-03-21,43,251,Confirmado,Confirmado
-2020-03-22,44,316,Confirmado,Confirmado
-2020-03-23,45,367,Confirmado,Confirmado
-2020-03-24,46,405,Confirmado,Confirmado
-2020-03-25,47,475,Confirmado,Confirmado
-2020-03-26,48,585,Confirmado,Confirmado
-2020-03-27,49,717,Confirmado,Confirmado
-2020-03-28,50,848,Confirmado,Confirmado
-2020-03-29,51,993,Confirmado,Confirmado
-2020-03-30,52,1094,Confirmado,Confirmado
-2020-03-31,53,1215,Confirmado,Confirmado
-2020-04-01,54,1378,Confirmado,Confirmado
-2020-04-02,55,1510,Confirmado,Confirmado
-2020-04-03,56,1688,Confirmado,Confirmado
-2020-04-04,57,1890,Confirmado,Confirmado
-2020-04-05,58,2143,Confirmado,Confirmado
-2020-04-06,59,2439,Confirmado,Confirmado
-2020-04-07,60,2785,Confirmado,Confirmado
-2020-04-08,61,3181,Confirmado,Confirmado
-2020-04-09,62,3441,Confirmado,Confirmado
-2020-04-10,63,3844,Confirmado,Confirmado
-2020-04-11,64,4219,Confirmado,Confirmado
-2020-04-12,65,4661,Confirmado,Confirmado
-2020-04-13,66,5014,Confirmado,Confirmado
-2020-04-14,67,5399,Confirmado,Confirmado
-2020-04-15,68,5847,Confirmado,Confirmado
-2020-04-16,69,6297,Confirmado,Confirmado
-2020-04-17,70,6875,Confirmado,Confirmado
-2020-04-18,71,7497,Confirmado,Confirmado
-2020-04-19,72,8261,Confirmado,Confirmado
-2020-04-20,73,8772,Confirmado,Confirmado
-2020-04-21,74,9501,Confirmado,Confirmado
-2020-04-22,75,10544,Confirmado,Confirmado
-2020-04-23,76,11633,Confirmado,Confirmado
-2020-04-24,77,12872,Confirmado,Confirmado
+fecha,dia,casos_acumulados,modelo,grupo,fecha_estimacion
+2020-02-07,0,6,real,Inicio de síntomas,2020-04-25
+2020-02-14,7,7,real,Inicio de síntomas,2020-04-25
+2020-02-17,10,9,real,Inicio de síntomas,2020-04-25
+2020-02-18,11,10,real,Inicio de síntomas,2020-04-25
+2020-02-19,12,12,real,Inicio de síntomas,2020-04-25
+2020-02-21,14,13,real,Inicio de síntomas,2020-04-25
+2020-02-22,15,15,real,Inicio de síntomas,2020-04-25
+2020-02-23,16,17,real,Inicio de síntomas,2020-04-25
+2020-02-25,18,19,real,Inicio de síntomas,2020-04-25
+2020-02-26,19,20,real,Inicio de síntomas,2020-04-25
+2020-02-27,20,21,real,Inicio de síntomas,2020-04-25
+2020-02-28,21,23,real,Inicio de síntomas,2020-04-25
+2020-02-29,22,25,real,Inicio de síntomas,2020-04-25
+2020-03-01,23,31,real,Inicio de síntomas,2020-04-25
+2020-03-02,24,39,real,Inicio de síntomas,2020-04-25
+2020-03-03,25,45,real,Inicio de síntomas,2020-04-25
+2020-03-04,26,52,real,Inicio de síntomas,2020-04-25
+2020-03-05,27,59,real,Inicio de síntomas,2020-04-25
+2020-03-06,28,68,real,Inicio de síntomas,2020-04-25
+2020-03-07,29,87,real,Inicio de síntomas,2020-04-25
+2020-03-08,30,108,real,Inicio de síntomas,2020-04-25
+2020-03-09,31,168,real,Inicio de síntomas,2020-04-25
+2020-03-10,32,216,real,Inicio de síntomas,2020-04-25
+2020-03-11,33,266,real,Inicio de síntomas,2020-04-25
+2020-03-12,34,323,real,Inicio de síntomas,2020-04-25
+2020-03-13,35,407,real,Inicio de síntomas,2020-04-25
+2020-03-14,36,499,real,Inicio de síntomas,2020-04-25
+2020-03-15,37,595,real,Inicio de síntomas,2020-04-25
+2020-03-16,38,727,real,Inicio de síntomas,2020-04-25
+2020-03-17,39,828,real,Inicio de síntomas,2020-04-25
+2020-03-18,40,949,real,Inicio de síntomas,2020-04-25
+2020-03-19,41,1053,real,Inicio de síntomas,2020-04-25
+2020-03-20,42,1229,real,Inicio de síntomas,2020-04-25
+2020-03-21,43,1353,real,Inicio de síntomas,2020-04-25
+2020-03-22,44,1484,real,Inicio de síntomas,2020-04-25
+2020-03-23,45,1686,real,Inicio de síntomas,2020-04-25
+2020-03-24,46,1852,real,Inicio de síntomas,2020-04-25
+2020-03-25,47,2037,real,Inicio de síntomas,2020-04-25
+2020-03-26,48,2267,real,Inicio de síntomas,2020-04-25
+2020-03-27,49,2528,real,Inicio de síntomas,2020-04-25
+2020-03-28,50,2782,real,Inicio de síntomas,2020-04-25
+2020-03-29,51,3025,real,Inicio de síntomas,2020-04-25
+2020-03-30,52,3372,real,Inicio de síntomas,2020-04-25
+2020-03-31,53,3664,real,Inicio de síntomas,2020-04-25
+2020-04-01,54,4070,real,Inicio de síntomas,2020-04-25
+2020-04-02,55,4466,real,Inicio de síntomas,2020-04-25
+2020-04-03,56,4874,real,Inicio de síntomas,2020-04-25
+2020-04-04,57,5290,real,Inicio de síntomas,2020-04-25
+2020-04-05,58,5674,real,Inicio de síntomas,2020-04-25
+2020-04-06,59,6185,real,Inicio de síntomas,2020-04-25
+2020-04-07,60,6631,real,Inicio de síntomas,2020-04-25
+2020-04-08,61,7167,real,Inicio de síntomas,2020-04-25
+2020-04-09,62,7685,real,Inicio de síntomas,2020-04-25
+2020-04-10,63,8473,real,Inicio de síntomas,2020-04-25
+2020-04-11,64,9044,real,Inicio de síntomas,2020-04-25
+2020-04-12,65,9624,real,Inicio de síntomas,2020-04-25
+2020-04-13,66,10322,real,Inicio de síntomas,2020-04-25
+2020-04-14,67,10903,real,Inicio de síntomas,2020-04-25
+2020-04-15,68,11507,real,Inicio de síntomas,2020-04-25
+2020-04-16,69,12071,real,Inicio de síntomas,2020-04-25
+2020-04-17,70,12583,real,Inicio de síntomas,2020-04-25
+2020-04-18,71,13058,real,Inicio de síntomas,2020-04-25
+2020-04-19,72,13381,real,Inicio de síntomas,2020-04-25
+2020-04-20,73,13621,real,Inicio de síntomas,2020-04-25
+2020-04-21,74,13750,real,Inicio de síntomas,2020-04-25
+2020-04-22,75,13811,real,Inicio de síntomas,2020-04-25
+2020-04-23,76,13841,real,Inicio de síntomas,2020-04-25
+2020-04-24,77,13842,real,Inicio de síntomas,2020-04-25
+2020-02-07,0,6,m1,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m1,Estimado (SEIR),2020-04-25
+2020-02-09,2,6,m1,Estimado (SEIR),2020-04-25
+2020-02-10,3,8,m1,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m1,Estimado (SEIR),2020-04-25
+2020-02-12,5,11,m1,Estimado (SEIR),2020-04-25
+2020-02-13,6,13,m1,Estimado (SEIR),2020-04-25
+2020-02-14,7,16,m1,Estimado (SEIR),2020-04-25
+2020-02-15,8,18,m1,Estimado (SEIR),2020-04-25
+2020-02-16,9,21,m1,Estimado (SEIR),2020-04-25
+2020-02-17,10,24,m1,Estimado (SEIR),2020-04-25
+2020-02-18,11,28,m1,Estimado (SEIR),2020-04-25
+2020-02-19,12,31,m1,Estimado (SEIR),2020-04-25
+2020-02-20,13,35,m1,Estimado (SEIR),2020-04-25
+2020-02-21,14,39,m1,Estimado (SEIR),2020-04-25
+2020-02-22,15,43,m1,Estimado (SEIR),2020-04-25
+2020-02-23,16,48,m1,Estimado (SEIR),2020-04-25
+2020-02-24,17,53,m1,Estimado (SEIR),2020-04-25
+2020-02-25,18,58,m1,Estimado (SEIR),2020-04-25
+2020-02-26,19,64,m1,Estimado (SEIR),2020-04-25
+2020-02-27,20,71,m1,Estimado (SEIR),2020-04-25
+2020-02-28,21,78,m1,Estimado (SEIR),2020-04-25
+2020-02-29,22,86,m1,Estimado (SEIR),2020-04-25
+2020-03-01,23,94,m1,Estimado (SEIR),2020-04-25
+2020-03-02,24,104,m1,Estimado (SEIR),2020-04-25
+2020-03-03,25,116,m1,Estimado (SEIR),2020-04-25
+2020-03-04,26,130,m1,Estimado (SEIR),2020-04-25
+2020-03-05,27,146,m1,Estimado (SEIR),2020-04-25
+2020-03-06,28,166,m1,Estimado (SEIR),2020-04-25
+2020-03-07,29,189,m1,Estimado (SEIR),2020-04-25
+2020-03-08,30,215,m1,Estimado (SEIR),2020-04-25
+2020-03-09,31,247,m1,Estimado (SEIR),2020-04-25
+2020-03-10,32,284,m1,Estimado (SEIR),2020-04-25
+2020-03-11,33,327,m1,Estimado (SEIR),2020-04-25
+2020-03-12,34,377,m1,Estimado (SEIR),2020-04-25
+2020-03-13,35,434,m1,Estimado (SEIR),2020-04-25
+2020-03-14,36,500,m1,Estimado (SEIR),2020-04-25
+2020-03-15,37,576,m1,Estimado (SEIR),2020-04-25
+2020-03-16,38,658,m1,Estimado (SEIR),2020-04-25
+2020-03-17,39,752,m1,Estimado (SEIR),2020-04-25
+2020-03-18,40,860,m1,Estimado (SEIR),2020-04-25
+2020-03-19,41,983,m1,Estimado (SEIR),2020-04-25
+2020-03-20,42,1124,m1,Estimado (SEIR),2020-04-25
+2020-03-21,43,1286,m1,Estimado (SEIR),2020-04-25
+2020-03-22,44,1463,m1,Estimado (SEIR),2020-04-25
+2020-03-23,45,1652,m1,Estimado (SEIR),2020-04-25
+2020-03-24,46,1855,m1,Estimado (SEIR),2020-04-25
+2020-03-25,47,2078,m1,Estimado (SEIR),2020-04-25
+2020-03-26,48,2316,m1,Estimado (SEIR),2020-04-25
+2020-03-27,49,2563,m1,Estimado (SEIR),2020-04-25
+2020-03-28,50,2828,m1,Estimado (SEIR),2020-04-25
+2020-03-29,51,3110,m1,Estimado (SEIR),2020-04-25
+2020-03-30,52,3412,m1,Estimado (SEIR),2020-04-25
+2020-03-31,53,3735,m1,Estimado (SEIR),2020-04-25
+2020-04-01,54,4077,m1,Estimado (SEIR),2020-04-25
+2020-04-02,55,4448,m1,Estimado (SEIR),2020-04-25
+2020-04-03,56,4838,m1,Estimado (SEIR),2020-04-25
+2020-04-04,57,5240,m1,Estimado (SEIR),2020-04-25
+2020-04-05,58,5663,m1,Estimado (SEIR),2020-04-25
+2020-04-06,59,6110,m1,Estimado (SEIR),2020-04-25
+2020-04-07,60,6580,m1,Estimado (SEIR),2020-04-25
+2020-04-08,61,7077,m1,Estimado (SEIR),2020-04-25
+2020-04-09,62,7600,m1,Estimado (SEIR),2020-04-25
+2020-04-10,63,8152,m1,Estimado (SEIR),2020-04-25
+2020-04-11,64,8733,m1,Estimado (SEIR),2020-04-25
+2020-04-12,65,9347,m1,Estimado (SEIR),2020-04-25
+2020-04-13,66,9994,m1,Estimado (SEIR),2020-04-25
+2020-04-14,67,10676,m1,Estimado (SEIR),2020-04-25
+2020-04-15,68,11395,m1,Estimado (SEIR),2020-04-25
+2020-04-16,69,12154,m1,Estimado (SEIR),2020-04-25
+2020-04-17,70,12953,m1,Estimado (SEIR),2020-04-25
+2020-04-18,71,13797,m1,Estimado (SEIR),2020-04-25
+2020-04-19,72,14687,m1,Estimado (SEIR),2020-04-25
+2020-04-20,73,15625,m1,Estimado (SEIR),2020-04-25
+2020-04-21,74,16614,m1,Estimado (SEIR),2020-04-25
+2020-04-22,75,17657,m1,Estimado (SEIR),2020-04-25
+2020-04-23,76,18757,m1,Estimado (SEIR),2020-04-25
+2020-04-24,77,19917,m1,Estimado (SEIR),2020-04-25
+2020-04-25,78,21140,m1,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m2,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m2,Estimado (SEIR),2020-04-25
+2020-02-09,2,6,m2,Estimado (SEIR),2020-04-25
+2020-02-10,3,7,m2,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m2,Estimado (SEIR),2020-04-25
+2020-02-12,5,10,m2,Estimado (SEIR),2020-04-25
+2020-02-13,6,12,m2,Estimado (SEIR),2020-04-25
+2020-02-14,7,14,m2,Estimado (SEIR),2020-04-25
+2020-02-15,8,16,m2,Estimado (SEIR),2020-04-25
+2020-02-16,9,18,m2,Estimado (SEIR),2020-04-25
+2020-02-17,10,20,m2,Estimado (SEIR),2020-04-25
+2020-02-18,11,22,m2,Estimado (SEIR),2020-04-25
+2020-02-19,12,24,m2,Estimado (SEIR),2020-04-25
+2020-02-20,13,27,m2,Estimado (SEIR),2020-04-25
+2020-02-21,14,30,m2,Estimado (SEIR),2020-04-25
+2020-02-22,15,33,m2,Estimado (SEIR),2020-04-25
+2020-02-23,16,36,m2,Estimado (SEIR),2020-04-25
+2020-02-24,17,39,m2,Estimado (SEIR),2020-04-25
+2020-02-25,18,42,m2,Estimado (SEIR),2020-04-25
+2020-02-26,19,46,m2,Estimado (SEIR),2020-04-25
+2020-02-27,20,50,m2,Estimado (SEIR),2020-04-25
+2020-02-28,21,54,m2,Estimado (SEIR),2020-04-25
+2020-02-29,22,58,m2,Estimado (SEIR),2020-04-25
+2020-03-01,23,63,m2,Estimado (SEIR),2020-04-25
+2020-03-02,24,68,m2,Estimado (SEIR),2020-04-25
+2020-03-03,25,75,m2,Estimado (SEIR),2020-04-25
+2020-03-04,26,85,m2,Estimado (SEIR),2020-04-25
+2020-03-05,27,97,m2,Estimado (SEIR),2020-04-25
+2020-03-06,28,113,m2,Estimado (SEIR),2020-04-25
+2020-03-07,29,133,m2,Estimado (SEIR),2020-04-25
+2020-03-08,30,158,m2,Estimado (SEIR),2020-04-25
+2020-03-09,31,190,m2,Estimado (SEIR),2020-04-25
+2020-03-10,32,230,m2,Estimado (SEIR),2020-04-25
+2020-03-11,33,282,m2,Estimado (SEIR),2020-04-25
+2020-03-12,34,338,m2,Estimado (SEIR),2020-04-25
+2020-03-13,35,402,m2,Estimado (SEIR),2020-04-25
+2020-03-14,36,474,m2,Estimado (SEIR),2020-04-25
+2020-03-15,37,555,m2,Estimado (SEIR),2020-04-25
+2020-03-16,38,641,m2,Estimado (SEIR),2020-04-25
+2020-03-17,39,738,m2,Estimado (SEIR),2020-04-25
+2020-03-18,40,847,m2,Estimado (SEIR),2020-04-25
+2020-03-19,41,970,m2,Estimado (SEIR),2020-04-25
+2020-03-20,42,1108,m2,Estimado (SEIR),2020-04-25
+2020-03-21,43,1263,m2,Estimado (SEIR),2020-04-25
+2020-03-22,44,1433,m2,Estimado (SEIR),2020-04-25
+2020-03-23,45,1617,m2,Estimado (SEIR),2020-04-25
+2020-03-24,46,1816,m2,Estimado (SEIR),2020-04-25
+2020-03-25,47,2031,m2,Estimado (SEIR),2020-04-25
+2020-03-26,48,2262,m2,Estimado (SEIR),2020-04-25
+2020-03-27,49,2512,m2,Estimado (SEIR),2020-04-25
+2020-03-28,50,2782,m2,Estimado (SEIR),2020-04-25
+2020-03-29,51,3073,m2,Estimado (SEIR),2020-04-25
+2020-03-30,52,3387,m2,Estimado (SEIR),2020-04-25
+2020-03-31,53,3727,m2,Estimado (SEIR),2020-04-25
+2020-04-01,54,4087,m2,Estimado (SEIR),2020-04-25
+2020-04-02,55,4467,m2,Estimado (SEIR),2020-04-25
+2020-04-03,56,4863,m2,Estimado (SEIR),2020-04-25
+2020-04-04,57,5277,m2,Estimado (SEIR),2020-04-25
+2020-04-05,58,5709,m2,Estimado (SEIR),2020-04-25
+2020-04-06,59,6160,m2,Estimado (SEIR),2020-04-25
+2020-04-07,60,6633,m2,Estimado (SEIR),2020-04-25
+2020-04-08,61,7128,m2,Estimado (SEIR),2020-04-25
+2020-04-09,62,7647,m2,Estimado (SEIR),2020-04-25
+2020-04-10,63,8189,m2,Estimado (SEIR),2020-04-25
+2020-04-11,64,8756,m2,Estimado (SEIR),2020-04-25
+2020-04-12,65,9351,m2,Estimado (SEIR),2020-04-25
+2020-04-13,66,9972,m2,Estimado (SEIR),2020-04-25
+2020-04-14,67,10623,m2,Estimado (SEIR),2020-04-25
+2020-04-15,68,11303,m2,Estimado (SEIR),2020-04-25
+2020-04-16,69,12015,m2,Estimado (SEIR),2020-04-25
+2020-04-17,70,12761,m2,Estimado (SEIR),2020-04-25
+2020-04-18,71,13541,m2,Estimado (SEIR),2020-04-25
+2020-04-19,72,14358,m2,Estimado (SEIR),2020-04-25
+2020-04-20,73,15212,m2,Estimado (SEIR),2020-04-25
+2020-04-21,74,16106,m2,Estimado (SEIR),2020-04-25
+2020-04-22,75,17042,m2,Estimado (SEIR),2020-04-25
+2020-04-23,76,18022,m2,Estimado (SEIR),2020-04-25
+2020-04-24,77,19047,m2,Estimado (SEIR),2020-04-25
+2020-04-25,78,20120,m2,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m3,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m3,Estimado (SEIR),2020-04-25
+2020-02-09,2,6,m3,Estimado (SEIR),2020-04-25
+2020-02-10,3,8,m3,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m3,Estimado (SEIR),2020-04-25
+2020-02-12,5,11,m3,Estimado (SEIR),2020-04-25
+2020-02-13,6,13,m3,Estimado (SEIR),2020-04-25
+2020-02-14,7,15,m3,Estimado (SEIR),2020-04-25
+2020-02-15,8,17,m3,Estimado (SEIR),2020-04-25
+2020-02-16,9,20,m3,Estimado (SEIR),2020-04-25
+2020-02-17,10,23,m3,Estimado (SEIR),2020-04-25
+2020-02-18,11,26,m3,Estimado (SEIR),2020-04-25
+2020-02-19,12,29,m3,Estimado (SEIR),2020-04-25
+2020-02-20,13,33,m3,Estimado (SEIR),2020-04-25
+2020-02-21,14,37,m3,Estimado (SEIR),2020-04-25
+2020-02-22,15,41,m3,Estimado (SEIR),2020-04-25
+2020-02-23,16,46,m3,Estimado (SEIR),2020-04-25
+2020-02-24,17,51,m3,Estimado (SEIR),2020-04-25
+2020-02-25,18,57,m3,Estimado (SEIR),2020-04-25
+2020-02-26,19,63,m3,Estimado (SEIR),2020-04-25
+2020-02-27,20,70,m3,Estimado (SEIR),2020-04-25
+2020-02-28,21,77,m3,Estimado (SEIR),2020-04-25
+2020-02-29,22,85,m3,Estimado (SEIR),2020-04-25
+2020-03-01,23,94,m3,Estimado (SEIR),2020-04-25
+2020-03-02,24,104,m3,Estimado (SEIR),2020-04-25
+2020-03-03,25,115,m3,Estimado (SEIR),2020-04-25
+2020-03-04,26,130,m3,Estimado (SEIR),2020-04-25
+2020-03-05,27,148,m3,Estimado (SEIR),2020-04-25
+2020-03-06,28,169,m3,Estimado (SEIR),2020-04-25
+2020-03-07,29,194,m3,Estimado (SEIR),2020-04-25
+2020-03-08,30,223,m3,Estimado (SEIR),2020-04-25
+2020-03-09,31,258,m3,Estimado (SEIR),2020-04-25
+2020-03-10,32,299,m3,Estimado (SEIR),2020-04-25
+2020-03-11,33,347,m3,Estimado (SEIR),2020-04-25
+2020-03-12,34,398,m3,Estimado (SEIR),2020-04-25
+2020-03-13,35,456,m3,Estimado (SEIR),2020-04-25
+2020-03-14,36,522,m3,Estimado (SEIR),2020-04-25
+2020-03-15,37,600,m3,Estimado (SEIR),2020-04-25
+2020-03-16,38,688,m3,Estimado (SEIR),2020-04-25
+2020-03-17,39,782,m3,Estimado (SEIR),2020-04-25
+2020-03-18,40,888,m3,Estimado (SEIR),2020-04-25
+2020-03-19,41,1006,m3,Estimado (SEIR),2020-04-25
+2020-03-20,42,1140,m3,Estimado (SEIR),2020-04-25
+2020-03-21,43,1291,m3,Estimado (SEIR),2020-04-25
+2020-03-22,44,1456,m3,Estimado (SEIR),2020-04-25
+2020-03-23,45,1643,m3,Estimado (SEIR),2020-04-25
+2020-03-24,46,1844,m3,Estimado (SEIR),2020-04-25
+2020-03-25,47,2054,m3,Estimado (SEIR),2020-04-25
+2020-03-26,48,2281,m3,Estimado (SEIR),2020-04-25
+2020-03-27,49,2527,m3,Estimado (SEIR),2020-04-25
+2020-03-28,50,2793,m3,Estimado (SEIR),2020-04-25
+2020-03-29,51,3080,m3,Estimado (SEIR),2020-04-25
+2020-03-30,52,3391,m3,Estimado (SEIR),2020-04-25
+2020-03-31,53,3728,m3,Estimado (SEIR),2020-04-25
+2020-04-01,54,4086,m3,Estimado (SEIR),2020-04-25
+2020-04-02,55,4465,m3,Estimado (SEIR),2020-04-25
+2020-04-03,56,4860,m3,Estimado (SEIR),2020-04-25
+2020-04-04,57,5271,m3,Estimado (SEIR),2020-04-25
+2020-04-05,58,5700,m3,Estimado (SEIR),2020-04-25
+2020-04-06,59,6149,m3,Estimado (SEIR),2020-04-25
+2020-04-07,60,6618,m3,Estimado (SEIR),2020-04-25
+2020-04-08,61,7110,m3,Estimado (SEIR),2020-04-25
+2020-04-09,62,7624,m3,Estimado (SEIR),2020-04-25
+2020-04-10,63,8162,m3,Estimado (SEIR),2020-04-25
+2020-04-11,64,8725,m3,Estimado (SEIR),2020-04-25
+2020-04-12,65,9314,m3,Estimado (SEIR),2020-04-25
+2020-04-13,66,9930,m3,Estimado (SEIR),2020-04-25
+2020-04-14,67,10575,m3,Estimado (SEIR),2020-04-25
+2020-04-15,68,11249,m3,Estimado (SEIR),2020-04-25
+2020-04-16,69,11954,m3,Estimado (SEIR),2020-04-25
+2020-04-17,70,12693,m3,Estimado (SEIR),2020-04-25
+2020-04-18,71,13465,m3,Estimado (SEIR),2020-04-25
+2020-04-19,72,14273,m3,Estimado (SEIR),2020-04-25
+2020-04-20,73,15119,m3,Estimado (SEIR),2020-04-25
+2020-04-21,74,16003,m3,Estimado (SEIR),2020-04-25
+2020-04-22,75,16929,m3,Estimado (SEIR),2020-04-25
+2020-04-23,76,17898,m3,Estimado (SEIR),2020-04-25
+2020-04-24,77,18911,m3,Estimado (SEIR),2020-04-25
+2020-04-25,78,19971,m3,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m4,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m4,Estimado (SEIR),2020-04-25
+2020-02-09,2,6,m4,Estimado (SEIR),2020-04-25
+2020-02-10,3,7,m4,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m4,Estimado (SEIR),2020-04-25
+2020-02-12,5,10,m4,Estimado (SEIR),2020-04-25
+2020-02-13,6,12,m4,Estimado (SEIR),2020-04-25
+2020-02-14,7,13,m4,Estimado (SEIR),2020-04-25
+2020-02-15,8,15,m4,Estimado (SEIR),2020-04-25
+2020-02-16,9,17,m4,Estimado (SEIR),2020-04-25
+2020-02-17,10,19,m4,Estimado (SEIR),2020-04-25
+2020-02-18,11,21,m4,Estimado (SEIR),2020-04-25
+2020-02-19,12,23,m4,Estimado (SEIR),2020-04-25
+2020-02-20,13,26,m4,Estimado (SEIR),2020-04-25
+2020-02-21,14,28,m4,Estimado (SEIR),2020-04-25
+2020-02-22,15,31,m4,Estimado (SEIR),2020-04-25
+2020-02-23,16,34,m4,Estimado (SEIR),2020-04-25
+2020-02-24,17,37,m4,Estimado (SEIR),2020-04-25
+2020-02-25,18,40,m4,Estimado (SEIR),2020-04-25
+2020-02-26,19,43,m4,Estimado (SEIR),2020-04-25
+2020-02-27,20,47,m4,Estimado (SEIR),2020-04-25
+2020-02-28,21,51,m4,Estimado (SEIR),2020-04-25
+2020-02-29,22,55,m4,Estimado (SEIR),2020-04-25
+2020-03-01,23,59,m4,Estimado (SEIR),2020-04-25
+2020-03-02,24,64,m4,Estimado (SEIR),2020-04-25
+2020-03-03,25,70,m4,Estimado (SEIR),2020-04-25
+2020-03-04,26,79,m4,Estimado (SEIR),2020-04-25
+2020-03-05,27,90,m4,Estimado (SEIR),2020-04-25
+2020-03-06,28,106,m4,Estimado (SEIR),2020-04-25
+2020-03-07,29,126,m4,Estimado (SEIR),2020-04-25
+2020-03-08,30,153,m4,Estimado (SEIR),2020-04-25
+2020-03-09,31,188,m4,Estimado (SEIR),2020-04-25
+2020-03-10,32,233,m4,Estimado (SEIR),2020-04-25
+2020-03-11,33,292,m4,Estimado (SEIR),2020-04-25
+2020-03-12,34,365,m4,Estimado (SEIR),2020-04-25
+2020-03-13,35,445,m4,Estimado (SEIR),2020-04-25
+2020-03-14,36,532,m4,Estimado (SEIR),2020-04-25
+2020-03-15,37,625,m4,Estimado (SEIR),2020-04-25
+2020-03-16,38,723,m4,Estimado (SEIR),2020-04-25
+2020-03-17,39,830,m4,Estimado (SEIR),2020-04-25
+2020-03-18,40,940,m4,Estimado (SEIR),2020-04-25
+2020-03-19,41,1058,m4,Estimado (SEIR),2020-04-25
+2020-03-20,42,1185,m4,Estimado (SEIR),2020-04-25
+2020-03-21,43,1321,m4,Estimado (SEIR),2020-04-25
+2020-03-22,44,1469,m4,Estimado (SEIR),2020-04-25
+2020-03-23,45,1629,m4,Estimado (SEIR),2020-04-25
+2020-03-24,46,1817,m4,Estimado (SEIR),2020-04-25
+2020-03-25,47,2027,m4,Estimado (SEIR),2020-04-25
+2020-03-26,48,2246,m4,Estimado (SEIR),2020-04-25
+2020-03-27,49,2486,m4,Estimado (SEIR),2020-04-25
+2020-03-28,50,2751,m4,Estimado (SEIR),2020-04-25
+2020-03-29,51,3042,m4,Estimado (SEIR),2020-04-25
+2020-03-30,52,3362,m4,Estimado (SEIR),2020-04-25
+2020-03-31,53,3714,m4,Estimado (SEIR),2020-04-25
+2020-04-01,54,4096,m4,Estimado (SEIR),2020-04-25
+2020-04-02,55,4498,m4,Estimado (SEIR),2020-04-25
+2020-04-03,56,4913,m4,Estimado (SEIR),2020-04-25
+2020-04-04,57,5334,m4,Estimado (SEIR),2020-04-25
+2020-04-05,58,5765,m4,Estimado (SEIR),2020-04-25
+2020-04-06,59,6210,m4,Estimado (SEIR),2020-04-25
+2020-04-07,60,6669,m4,Estimado (SEIR),2020-04-25
+2020-04-08,61,7144,m4,Estimado (SEIR),2020-04-25
+2020-04-09,62,7636,m4,Estimado (SEIR),2020-04-25
+2020-04-10,63,8145,m4,Estimado (SEIR),2020-04-25
+2020-04-11,64,8671,m4,Estimado (SEIR),2020-04-25
+2020-04-12,65,9216,m4,Estimado (SEIR),2020-04-25
+2020-04-13,66,9781,m4,Estimado (SEIR),2020-04-25
+2020-04-14,67,10365,m4,Estimado (SEIR),2020-04-25
+2020-04-15,68,10970,m4,Estimado (SEIR),2020-04-25
+2020-04-16,69,11595,m4,Estimado (SEIR),2020-04-25
+2020-04-17,70,12243,m4,Estimado (SEIR),2020-04-25
+2020-04-18,71,12914,m4,Estimado (SEIR),2020-04-25
+2020-04-19,72,13608,m4,Estimado (SEIR),2020-04-25
+2020-04-20,73,14326,m4,Estimado (SEIR),2020-04-25
+2020-04-21,74,15070,m4,Estimado (SEIR),2020-04-25
+2020-04-22,75,15840,m4,Estimado (SEIR),2020-04-25
+2020-04-23,76,16637,m4,Estimado (SEIR),2020-04-25
+2020-04-24,77,17461,m4,Estimado (SEIR),2020-04-25
+2020-04-25,78,18315,m4,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m5,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m5,Estimado (SEIR),2020-04-25
+2020-02-09,2,6,m5,Estimado (SEIR),2020-04-25
+2020-02-10,3,7,m5,Estimado (SEIR),2020-04-25
+2020-02-11,4,8,m5,Estimado (SEIR),2020-04-25
+2020-02-12,5,9,m5,Estimado (SEIR),2020-04-25
+2020-02-13,6,11,m5,Estimado (SEIR),2020-04-25
+2020-02-14,7,12,m5,Estimado (SEIR),2020-04-25
+2020-02-15,8,14,m5,Estimado (SEIR),2020-04-25
+2020-02-16,9,15,m5,Estimado (SEIR),2020-04-25
+2020-02-17,10,17,m5,Estimado (SEIR),2020-04-25
+2020-02-18,11,19,m5,Estimado (SEIR),2020-04-25
+2020-02-19,12,20,m5,Estimado (SEIR),2020-04-25
+2020-02-20,13,22,m5,Estimado (SEIR),2020-04-25
+2020-02-21,14,24,m5,Estimado (SEIR),2020-04-25
+2020-02-22,15,26,m5,Estimado (SEIR),2020-04-25
+2020-02-23,16,29,m5,Estimado (SEIR),2020-04-25
+2020-02-24,17,31,m5,Estimado (SEIR),2020-04-25
+2020-02-25,18,33,m5,Estimado (SEIR),2020-04-25
+2020-02-26,19,36,m5,Estimado (SEIR),2020-04-25
+2020-02-27,20,39,m5,Estimado (SEIR),2020-04-25
+2020-02-28,21,42,m5,Estimado (SEIR),2020-04-25
+2020-02-29,22,45,m5,Estimado (SEIR),2020-04-25
+2020-03-01,23,48,m5,Estimado (SEIR),2020-04-25
+2020-03-02,24,52,m5,Estimado (SEIR),2020-04-25
+2020-03-03,25,56,m5,Estimado (SEIR),2020-04-25
+2020-03-04,26,63,m5,Estimado (SEIR),2020-04-25
+2020-03-05,27,73,m5,Estimado (SEIR),2020-04-25
+2020-03-06,28,86,m5,Estimado (SEIR),2020-04-25
+2020-03-07,29,103,m5,Estimado (SEIR),2020-04-25
+2020-03-08,30,126,m5,Estimado (SEIR),2020-04-25
+2020-03-09,31,157,m5,Estimado (SEIR),2020-04-25
+2020-03-10,32,199,m5,Estimado (SEIR),2020-04-25
+2020-03-11,33,256,m5,Estimado (SEIR),2020-04-25
+2020-03-12,34,326,m5,Estimado (SEIR),2020-04-25
+2020-03-13,35,404,m5,Estimado (SEIR),2020-04-25
+2020-03-14,36,492,m5,Estimado (SEIR),2020-04-25
+2020-03-15,37,585,m5,Estimado (SEIR),2020-04-25
+2020-03-16,38,685,m5,Estimado (SEIR),2020-04-25
+2020-03-17,39,795,m5,Estimado (SEIR),2020-04-25
+2020-03-18,40,908,m5,Estimado (SEIR),2020-04-25
+2020-03-19,41,1031,m5,Estimado (SEIR),2020-04-25
+2020-03-20,42,1164,m5,Estimado (SEIR),2020-04-25
+2020-03-21,43,1309,m5,Estimado (SEIR),2020-04-25
+2020-03-22,44,1465,m5,Estimado (SEIR),2020-04-25
+2020-03-23,45,1637,m5,Estimado (SEIR),2020-04-25
+2020-03-24,46,1824,m5,Estimado (SEIR),2020-04-25
+2020-03-25,47,2028,m5,Estimado (SEIR),2020-04-25
+2020-03-26,48,2251,m5,Estimado (SEIR),2020-04-25
+2020-03-27,49,2494,m5,Estimado (SEIR),2020-04-25
+2020-03-28,50,2760,m5,Estimado (SEIR),2020-04-25
+2020-03-29,51,3050,m5,Estimado (SEIR),2020-04-25
+2020-03-30,52,3367,m5,Estimado (SEIR),2020-04-25
+2020-03-31,53,3711,m5,Estimado (SEIR),2020-04-25
+2020-04-01,54,4085,m5,Estimado (SEIR),2020-04-25
+2020-04-02,55,4480,m5,Estimado (SEIR),2020-04-25
+2020-04-03,56,4890,m5,Estimado (SEIR),2020-04-25
+2020-04-04,57,5310,m5,Estimado (SEIR),2020-04-25
+2020-04-05,58,5746,m5,Estimado (SEIR),2020-04-25
+2020-04-06,59,6197,m5,Estimado (SEIR),2020-04-25
+2020-04-07,60,6667,m5,Estimado (SEIR),2020-04-25
+2020-04-08,61,7154,m5,Estimado (SEIR),2020-04-25
+2020-04-09,62,7661,m5,Estimado (SEIR),2020-04-25
+2020-04-10,63,8189,m5,Estimado (SEIR),2020-04-25
+2020-04-11,64,8737,m5,Estimado (SEIR),2020-04-25
+2020-04-12,65,9308,m5,Estimado (SEIR),2020-04-25
+2020-04-13,66,9901,m5,Estimado (SEIR),2020-04-25
+2020-04-14,67,10519,m5,Estimado (SEIR),2020-04-25
+2020-04-15,68,11161,m5,Estimado (SEIR),2020-04-25
+2020-04-16,69,11829,m5,Estimado (SEIR),2020-04-25
+2020-04-17,70,12523,m5,Estimado (SEIR),2020-04-25
+2020-04-18,71,13246,m5,Estimado (SEIR),2020-04-25
+2020-04-19,72,13998,m5,Estimado (SEIR),2020-04-25
+2020-04-20,73,14780,m5,Estimado (SEIR),2020-04-25
+2020-04-21,74,15593,m5,Estimado (SEIR),2020-04-25
+2020-04-22,75,16439,m5,Estimado (SEIR),2020-04-25
+2020-04-23,76,17319,m5,Estimado (SEIR),2020-04-25
+2020-04-24,77,18235,m5,Estimado (SEIR),2020-04-25
+2020-04-25,78,19187,m5,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m6,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m6,Estimado (SEIR),2020-04-25
+2020-02-09,2,7,m6,Estimado (SEIR),2020-04-25
+2020-02-10,3,8,m6,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m6,Estimado (SEIR),2020-04-25
+2020-02-12,5,11,m6,Estimado (SEIR),2020-04-25
+2020-02-13,6,13,m6,Estimado (SEIR),2020-04-25
+2020-02-14,7,15,m6,Estimado (SEIR),2020-04-25
+2020-02-15,8,18,m6,Estimado (SEIR),2020-04-25
+2020-02-16,9,21,m6,Estimado (SEIR),2020-04-25
+2020-02-17,10,24,m6,Estimado (SEIR),2020-04-25
+2020-02-18,11,27,m6,Estimado (SEIR),2020-04-25
+2020-02-19,12,31,m6,Estimado (SEIR),2020-04-25
+2020-02-20,13,35,m6,Estimado (SEIR),2020-04-25
+2020-02-21,14,40,m6,Estimado (SEIR),2020-04-25
+2020-02-22,15,45,m6,Estimado (SEIR),2020-04-25
+2020-02-23,16,51,m6,Estimado (SEIR),2020-04-25
+2020-02-24,17,57,m6,Estimado (SEIR),2020-04-25
+2020-02-25,18,65,m6,Estimado (SEIR),2020-04-25
+2020-02-26,19,73,m6,Estimado (SEIR),2020-04-25
+2020-02-27,20,82,m6,Estimado (SEIR),2020-04-25
+2020-02-28,21,91,m6,Estimado (SEIR),2020-04-25
+2020-02-29,22,103,m6,Estimado (SEIR),2020-04-25
+2020-03-01,23,115,m6,Estimado (SEIR),2020-04-25
+2020-03-02,24,129,m6,Estimado (SEIR),2020-04-25
+2020-03-03,25,144,m6,Estimado (SEIR),2020-04-25
+2020-03-04,26,161,m6,Estimado (SEIR),2020-04-25
+2020-03-05,27,180,m6,Estimado (SEIR),2020-04-25
+2020-03-06,28,202,m6,Estimado (SEIR),2020-04-25
+2020-03-07,29,226,m6,Estimado (SEIR),2020-04-25
+2020-03-08,30,253,m6,Estimado (SEIR),2020-04-25
+2020-03-09,31,283,m6,Estimado (SEIR),2020-04-25
+2020-03-10,32,316,m6,Estimado (SEIR),2020-04-25
+2020-03-11,33,354,m6,Estimado (SEIR),2020-04-25
+2020-03-12,34,395,m6,Estimado (SEIR),2020-04-25
+2020-03-13,35,447,m6,Estimado (SEIR),2020-04-25
+2020-03-14,36,508,m6,Estimado (SEIR),2020-04-25
+2020-03-15,37,579,m6,Estimado (SEIR),2020-04-25
+2020-03-16,38,664,m6,Estimado (SEIR),2020-04-25
+2020-03-17,39,754,m6,Estimado (SEIR),2020-04-25
+2020-03-18,40,858,m6,Estimado (SEIR),2020-04-25
+2020-03-19,41,977,m6,Estimado (SEIR),2020-04-25
+2020-03-20,42,1115,m6,Estimado (SEIR),2020-04-25
+2020-03-21,43,1274,m6,Estimado (SEIR),2020-04-25
+2020-03-22,44,1451,m6,Estimado (SEIR),2020-04-25
+2020-03-23,45,1653,m6,Estimado (SEIR),2020-04-25
+2020-03-24,46,1868,m6,Estimado (SEIR),2020-04-25
+2020-03-25,47,2088,m6,Estimado (SEIR),2020-04-25
+2020-03-26,48,2322,m6,Estimado (SEIR),2020-04-25
+2020-03-27,49,2571,m6,Estimado (SEIR),2020-04-25
+2020-03-28,50,2838,m6,Estimado (SEIR),2020-04-25
+2020-03-29,51,3123,m6,Estimado (SEIR),2020-04-25
+2020-03-30,52,3428,m6,Estimado (SEIR),2020-04-25
+2020-03-31,53,3754,m6,Estimado (SEIR),2020-04-25
+2020-04-01,54,4102,m6,Estimado (SEIR),2020-04-25
+2020-04-02,55,4467,m6,Estimado (SEIR),2020-04-25
+2020-04-03,56,4863,m6,Estimado (SEIR),2020-04-25
+2020-04-04,57,5282,m6,Estimado (SEIR),2020-04-25
+2020-04-05,58,5710,m6,Estimado (SEIR),2020-04-25
+2020-04-06,59,6160,m6,Estimado (SEIR),2020-04-25
+2020-04-07,60,6633,m6,Estimado (SEIR),2020-04-25
+2020-04-08,61,7131,m6,Estimado (SEIR),2020-04-25
+2020-04-09,62,7656,m6,Estimado (SEIR),2020-04-25
+2020-04-10,63,8208,m6,Estimado (SEIR),2020-04-25
+2020-04-11,64,8790,m6,Estimado (SEIR),2020-04-25
+2020-04-12,65,9401,m6,Estimado (SEIR),2020-04-25
+2020-04-13,66,10045,m6,Estimado (SEIR),2020-04-25
+2020-04-14,67,10723,m6,Estimado (SEIR),2020-04-25
+2020-04-15,68,11437,m6,Estimado (SEIR),2020-04-25
+2020-04-16,69,12189,m6,Estimado (SEIR),2020-04-25
+2020-04-17,70,12980,m6,Estimado (SEIR),2020-04-25
+2020-04-18,71,13814,m6,Estimado (SEIR),2020-04-25
+2020-04-19,72,14691,m6,Estimado (SEIR),2020-04-25
+2020-04-20,73,15615,m6,Estimado (SEIR),2020-04-25
+2020-04-21,74,16587,m6,Estimado (SEIR),2020-04-25
+2020-04-22,75,17611,m6,Estimado (SEIR),2020-04-25
+2020-04-23,76,18690,m6,Estimado (SEIR),2020-04-25
+2020-04-24,77,19825,m6,Estimado (SEIR),2020-04-25
+2020-04-25,78,21020,m6,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m7,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m7,Estimado (SEIR),2020-04-25
+2020-02-09,2,7,m7,Estimado (SEIR),2020-04-25
+2020-02-10,3,8,m7,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m7,Estimado (SEIR),2020-04-25
+2020-02-12,5,11,m7,Estimado (SEIR),2020-04-25
+2020-02-13,6,13,m7,Estimado (SEIR),2020-04-25
+2020-02-14,7,15,m7,Estimado (SEIR),2020-04-25
+2020-02-15,8,17,m7,Estimado (SEIR),2020-04-25
+2020-02-16,9,20,m7,Estimado (SEIR),2020-04-25
+2020-02-17,10,23,m7,Estimado (SEIR),2020-04-25
+2020-02-18,11,26,m7,Estimado (SEIR),2020-04-25
+2020-02-19,12,29,m7,Estimado (SEIR),2020-04-25
+2020-02-20,13,33,m7,Estimado (SEIR),2020-04-25
+2020-02-21,14,37,m7,Estimado (SEIR),2020-04-25
+2020-02-22,15,41,m7,Estimado (SEIR),2020-04-25
+2020-02-23,16,46,m7,Estimado (SEIR),2020-04-25
+2020-02-24,17,52,m7,Estimado (SEIR),2020-04-25
+2020-02-25,18,57,m7,Estimado (SEIR),2020-04-25
+2020-02-26,19,64,m7,Estimado (SEIR),2020-04-25
+2020-02-27,20,71,m7,Estimado (SEIR),2020-04-25
+2020-02-28,21,79,m7,Estimado (SEIR),2020-04-25
+2020-02-29,22,88,m7,Estimado (SEIR),2020-04-25
+2020-03-01,23,97,m7,Estimado (SEIR),2020-04-25
+2020-03-02,24,108,m7,Estimado (SEIR),2020-04-25
+2020-03-03,25,121,m7,Estimado (SEIR),2020-04-25
+2020-03-04,26,136,m7,Estimado (SEIR),2020-04-25
+2020-03-05,27,153,m7,Estimado (SEIR),2020-04-25
+2020-03-06,28,173,m7,Estimado (SEIR),2020-04-25
+2020-03-07,29,197,m7,Estimado (SEIR),2020-04-25
+2020-03-08,30,224,m7,Estimado (SEIR),2020-04-25
+2020-03-09,31,256,m7,Estimado (SEIR),2020-04-25
+2020-03-10,32,292,m7,Estimado (SEIR),2020-04-25
+2020-03-11,33,334,m7,Estimado (SEIR),2020-04-25
+2020-03-12,34,382,m7,Estimado (SEIR),2020-04-25
+2020-03-13,35,436,m7,Estimado (SEIR),2020-04-25
+2020-03-14,36,503,m7,Estimado (SEIR),2020-04-25
+2020-03-15,37,579,m7,Estimado (SEIR),2020-04-25
+2020-03-16,38,661,m7,Estimado (SEIR),2020-04-25
+2020-03-17,39,754,m7,Estimado (SEIR),2020-04-25
+2020-03-18,40,860,m7,Estimado (SEIR),2020-04-25
+2020-03-19,41,982,m7,Estimado (SEIR),2020-04-25
+2020-03-20,42,1120,m7,Estimado (SEIR),2020-04-25
+2020-03-21,43,1277,m7,Estimado (SEIR),2020-04-25
+2020-03-22,44,1450,m7,Estimado (SEIR),2020-04-25
+2020-03-23,45,1635,m7,Estimado (SEIR),2020-04-25
+2020-03-24,46,1832,m7,Estimado (SEIR),2020-04-25
+2020-03-25,47,2053,m7,Estimado (SEIR),2020-04-25
+2020-03-26,48,2290,m7,Estimado (SEIR),2020-04-25
+2020-03-27,49,2538,m7,Estimado (SEIR),2020-04-25
+2020-03-28,50,2805,m7,Estimado (SEIR),2020-04-25
+2020-03-29,51,3093,m7,Estimado (SEIR),2020-04-25
+2020-03-30,52,3405,m7,Estimado (SEIR),2020-04-25
+2020-03-31,53,3742,m7,Estimado (SEIR),2020-04-25
+2020-04-01,54,4099,m7,Estimado (SEIR),2020-04-25
+2020-04-02,55,4479,m7,Estimado (SEIR),2020-04-25
+2020-04-03,56,4875,m7,Estimado (SEIR),2020-04-25
+2020-04-04,57,5281,m7,Estimado (SEIR),2020-04-25
+2020-04-05,58,5705,m7,Estimado (SEIR),2020-04-25
+2020-04-06,59,6149,m7,Estimado (SEIR),2020-04-25
+2020-04-07,60,6615,m7,Estimado (SEIR),2020-04-25
+2020-04-08,61,7104,m7,Estimado (SEIR),2020-04-25
+2020-04-09,62,7617,m7,Estimado (SEIR),2020-04-25
+2020-04-10,63,8156,m7,Estimado (SEIR),2020-04-25
+2020-04-11,64,8722,m7,Estimado (SEIR),2020-04-25
+2020-04-12,65,9316,m7,Estimado (SEIR),2020-04-25
+2020-04-13,66,9940,m7,Estimado (SEIR),2020-04-25
+2020-04-14,67,10595,m7,Estimado (SEIR),2020-04-25
+2020-04-15,68,11283,m7,Estimado (SEIR),2020-04-25
+2020-04-16,69,12005,m7,Estimado (SEIR),2020-04-25
+2020-04-17,70,12764,m7,Estimado (SEIR),2020-04-25
+2020-04-18,71,13561,m7,Estimado (SEIR),2020-04-25
+2020-04-19,72,14397,m7,Estimado (SEIR),2020-04-25
+2020-04-20,73,15276,m7,Estimado (SEIR),2020-04-25
+2020-04-21,74,16198,m7,Estimado (SEIR),2020-04-25
+2020-04-22,75,17167,m7,Estimado (SEIR),2020-04-25
+2020-04-23,76,18185,m7,Estimado (SEIR),2020-04-25
+2020-04-24,77,19253,m7,Estimado (SEIR),2020-04-25
+2020-04-25,78,20376,m7,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m8,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m8,Estimado (SEIR),2020-04-25
+2020-02-09,2,7,m8,Estimado (SEIR),2020-04-25
+2020-02-10,3,8,m8,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m8,Estimado (SEIR),2020-04-25
+2020-02-12,5,11,m8,Estimado (SEIR),2020-04-25
+2020-02-13,6,13,m8,Estimado (SEIR),2020-04-25
+2020-02-14,7,15,m8,Estimado (SEIR),2020-04-25
+2020-02-15,8,17,m8,Estimado (SEIR),2020-04-25
+2020-02-16,9,20,m8,Estimado (SEIR),2020-04-25
+2020-02-17,10,23,m8,Estimado (SEIR),2020-04-25
+2020-02-18,11,26,m8,Estimado (SEIR),2020-04-25
+2020-02-19,12,30,m8,Estimado (SEIR),2020-04-25
+2020-02-20,13,34,m8,Estimado (SEIR),2020-04-25
+2020-02-21,14,39,m8,Estimado (SEIR),2020-04-25
+2020-02-22,15,44,m8,Estimado (SEIR),2020-04-25
+2020-02-23,16,49,m8,Estimado (SEIR),2020-04-25
+2020-02-24,17,55,m8,Estimado (SEIR),2020-04-25
+2020-02-25,18,62,m8,Estimado (SEIR),2020-04-25
+2020-02-26,19,70,m8,Estimado (SEIR),2020-04-25
+2020-02-27,20,78,m8,Estimado (SEIR),2020-04-25
+2020-02-28,21,88,m8,Estimado (SEIR),2020-04-25
+2020-02-29,22,98,m8,Estimado (SEIR),2020-04-25
+2020-03-01,23,110,m8,Estimado (SEIR),2020-04-25
+2020-03-02,24,123,m8,Estimado (SEIR),2020-04-25
+2020-03-03,25,137,m8,Estimado (SEIR),2020-04-25
+2020-03-04,26,154,m8,Estimado (SEIR),2020-04-25
+2020-03-05,27,172,m8,Estimado (SEIR),2020-04-25
+2020-03-06,28,193,m8,Estimado (SEIR),2020-04-25
+2020-03-07,29,216,m8,Estimado (SEIR),2020-04-25
+2020-03-08,30,242,m8,Estimado (SEIR),2020-04-25
+2020-03-09,31,271,m8,Estimado (SEIR),2020-04-25
+2020-03-10,32,303,m8,Estimado (SEIR),2020-04-25
+2020-03-11,33,339,m8,Estimado (SEIR),2020-04-25
+2020-03-12,34,381,m8,Estimado (SEIR),2020-04-25
+2020-03-13,35,429,m8,Estimado (SEIR),2020-04-25
+2020-03-14,36,490,m8,Estimado (SEIR),2020-04-25
+2020-03-15,37,561,m8,Estimado (SEIR),2020-04-25
+2020-03-16,38,638,m8,Estimado (SEIR),2020-04-25
+2020-03-17,39,726,m8,Estimado (SEIR),2020-04-25
+2020-03-18,40,829,m8,Estimado (SEIR),2020-04-25
+2020-03-19,41,948,m8,Estimado (SEIR),2020-04-25
+2020-03-20,42,1084,m8,Estimado (SEIR),2020-04-25
+2020-03-21,43,1242,m8,Estimado (SEIR),2020-04-25
+2020-03-22,44,1418,m8,Estimado (SEIR),2020-04-25
+2020-03-23,45,1609,m8,Estimado (SEIR),2020-04-25
+2020-03-24,46,1813,m8,Estimado (SEIR),2020-04-25
+2020-03-25,47,2028,m8,Estimado (SEIR),2020-04-25
+2020-03-26,48,2260,m8,Estimado (SEIR),2020-04-25
+2020-03-27,49,2510,m8,Estimado (SEIR),2020-04-25
+2020-03-28,50,2781,m8,Estimado (SEIR),2020-04-25
+2020-03-29,51,3073,m8,Estimado (SEIR),2020-04-25
+2020-03-30,52,3389,m8,Estimado (SEIR),2020-04-25
+2020-03-31,53,3731,m8,Estimado (SEIR),2020-04-25
+2020-04-01,54,4093,m8,Estimado (SEIR),2020-04-25
+2020-04-02,55,4469,m8,Estimado (SEIR),2020-04-25
+2020-04-03,56,4861,m8,Estimado (SEIR),2020-04-25
+2020-04-04,57,5277,m8,Estimado (SEIR),2020-04-25
+2020-04-05,58,5712,m8,Estimado (SEIR),2020-04-25
+2020-04-06,59,6157,m8,Estimado (SEIR),2020-04-25
+2020-04-07,60,6622,m8,Estimado (SEIR),2020-04-25
+2020-04-08,61,7108,m8,Estimado (SEIR),2020-04-25
+2020-04-09,62,7616,m8,Estimado (SEIR),2020-04-25
+2020-04-10,63,8149,m8,Estimado (SEIR),2020-04-25
+2020-04-11,64,8705,m8,Estimado (SEIR),2020-04-25
+2020-04-12,65,9288,m8,Estimado (SEIR),2020-04-25
+2020-04-13,66,9898,m8,Estimado (SEIR),2020-04-25
+2020-04-14,67,10537,m8,Estimado (SEIR),2020-04-25
+2020-04-15,68,11205,m8,Estimado (SEIR),2020-04-25
+2020-04-16,69,11905,m8,Estimado (SEIR),2020-04-25
+2020-04-17,70,12637,m8,Estimado (SEIR),2020-04-25
+2020-04-18,71,13403,m8,Estimado (SEIR),2020-04-25
+2020-04-19,72,14205,m8,Estimado (SEIR),2020-04-25
+2020-04-20,73,15045,m8,Estimado (SEIR),2020-04-25
+2020-04-21,74,15923,m8,Estimado (SEIR),2020-04-25
+2020-04-22,75,16843,m8,Estimado (SEIR),2020-04-25
+2020-04-23,76,17806,m8,Estimado (SEIR),2020-04-25
+2020-04-24,77,18814,m8,Estimado (SEIR),2020-04-25
+2020-04-25,78,19869,m8,Estimado (SEIR),2020-04-25
+2020-02-07,0,6,m9,Estimado (SEIR),2020-04-25
+2020-02-08,1,6,m9,Estimado (SEIR),2020-04-25
+2020-02-09,2,6,m9,Estimado (SEIR),2020-04-25
+2020-02-10,3,7,m9,Estimado (SEIR),2020-04-25
+2020-02-11,4,9,m9,Estimado (SEIR),2020-04-25
+2020-02-12,5,10,m9,Estimado (SEIR),2020-04-25
+2020-02-13,6,12,m9,Estimado (SEIR),2020-04-25
+2020-02-14,7,13,m9,Estimado (SEIR),2020-04-25
+2020-02-15,8,15,m9,Estimado (SEIR),2020-04-25
+2020-02-16,9,18,m9,Estimado (SEIR),2020-04-25
+2020-02-17,10,20,m9,Estimado (SEIR),2020-04-25
+2020-02-18,11,23,m9,Estimado (SEIR),2020-04-25
+2020-02-19,12,26,m9,Estimado (SEIR),2020-04-25
+2020-02-20,13,29,m9,Estimado (SEIR),2020-04-25
+2020-02-21,14,33,m9,Estimado (SEIR),2020-04-25
+2020-02-22,15,36,m9,Estimado (SEIR),2020-04-25
+2020-02-23,16,41,m9,Estimado (SEIR),2020-04-25
+2020-02-24,17,45,m9,Estimado (SEIR),2020-04-25
+2020-02-25,18,51,m9,Estimado (SEIR),2020-04-25
+2020-02-26,19,56,m9,Estimado (SEIR),2020-04-25
+2020-02-27,20,63,m9,Estimado (SEIR),2020-04-25
+2020-02-28,21,70,m9,Estimado (SEIR),2020-04-25
+2020-02-29,22,77,m9,Estimado (SEIR),2020-04-25
+2020-03-01,23,86,m9,Estimado (SEIR),2020-04-25
+2020-03-02,24,95,m9,Estimado (SEIR),2020-04-25
+2020-03-03,25,107,m9,Estimado (SEIR),2020-04-25
+2020-03-04,26,121,m9,Estimado (SEIR),2020-04-25
+2020-03-05,27,137,m9,Estimado (SEIR),2020-04-25
+2020-03-06,28,156,m9,Estimado (SEIR),2020-04-25
+2020-03-07,29,179,m9,Estimado (SEIR),2020-04-25
+2020-03-08,30,206,m9,Estimado (SEIR),2020-04-25
+2020-03-09,31,238,m9,Estimado (SEIR),2020-04-25
+2020-03-10,32,276,m9,Estimado (SEIR),2020-04-25
+2020-03-11,33,320,m9,Estimado (SEIR),2020-04-25
+2020-03-12,34,371,m9,Estimado (SEIR),2020-04-25
+2020-03-13,35,428,m9,Estimado (SEIR),2020-04-25
+2020-03-14,36,497,m9,Estimado (SEIR),2020-04-25
+2020-03-15,37,575,m9,Estimado (SEIR),2020-04-25
+2020-03-16,38,658,m9,Estimado (SEIR),2020-04-25
+2020-03-17,39,752,m9,Estimado (SEIR),2020-04-25
+2020-03-18,40,859,m9,Estimado (SEIR),2020-04-25
+2020-03-19,41,980,m9,Estimado (SEIR),2020-04-25
+2020-03-20,42,1117,m9,Estimado (SEIR),2020-04-25
+2020-03-21,43,1272,m9,Estimado (SEIR),2020-04-25
+2020-03-22,44,1442,m9,Estimado (SEIR),2020-04-25
+2020-03-23,45,1625,m9,Estimado (SEIR),2020-04-25
+2020-03-24,46,1822,m9,Estimado (SEIR),2020-04-25
+2020-03-25,47,2042,m9,Estimado (SEIR),2020-04-25
+2020-03-26,48,2280,m9,Estimado (SEIR),2020-04-25
+2020-03-27,49,2527,m9,Estimado (SEIR),2020-04-25
+2020-03-28,50,2794,m9,Estimado (SEIR),2020-04-25
+2020-03-29,51,3082,m9,Estimado (SEIR),2020-04-25
+2020-03-30,52,3394,m9,Estimado (SEIR),2020-04-25
+2020-03-31,53,3731,m9,Estimado (SEIR),2020-04-25
+2020-04-01,54,4089,m9,Estimado (SEIR),2020-04-25
+2020-04-02,55,4472,m9,Estimado (SEIR),2020-04-25
+2020-04-03,56,4872,m9,Estimado (SEIR),2020-04-25
+2020-04-04,57,5282,m9,Estimado (SEIR),2020-04-25
+2020-04-05,58,5711,m9,Estimado (SEIR),2020-04-25
+2020-04-06,59,6161,m9,Estimado (SEIR),2020-04-25
+2020-04-07,60,6634,m9,Estimado (SEIR),2020-04-25
+2020-04-08,61,7130,m9,Estimado (SEIR),2020-04-25
+2020-04-09,62,7651,m9,Estimado (SEIR),2020-04-25
+2020-04-10,63,8199,m9,Estimado (SEIR),2020-04-25
+2020-04-11,64,8774,m9,Estimado (SEIR),2020-04-25
+2020-04-12,65,9379,m9,Estimado (SEIR),2020-04-25
+2020-04-13,66,10014,m9,Estimado (SEIR),2020-04-25
+2020-04-14,67,10681,m9,Estimado (SEIR),2020-04-25
+2020-04-15,68,11382,m9,Estimado (SEIR),2020-04-25
+2020-04-16,69,12119,m9,Estimado (SEIR),2020-04-25
+2020-04-17,70,12893,m9,Estimado (SEIR),2020-04-25
+2020-04-18,71,13707,m9,Estimado (SEIR),2020-04-25
+2020-04-19,72,14563,m9,Estimado (SEIR),2020-04-25
+2020-04-20,73,15462,m9,Estimado (SEIR),2020-04-25
+2020-04-21,74,16407,m9,Estimado (SEIR),2020-04-25
+2020-04-22,75,17400,m9,Estimado (SEIR),2020-04-25
+2020-04-23,76,18443,m9,Estimado (SEIR),2020-04-25
+2020-04-24,77,19540,m9,Estimado (SEIR),2020-04-25
+2020-04-25,78,20692,m9,Estimado (SEIR),2020-04-25
+2020-02-28,21,3,Confirmado,Confirmado,2020-04-25
+2020-02-29,22,4,Confirmado,Confirmado,2020-04-25
+2020-03-01,23,5,Confirmado,Confirmado,2020-04-25
+2020-03-02,24,5,Confirmado,Confirmado,2020-04-25
+2020-03-03,25,5,Confirmado,Confirmado,2020-04-25
+2020-03-04,26,5,Confirmado,Confirmado,2020-04-25
+2020-03-05,27,5,Confirmado,Confirmado,2020-04-25
+2020-03-06,28,6,Confirmado,Confirmado,2020-04-25
+2020-03-07,29,7,Confirmado,Confirmado,2020-04-25
+2020-03-08,30,7,Confirmado,Confirmado,2020-04-25
+2020-03-09,31,7,Confirmado,Confirmado,2020-04-25
+2020-03-10,32,7,Confirmado,Confirmado,2020-04-25
+2020-03-11,33,12,Confirmado,Confirmado,2020-04-25
+2020-03-12,34,15,Confirmado,Confirmado,2020-04-25
+2020-03-13,35,27,Confirmado,Confirmado,2020-04-25
+2020-03-14,36,40,Confirmado,Confirmado,2020-04-25
+2020-03-15,37,53,Confirmado,Confirmado,2020-04-25
+2020-03-16,38,82,Confirmado,Confirmado,2020-04-25
+2020-03-17,39,93,Confirmado,Confirmado,2020-04-25
+2020-03-18,40,118,Confirmado,Confirmado,2020-04-25
+2020-03-19,41,164,Confirmado,Confirmado,2020-04-25
+2020-03-20,42,203,Confirmado,Confirmado,2020-04-25
+2020-03-21,43,251,Confirmado,Confirmado,2020-04-25
+2020-03-22,44,316,Confirmado,Confirmado,2020-04-25
+2020-03-23,45,367,Confirmado,Confirmado,2020-04-25
+2020-03-24,46,405,Confirmado,Confirmado,2020-04-25
+2020-03-25,47,475,Confirmado,Confirmado,2020-04-25
+2020-03-26,48,585,Confirmado,Confirmado,2020-04-25
+2020-03-27,49,717,Confirmado,Confirmado,2020-04-25
+2020-03-28,50,848,Confirmado,Confirmado,2020-04-25
+2020-03-29,51,993,Confirmado,Confirmado,2020-04-25
+2020-03-30,52,1094,Confirmado,Confirmado,2020-04-25
+2020-03-31,53,1215,Confirmado,Confirmado,2020-04-25
+2020-04-01,54,1378,Confirmado,Confirmado,2020-04-25
+2020-04-02,55,1510,Confirmado,Confirmado,2020-04-25
+2020-04-03,56,1688,Confirmado,Confirmado,2020-04-25
+2020-04-04,57,1890,Confirmado,Confirmado,2020-04-25
+2020-04-05,58,2143,Confirmado,Confirmado,2020-04-25
+2020-04-06,59,2439,Confirmado,Confirmado,2020-04-25
+2020-04-07,60,2785,Confirmado,Confirmado,2020-04-25
+2020-04-08,61,3181,Confirmado,Confirmado,2020-04-25
+2020-04-09,62,3441,Confirmado,Confirmado,2020-04-25
+2020-04-10,63,3844,Confirmado,Confirmado,2020-04-25
+2020-04-11,64,4219,Confirmado,Confirmado,2020-04-25
+2020-04-12,65,4661,Confirmado,Confirmado,2020-04-25
+2020-04-13,66,5014,Confirmado,Confirmado,2020-04-25
+2020-04-14,67,5399,Confirmado,Confirmado,2020-04-25
+2020-04-15,68,5847,Confirmado,Confirmado,2020-04-25
+2020-04-16,69,6297,Confirmado,Confirmado,2020-04-25
+2020-04-17,70,6875,Confirmado,Confirmado,2020-04-25
+2020-04-18,71,7497,Confirmado,Confirmado,2020-04-25
+2020-04-19,72,8261,Confirmado,Confirmado,2020-04-25
+2020-04-20,73,8772,Confirmado,Confirmado,2020-04-25
+2020-04-21,74,9501,Confirmado,Confirmado,2020-04-25
+2020-04-22,75,10544,Confirmado,Confirmado,2020-04-25
+2020-04-23,76,11633,Confirmado,Confirmado,2020-04-25
+2020-04-24,77,12872,Confirmado,Confirmado,2020-04-25
+2020-04-25,78,13842,Confirmado,Confirmado,2020-04-25

@@ -304,8 +304,9 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_estimados, "centinela_seir_estimados.csv")
-write_csv(p1$data %>% select(-grupo, - grupo_col), archivo)
-
+write_csv(p1$data %>%
+            select(-grupo, - grupo_col) %>%
+            mutate(fecha_estimacion = Sys.Date()), archivo)
 
 ########### R_hat
 
