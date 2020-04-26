@@ -23,7 +23,8 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              centinela_official = "../datos/centinela/semana_14/estimados_nacionales.csv",
              semana1_fecha = "2019-12-29" %>% parse_date(format = "%Y-%m-%d"),
              dias_suavizado = 7,
-             dias_retraso = 15)
+             dias_retraso = 15,
+             dir_estimados = "estimados/")
 
 
 # Leer Centinela oficial
@@ -302,7 +303,7 @@ archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-archivo <- "centinela_seir_estimados.csv"
+archivo <- file.path(args$dir_estimados, "centinela_seir_estimados.csv")
 write_csv(p1$data %>% select(-grupo, - grupo_col), archivo)
 
 

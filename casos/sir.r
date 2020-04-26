@@ -27,7 +27,8 @@ args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_f
              periodo_ajuste = 100,
              fecha1 = "2020-03-01",
              fecha2 = "2020-03-15",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
+             dir_estimados = "estimados/")
 args$fecha1 <- args$fecha1 %>% as.Date(format = "%Y-%m-%d")
 args$fecha2 <- args$fecha2 %>% as.Date(format = "%Y-%m-%d")
 
@@ -177,7 +178,7 @@ archivo <- file.path(args$dir_salida, "sir_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-archivo <- "seir_estimados.csv"
+archivo <- file.path(args$dir_estimados, "seir_estimados.csv")
 write_csv(p1$data, archivo)
 
 ##### R_hat
