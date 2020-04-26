@@ -16,7 +16,7 @@ p1 <- Dat %>%
   geom_ribbon(aes(ymin = lower_90, ymax = upper_90), color = "blue", alpha = 0.2) +
   geom_line(size = 2, col = "blue") +
   geom_hline(yintercept = 1) +
-  ylab("R efectiva (R_t)") +
+  ylab("Promedio de contagios por enfermo de COVID-19 (R_t)") +
   xlab("Fecha") +
   # AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
