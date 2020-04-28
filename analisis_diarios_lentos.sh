@@ -11,7 +11,8 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-jupyter nbconvert --to script --execute --ExecutePreprocessor.timeout=-1 estados/rt.live.ipynb
+#jupyter nbconvert --to script --execute --ExecutePreprocessor.timeout=-1 estados/rt.live.ipynb
+papermill estados/rt.live.ipynb estados/papermill.rt.live.ipynb
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
