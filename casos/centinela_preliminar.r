@@ -88,7 +88,7 @@ Dat
 ########### Rellenar centinela oficial con "factor de corrección" de la SSA
 
 Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FECHA_SINTOMAS) - min(Dat$FECHA_SINTOMAS)))) %>%
-  left_join(Dat %>%
+    left_join(Dat %>%
               mutate(fecha = FECHA_SINTOMAS) %>%
               group_by(fecha) %>%
               summarise(casos_usmer = sum(RESULTADO == "1"))) %>%
@@ -100,10 +100,13 @@ Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FE
             by = "fecha") %>%
   select(-total_usmer, -posibles_usmer, -estimados_positivos_nacional,
          -totales_nacional, -estimados_posibles_nacional, -pruebas_usmer,
-         -positivos_usmer, -acumulados_usmer_oficial) %>% 
+         -positivos_usmer, -acumulados_usmer_oficial) %>%
   mutate(factor_ssa = estimados_acumulados_nacional / acumulados_usmer) %>%
   filter(fecha <= "2020-04-05" ) %>%
+  filter(fecha > "2020-01-05") %>%
+  # print(n = 1000) %>%
   mutate(factor_ssa_extendido = rep(factor_ssa[!is.na(factor_ssa)], each = 7)) %>%
+  # print(n = 1000)
   mutate(acumulados_estimados = floor(factor_ssa_extendido * acumulados_usmer)) %>%
   select(fecha, dia, acumulados_estimados) %>%
   filter(acumulados_estimados > 0 ) %>%
