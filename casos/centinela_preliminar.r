@@ -24,6 +24,7 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              semana1_fecha = "2019-12-29" %>% parse_date(format = "%Y-%m-%d"),
              dias_suavizado = 7,
              dias_retraso = 15,
+             dias_pronostico_max = 20,
              dir_estimados = "estimados/")
 
 
@@ -209,8 +210,9 @@ Tab <- dat %>% filter(estimado == "SSA") %>%
 Tab
 fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
-n_dias <- as.numeric(fecha_final - fecha_inicio)
-n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
+# n_dias <- as.numeric(fecha_final - fecha_inicio)
+n_dias <- as.numeric(max(Tab$fecha) - fecha_inicio) + args$dias_pronostico_max
+n_dias_ajuste <- min(as.numeric(fecha_final - fecha_inicio) - args$dias_retraso + 1, max(Tab$dia))
 fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
 # fechas_dias <- sort(n_dias_ajuste - seq(from = 12, by = 10, length.out = 3))
 
@@ -234,7 +236,7 @@ fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 5))
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      dias_int = fechas_dias,

@@ -64,7 +64,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas <- fechas - 3
 # fechas
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 5))
 fechas_dias
 
 # Parameters to make optimization
