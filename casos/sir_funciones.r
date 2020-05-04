@@ -132,6 +132,8 @@ sir_optmizable <- function(x, real, pob,
     left_join(real %>% select(dia, casos_nuevos), by = "dia") %>%
     mutate(casos_nuevos = replace(casos_nuevos, is.na(casos_nuevos), 0)) %>%
     mutate(casos_acumulados.real = cumsum(casos_nuevos)) %>%
+    # mutate(casos_acumulados = replace(casos_acumulados, casos_acumulados < 0, 0),
+    #        casos_acumulados.real = replace(casos_acumulados.real, casos_acumulados.real < 0, 0)) %>%
     mutate(diff2 = (casos_acumulados - casos_acumulados.real) ^ 2) %>%
     select(diff2) %>%
     unlist %>%

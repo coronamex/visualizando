@@ -20,7 +20,7 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
-             centinela_official = "../datos/centinela/semana_14/estimados_nacionales.csv",
+             centinela_official = "../datos/centinela/semana_15/estimados_nacionales.csv",
              semana1_fecha = "2019-12-29" %>% parse_date(format = "%Y-%m-%d"),
              dias_suavizado = 7,
              dias_retraso = 15,
@@ -103,7 +103,7 @@ Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FE
          -totales_nacional, -estimados_posibles_nacional, -pruebas_usmer,
          -positivos_usmer, -acumulados_usmer_oficial) %>%
   mutate(factor_ssa = estimados_acumulados_nacional / acumulados_usmer) %>%
-  filter(fecha <= "2020-04-05" ) %>%
+  filter(fecha <= "2020-04-12" ) %>%
   filter(fecha > "2020-01-05") %>%
   # print(n = 1000) %>%
   mutate(factor_ssa_extendido = rep(factor_ssa[!is.na(factor_ssa)], each = 7)) %>%
@@ -186,6 +186,10 @@ Cen <- Cen %>%
     pos_usmer_nac <- sum(d$positivos_estimados * d$pob) * 32
     # Alrededor de 7.5% casos posibles van a usmer a nivel nacional de manera 
     # consistente. Bajó como a 7 en últimas 2 semanas. Uso 7.25%
+    # Bajó siginificativamente a 6.25% en semana quince, o sea que estoy
+    # subestimando el número de casos real. Necesito incorporar un factor variable por
+    # semana. Tal vez puedo estimarlo del bietín de influenza que parece llegar a semana
+    # 16.
     tibble(casos_estimados = floor(pos_usmer_nac / 0.0725))
   }, .id = "fecha") %>%
   mutate(casos_acumulados_estimados = cumsum(casos_estimados),
@@ -201,6 +205,8 @@ dat <- Cen %>%
 ############# SEIR
 T_inc <- c(4, 5, 6)
 T_inf <- c(2, 3, 4)
+# T_inc <- c(4)
+# T_inf <- c(2)
 pob <- 127792286
 
 # Precalcular dias
@@ -213,7 +219,7 @@ fecha_final <- Sys.Date()
 # n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias <- as.numeric(max(Tab$fecha) - fecha_inicio) + args$dias_pronostico_max
 n_dias_ajuste <- min(as.numeric(fecha_final - fecha_inicio) - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 4))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 15, by = 15, length.out = 2))
 # fechas_dias <- sort(n_dias_ajuste - seq(from = 12, by = 10, length.out = 3))
 
 R_hat_cen_oficial <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
@@ -290,6 +296,7 @@ p1 <- dat %>%
   xlab("Fecha de inicio de síntomas") +
   scale_y_continuous(labels = scales::comma,
                      breaks = function(lims){seq(from = 0, to = lims[2], by = 25000)}) +
+  # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
