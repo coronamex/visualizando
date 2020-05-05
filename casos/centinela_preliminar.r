@@ -222,10 +222,12 @@ n_dias_ajuste <- min(as.numeric(fecha_final - fecha_inicio) - args$dias_retraso 
 fechas_dias <- sort(n_dias_ajuste - seq(from = 15, by = 15, length.out = 2))
 # fechas_dias <- sort(n_dias_ajuste - seq(from = 12, by = 10, length.out = 3))
 
-R_hat_cen_oficial <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
-                                   dias_int = fechas_dias,
-                                   T_inc = T_inc, T_inf = T_inf, pob = pob)
+# R_hat_cen_oficial <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
+#                                    dias_int = fechas_dias,
+#                                    T_inc = T_inc, T_inf = T_inf, pob = pob)
+load("R_hat_cen_oficial.rdat")
 R_hat_cen_oficial
+
 sims_cen_oficial <- simular_multiples_modelos(modelos = R_hat_cen_oficial,
                                   FUN = sir, real = Tab, pob = pob,
                                   n_dias = n_dias)
