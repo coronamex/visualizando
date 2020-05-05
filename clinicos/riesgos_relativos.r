@@ -26,7 +26,7 @@ comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
             "TABAQUISMO", "EMBARAZO", "SEXO")
 comorb <- set_names(comorb, comorb)
 
-Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI")] %>%
+Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI", "FECHA_DEF")] %>%
   mutate(SEXO = replace(SEXO, SEXO == "1", "f")) %>%
   mutate(SEXO = replace(SEXO, SEXO == "2", "h"))
 
@@ -50,8 +50,8 @@ RR_hosp <- comorb %>%
     
   }, Dat = Dat, .id = "comorb") %>%
   pivot_wider(names_from = "parametro", values_from = "valor")
-RR_hosp %>%
-  arrange(lower)
+# RR_hosp %>%
+#   arrange(lower)
 
 RR_uci <- comorb %>%
   map_dfr(function(variable, Dat, respuesta = "TIPO_PACIENTE"){
@@ -73,8 +73,31 @@ RR_uci <- comorb %>%
     
   }, Dat = Dat, respuesta = "UCI", .id = "comorb") %>%
   pivot_wider(names_from = "parametro", values_from = "valor")
-RR_uci %>%
-  arrange(lower)
+# RR_uci %>%
+#   arrange(lower)
+
+
+
+RR_def <- comorb %>%
+  map_dfr(function(variable, Dat, respuesta){
+    dat <- tibble(exposicion = Dat[[variable]],
+                  respuesta = Dat[[respuesta]])
+    dat <- dat %>%
+      mutate(exposicion = replace(exposicion, exposicion %in% c("98", "99", "97"), NA)) %>%
+      mutate(exposicion = replace(exposicion, exposicion == "2", "0"),
+             respuesta = !is.na(respuesta)) %>%
+      ftable
+    if(any(dim(dat) != c(2,2))){
+      stop("ERROR")
+    }
+    res <- riskratio(dat)
+    tibble(parametro = colnames(res$measure),
+           valor = res$measure[2,])
+    
+  }, Dat = Dat, respuesta = "FECHA_DEF", .id = "comorb") %>%
+  pivot_wider(names_from = "parametro", values_from = "valor")
+# RR_def %>%
+#   arrange(lower)
 
 rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inmnosupresión",
                       "Hipertensión", "Otro", "Enfermedad cardiovascular", "Obesidad",
@@ -86,17 +109,19 @@ rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inm
 RR_hosp
 RR_hosp$Riesgo <- "Hospitalización"
 RR_uci$Riesgo <- "Cuidados Intensivos"
+RR_def$Riesgo <- "Muerte"
 p1 <- RR_hosp %>%
   bind_rows(RR_uci) %>%
+  bind_rows(RR_def) %>%
   arrange(lower) %>%
   mutate(comorb = as.vector(rr_lut[comorb])) %>%
   mutate(comorb = factor(comorb, levels = unique(comorb)),
-         Riesgo = factor(Riesgo, levels = c("Hospitalización", "Cuidados Intensivos"))) %>%
+         Riesgo = factor(Riesgo, levels = c("Hospitalización", "Cuidados Intensivos", "Muerte"))) %>%
   ggplot(aes(y = estimate, x = comorb, col = Riesgo)) +
   geom_hline(yintercept = 1, color = "darkgrey") +
   geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width = 1)) +
   geom_point(position = position_dodge(width = 1)) +
-  scale_color_manual(values = c("#b35806", "#542788"), name = "") +
+  scale_color_manual(values = c("#b35806", "#542788", "#1b9e77"), name = "") +
   annotate("text",
            label = "Sin diferencia de riesgo",
            x = "Hipertensión",
@@ -107,6 +132,7 @@ p1 <- RR_hosp %>%
   coord_flip() +
   xlab("Factores de riesgo") +
   ylab("Riesgo relativo") +
+  guides(color = guide_legend(nrow = 2)) +
   AMOR::theme_blackbox() +
   theme(axis.text.x = element_text(angle = 90),
         panel.background = element_blank(),
