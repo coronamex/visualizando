@@ -1,100 +1,42 @@
 library(tidyverse)
 
-args <- list(dge_dir = "../datos/ssa_dge/",
-             poblacion = "../datos/demograficos/2015_pob_estado.tsv",
+args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              tasa_min = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              max_dias = 10,
-             archivo_estados = "../datos/ssa_dge/datos_mapa.csv")
-estados_nombres_dge <- c(AGUASCALIENTES = "Aguascalientes",
-                         `BAJA CALIFORNIA` = "Baja California",
-                         `BAJA CALIFORNIA SUR` = "Baja California Sur",
-                         "BAJA CALIFORNIA \nSUR" = "Baja California Sur",
-                         `CAMPECHE` = "Campeche",
-                         `CIUDAD DE MÉXICO` = "Ciudad de México",
-                         COAHUILA = "Coahuila",
-                         COLIMA = "Colima",
-                         CHIAPAS = "Chiapas",
-                         CHIHUAHUA = "Chihuahua",
-                         DURANGO = "Durango",
-                         GUANAJUATO = "Guanajuato",
-                         GUERRERO = "Guerrero",
-                         HIDALGO = "Hidalgo",
-                         JALISCO = "Jalisco",
-                         `MÉXICO` = "México",
-                         `MICHOACÁN` = "Michoacán",
-                         MORELOS = "Morelos",
-                         NAYARIT = "Nayarit",
-                         `NUEVO LEÓN` = "Nuevo León",
-                         OAXACA = "Oaxaca",
-                         PUEBLA = "Puebla",
-                         QUERETARO = "Querétaro",
-                         `QUINTANA ROO` = "Quintana Roo",
-                         `SAN LUIS POTOSÍ` = "San Luis Potosí",
-                         SINALOA = "Sinaloa",
-                         SONORA = "Sonora",
-                         TABASCO = "Tabasco",
-                         TAMAULIPAS = "Tamaulipas",
-                         TLAXCALA = "Tlaxcala",
-                         VERACRUZ = "Veracruz",
-                         `YUCATÁN` = "Yucatán",
-                         ZACATECAS = "Zacatecas")
+             serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv")
 
 # Leer poblaciones
-pob <- read_tsv(args$poblacion)
-estados_nombres_pob <- set_names(sort(pob$estado), sort(pob$estado))
-estados_nombres_pob["Coahuila de Zaragoza"] <- "Coahuila"
-estados_nombres_pob["Estado de México"] <- "México"
-pob <- pob %>%
-  mutate(estado = as.character(estados_nombres_pob[match(estado, names(estados_nombres_pob))]))
+pob <- read_tsv(args$poblacion,
+                col_types = cols(estado = col_character(),
+                                 .default = col_number()))
+stop_for_problems(pob)
 
-situacion_estados <- read_csv(args$archivo_estados)
-estados_nombres_situacion <- set_names(sort(situacion_estados$estado), sort(situacion_estados$estado))
-estados_nombres_situacion["Queretaro"] <- "Querétaro"
-situacion_estados <- situacion_estados %>%
-  mutate(estado = as.character(estados_nombres_situacion[match(estado, names(estados_nombres_situacion))]))
-situacion_estados <- situacion_estados %>% left_join(pob, by = "estado") %>%
-  select(estado, muertes_acumuladas, poblacion_2015) %>%
-  mutate(mortalidad = 100000*muertes_acumuladas/poblacion_2015)
+Dat <- read_csv(args$serie_tiempo_estados,
+                col_types = cols(estado = col_character(),
+                                 fecha = col_date(format = "%Y-%m-%d"),
+                                 .default = col_number()))
+stop_for_problems(Dat)
 
-fechas_dirs <- list.dirs(args$dge_dir, recursive = FALSE, full.names = TRUE)
-Dat <- fechas_dirs %>%
-  map_dfr(function(fecha_dir){
-    archivo_tabla <- file.path(fecha_dir, "tabla_casos_confirmados.csv")
-    if(file.exists(archivo_tabla)){
-      Tab <- read_csv(archivo_tabla,
-                      col_types = cols(estado = col_character(),
-                                       sexo = col_character(),
-                                       edad = col_number(),
-                                       fecha_sintomas = col_date(format = "%d/%m/%Y"),
-                                       procedencia = col_character(),
-                                       fecha_llegada = col_date(format = "%d/%m/%Y")))
-      fecha <- basename(fecha_dir) %>% as.Date()
-      acum_estado <- table(Tab$estado)
-      res <- tibble(estado = names(acum_estado),
-                    casos_acumulados = as.numeric(acum_estado),
-                    fecha = fecha)
-      
-      return(res)
-    }
-  })
+pal <- colorRampPalette(colors = rev(c("#a50026",
+                                   "#d73027",
+                                   "#f46d43",
+                                   "#fdae61",
+                                   "#fee090",
+                                   "#ffffbf",
+                                   "#e0f3f8",
+                                   "#abd9e9",
+                                   "#74add1",
+                                   "#4575b4",
+                                   "#313695")))
 
-# Renombrar estados
-Dat <- Dat %>%
-  mutate(estado = as.character(estados_nombres_dge[match(estado, names(estados_nombres_dge))]))
-
-# Añadir datos de población
-pal <- colorRampPalette(colors = c("#f7fcfd", "#e5f5f9",
-                                   "#ccece6", "#99d8c9",
-                                   "#66c2a4", "#41ae76",
-                                   "#238b45", "#006d2c",
-                                   "#00441b"))
 # Para graficar subconjunto de estados
 estados <- NULL
 # estados <- "Guanajuato"
 p1 <- Dat %>% 
-  left_join(pob, by = "estado") %>%
-  mutate(casos_100mil = casos_acumulados / (poblacion_2015/1e5)) %>%
+  left_join(pob %>% select(estado, pob = conapo_2020), 
+            by = "estado") %>%
+  mutate(casos_100mil = sintomas_acumulados / (pob/1e5)) %>%
   split(.$estado) %>%
   map_dfr(function(d, tasa_min){
     if(max(d$casos_100mil >= tasa_min) || d$estado[1] %in% estados){
@@ -107,7 +49,7 @@ p1 <- Dat %>%
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
-                       high = pal(11)[11], midpoint = 2.5,
+                       high = pal(11)[11], midpoint = 10,
                        name = expression(frac(Casos, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +
