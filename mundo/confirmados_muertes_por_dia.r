@@ -1,68 +1,83 @@
 library(tidyverse)
 
-args <- list(mundo_dir = "../COVID-19/csse_covid_19_data/csse_covid_19_daily_reports/",
-             min_casos = 60,
+args <- list(min_casos = 60,
              dias_ventana = 7,
-             tabla_mx = "../datos/ssa_dge/reportes_diarios.csv",
+             # tabla_mx = "../datos/ssa_dge_2020-04-19//reportes_diarios.csv",
+             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+             serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
+             serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
-paises <- c("US", "Spain", "Italy", "Iran", "China",
-            "France", "Brazil", "South Korea", "Japan")
-nuevos_nombres <- c("EEUU", "España", "Italia", "Irán",
-                    "China", "Francia", "Brasil", "Corea del Sur",
-                    "Japón")
+lut_paises <- set_names(c("EEUU", "España", "Italia",
+                          "Irán", "China", "Francia",
+                          "Brasil", "Corea del Sur",
+                          "Japón"),
+                        c("US", "Spain", "Italy", 
+                          "Iran", "China", "France",
+                          "Brazil", "Korea, South",
+                          "Japan"))
 
 # Leer daots México
-datos_mx <- read_csv(args$tabla_mx)
+datos_mx <- read_csv(args$tabla_mx,
+                     col_types = cols(fecha = col_date(format = "%Y-%m-%d")))
+stop_for_problems(datos_mx)
 datos_mx$pais <- "México"
+datos_mx
 
-# Leer datos mundiales de John Hopkins
-datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
-  str_subset("[.]md$", negate = TRUE) %>%
-  map_dfr(function(file){
-    # file <- list.files(args$mundo_dir, full.names = TRUE)[1]
-    fecha <- basename(file) %>% str_remove("[.]csv$")
-    fecha <- strptime(fecha, "%m-%d-%Y") %>% format("%Y-%m-%d") %>% as.Date()
-    
-    tab <- read_csv(file)
-    names(tab)[names(tab) == "Country/Region"] <- "Country_Region"
-    tab <- tab %>%
-      mutate(Country_Region = replace(Country_Region, Country_Region == "Korea, South", "South Korea")) %>%
-      mutate(Country_Region = replace(Country_Region, Country_Region == "Mainland China", "China"))
-    
-    tab %>%
-      filter(Country_Region %in% paises) %>%
-      split(.$Country_Region) %>%
-      map_dfr(function(d){
-        tibble(casos_acumulados = sum(d$Confirmed, na.rm = TRUE),
-               muertes_acumuladas = sum(d$Deaths, na.rm = TRUE))
-      }, .id = "pais") %>%
-      mutate(fecha = fecha)
-    
-  })
+# Leer casos mundo
+casos_mundo <- read_csv(args$serie_tiempo_casos_mundo,
+                        col_types = cols("Province/State" = col_character(),
+                                         "Country/Region" = col_character(),
+                                         .default = col_number()))
+stop_for_problems(casos_mundo)
+casos_mundo <- casos_mundo %>%
+  filter(`Country/Region` %in% names(lut_paises)) %>%
+  filter(is.na(`Province/State`)) %>%
+  mutate(pais = `Country/Region`) %>%
+  mutate(pais = lut_paises[pais]) %>%
+  select(-Lat, -Long, -"Province/State", -"Country/Region") %>%
+  pivot_longer(-pais, names_to = "fecha", values_to = "casos_acumulados") %>%
+  mutate(fecha = parse_date(fecha, format = "%m/%d/%y")) 
+
+# Leer muertes mundo
+muertes_mundo <- read_csv(args$serie_tiempo_muertes_mundo,
+                        col_types = cols("Province/State" = col_character(),
+                                         "Country/Region" = col_character(),
+                                         .default = col_number()))
+stop_for_problems(muertes_mundo)
+muertes_mundo <- muertes_mundo %>%
+  filter(`Country/Region` %in% names(lut_paises)) %>%
+  filter(is.na(`Province/State`)) %>%
+  mutate(pais = `Country/Region`) %>%
+  mutate(pais = lut_paises[pais]) %>%
+  select(-Lat, -Long, -"Province/State", -"Country/Region") %>%
+  pivot_longer(-pais, names_to = "fecha", values_to = "muertes_acumuladas") %>%
+  mutate(fecha = parse_date(fecha, format = "%m/%d/%y")) 
+
+# Combinar casos y muertes
+datos_mundo <- casos_mundo %>%
+  full_join(muertes_mundo, by = c("pais", "fecha"))
 
 # Calcular casos por día
 datos_mundo <- datos_mundo %>%
   split(.$pais) %>%
   map_dfr(function(d){
     d <- d %>%
-      arrange(fecha)
-    d <- d %>%
-      bind_cols(casos_nuevos = c(NA, diff(d$casos_acumulados)),
-                muertes_nuevas = c(NA, diff(d$muertes_acumuladas)))
+      arrange(fecha) %>%
+      mutate(casos_nuevos = casos_acumulados - lag(casos_acumulados, 1, default = 0),
+             muertes_nuevas = muertes_acumuladas - lag(muertes_acumuladas, 1, default = 0))
+    
+    d
   })
-
-# Reemplazar nombres
-for(i in 1:length(paises)){
-  datos_mundo <- datos_mundo %>%
-    mutate(pais = replace(pais, pais == paises[i], nuevos_nombres[i]))
-}
+datos_mundo
 
 # Combinar datos
 Dat <- datos_mundo %>%
   bind_rows(datos_mx %>%
-              select(pais, casos_acumulados, muertes_acumuladas,
-                     fecha, casos_nuevos, muertes_nuevas))
+              select(pais, fecha,
+                     casos_acumulados, muertes_acumuladas,
+                     casos_nuevos, muertes_nuevas))
+Dat
 
 # Casos acumukados
 p1 <- Dat %>%
@@ -75,16 +90,18 @@ p1 <- Dat %>%
   }) %>%
   ggplot(aes(x = dia, y = casos_acumulados, group = pais)) +
   geom_line(aes(col = pais, size = pais)) +
-  scale_color_brewer(palette = "Paired", name = "País") +
-  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-  scale_y_log10() +
+  scale_color_brewer(palette = "Paired", name = "") +
+  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "") +
+  scale_y_log10(labels = scales::comma) +
   ylab("Total de casos confirmados") +
   xlab("Días desde el caso 60") +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14, face = "bold"),
         legend.background = element_blank(),
+        legend.key = element_blank(),
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
@@ -104,16 +121,18 @@ p1 <- Dat %>%
   }) %>%
   ggplot(aes(x = dia, y = muertes_acumuladas, group = pais)) +
   geom_line(aes(col = pais, size = pais)) +
-  scale_color_brewer(palette = "Paired", name = "País") +
-  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-  scale_y_log10() +
+  scale_color_brewer(palette = "Paired", name = "") +
+  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "") +
+  scale_y_log10(labels = scales::comma) +
   ylab("Total de muertes") +
   xlab("Días desde el caso 60") +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14, face = "bold"),
         legend.background = element_blank(),
+        legend.key = element_blank(),
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
@@ -151,21 +170,25 @@ p1 <- Dat %>%
       mutate(crecimiento = roll_incremento(casos_acumulados))
   }, min_casos = args$min_casos, dias_ventana = args$dias_ventana) %>%
   filter(!is.na(crecimiento)) %>%
-  select(pais, casos_acumulados, crecimiento) %>%
+  filter(casos_acumulados >= 1000) %>%
+  
+  select(pais, casos_acumulados, crecimiento,) %>%
   ggplot(aes(x = casos_acumulados, y = crecimiento, group = pais)) +
   geom_line(aes(col = pais, size = pais)) +
-  scale_color_brewer(palette = "Paired", name = "País") +
-  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
+  scale_color_brewer(palette = "Paired", name = "") +
+  scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "") +
   # scale_y_log10(labels = scales::percent) +
   scale_y_continuous(labels = scales::percent) +
-  scale_x_log10() +
+  scale_x_log10(labels = scales::comma) +
   ylab("Incremento (%)") +
   xlab("Total de casos confirmados") +
+  guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14, face = "bold"),
         legend.background = element_blank(),
+        legend.key = element_blank(),
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
@@ -183,8 +206,8 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   geom_line(aes(col = pais, size = pais)) +
 #   scale_color_brewer(palette = "Paired", name = "País") +
 #   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-#   scale_y_log10() +
-#   scale_x_log10() +
+#   scale_y_log10(labels = scales::comma) +
+#   scale_x_log10(labels = scales::comma) +
 #   ylab("Total de muertes") +
 #   xlab("Total de casos confirmados") +
 #   AMOR::theme_blackbox()

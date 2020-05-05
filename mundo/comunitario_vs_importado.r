@@ -4,7 +4,9 @@ args <- list(mundo_dir = "../COVID-19/csse_covid_19_data/csse_covid_19_daily_rep
              min_casos = 60,
              dias_ventana = 7,
              dge_dir = "../datos/ssa_dge",
-             dir_salida = "../sitio_hugo/static/imagenes/")
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
+
 
 paises <- c("US", "Spain", "Italy", "Iran", "China",
             "France", "Brazil", "South Korea", "Japan")
@@ -58,13 +60,13 @@ datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
     # file <- list.files(args$mundo_dir, full.names = TRUE)[1]
     fecha <- basename(file) %>% str_remove("[.]csv$")
     fecha <- strptime(fecha, "%m-%d-%Y") %>% format("%Y-%m-%d") %>% as.Date()
-    
+
     tab <- read_csv(file)
     names(tab)[names(tab) == "Country/Region"] <- "Country_Region"
     tab <- tab %>%
       mutate(Country_Region = replace(Country_Region, Country_Region == "Korea, South", "South Korea")) %>%
       mutate(Country_Region = replace(Country_Region, Country_Region == "Mainland China", "China"))
-    
+
     tab %>%
       filter(Country_Region %in% paises) %>%
       split(.$Country_Region) %>%
@@ -73,7 +75,7 @@ datos_mundo <- list.files(args$mundo_dir, full.names = TRUE) %>%
                muertes_acumuladas = sum(d$Deaths, na.rm = TRUE))
       }, .id = "pais") %>%
       mutate(fecha = fecha)
-    
+
   })
 
 # Calcular casos por día
@@ -115,10 +117,10 @@ datos_mx <- fechas_dirs %>%
                                        edad = col_number(),
                                        fecha_sintomas = col_date(format = "%d/%m/%Y"),
                                        procedencia = col_character()))
-      
+
       Tab$estado <- as.vector(lu_tab[Tab$estado])
       fecha <- basename(fecha_dir) %>% as.Date()
-      
+
       res <- Tab %>%
         # split(.$procedencia == "Contacto" & is.na(.$fecha_llegada)) %>%
         split(.$procedencia == "Contacto") %>%
@@ -129,7 +131,7 @@ datos_mx <- fechas_dirs %>%
                         fecha = fecha)
           return(res)
         }, fecha = fecha, .id = "transmicion_comunitaria")
-      
+
       return(res)
     }
     },lu_tab = estados_nombres_dge)
@@ -150,7 +152,7 @@ Dat <- datos_mundo %>%
   filter(pais != "China") %>%
   select(pais, casos_acumulados, fecha) %>%
   bind_rows(datos_mx)
-Dat 
+Dat
 
 # Casos acumukados
 p1 <- Dat %>%
@@ -186,10 +188,3 @@ archivo <- file.path(args$dir_salida, "casos_acumulados_comunitarios_importados.
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_acumulados_comunitarios_importados@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-
-
-
-  
-  
-
