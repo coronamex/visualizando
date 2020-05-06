@@ -1,17 +1,24 @@
 #!/usr/bin/env bash
 
+# Casos
 Rscript casos/inicio_sintomas_por_fecha.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
 
+# Clinicos
 Rscript clinicos/riesgos_relativos.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
 Rscript clinicos/tiempo_sintomas_muerte.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+Rscript clinicos/tiempo_deteccion.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
