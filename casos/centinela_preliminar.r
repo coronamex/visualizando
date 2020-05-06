@@ -103,9 +103,11 @@ Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FE
          -totales_nacional, -estimados_posibles_nacional, -pruebas_usmer,
          -positivos_usmer, -acumulados_usmer_oficial) %>%
   mutate(factor_ssa = estimados_acumulados_nacional / acumulados_usmer) %>%
+  mutate(factor_ssa = replace(factor_ssa, is.nan(factor_ssa), 0)) %>%
+  # print(n = 1000) %>%
   filter(fecha <= "2020-04-12" ) %>%
   filter(fecha > "2020-01-05") %>%
-  # print(n = 1000) %>%
+  # print(n = 1000)
   mutate(factor_ssa_extendido = rep(factor_ssa[!is.na(factor_ssa)], each = 7)) %>%
   # print(n = 1000)
   mutate(acumulados_estimados = floor(factor_ssa_extendido * acumulados_usmer)) %>%
@@ -225,6 +227,7 @@ fechas_dias <- sort(n_dias_ajuste - seq(from = 15, by = 15, length.out = 2))
 # R_hat_cen_oficial <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
 #                                    dias_int = fechas_dias,
 #                                    T_inc = T_inc, T_inf = T_inf, pob = pob)
+# save(R_hat_cen_oficial, file = "R_hat_cen_oficial.rdat")
 load("R_hat_cen_oficial.rdat")
 R_hat_cen_oficial
 
