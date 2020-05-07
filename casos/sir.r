@@ -167,6 +167,92 @@ archivo <- file.path(args$dir_estimados, "seir_estimados.csv")
 write_csv(p1$data %>%
             mutate(fecha_estimacion = Sys.Date()), archivo)
 
+max_estimado_actual <- max(p1$data$casos_acumulados, na.rm = TRUE)
+# Aplanamiento
+
+sims_parciales <- R_hat %>%
+  map_dfr(function(l){
+    if(!is.na(l$R_0)){
+      m_nombre <- l$modelo
+      n_tiempos <- length(l$tiempos_int)
+      
+      
+      Ms <- list()
+      for(i in 2:n_tiempos){
+        m_parcial <- l
+        m_parcial$tiempos_int <- m_parcial$tiempos_int[1:i]
+        m_parcial$efectos_int <- m_parcial$efectos_int[1:i]
+        m_parcial$modelo <- paste(m_parcial$modelo, i, sep = ".")
+        Ms[[length(Ms) + 1]] <- m_parcial
+      }
+      simular_multiples_modelos(modelos = Ms,
+                                FUN = sir, real = Tab, pob = pob,
+                                n_dias = n_dias)
+      
+    }
+  })
+sims_parciales
+# sims_parciales <- sims_parciales %>%
+#   separate(modelo, into = c("base", "dias"), sep = "[.]") %>%
+#   group_by(dia, dias) %>%
+#   summarise(casos_acumulados = median(casos_acumulados)) %>%
+#   ungroup() %>%
+#   transmute(dia, casos_acumulados, modelo = paste("mediana", dias, sep = "."))
+
+p1 <- Tab %>%
+  select(fecha, dia, casos_acumulados) %>%
+  mutate(modelo = "real") %>%
+  bind_rows(sims_parciales %>% mutate(fecha = fecha_inicio + dia)) %>%
+  mutate(grupo = "¿Qué pudo haber pasado?") %>%
+  mutate(grupo =  replace(grupo, modelo %>% str_detect(pattern = "[.]5$"), "¿Qué creemos que está pasando?")) %>%
+  mutate(grupo = replace(grupo, modelo == "real", "Inicio de síntomas")) %>%
+  mutate(grupo = factor(grupo, levels = c("Inicio de síntomas", "¿Qué pudo haber pasado?", "¿Qué creemos que está pasando?"))) %>%
+  mutate(modelo = factor(modelo, levels = c("real", unique(sims_parciales$modelo)))) %>%
+
+  # filter(fecha >= "2020-02-15") %>%
+  filter(casos_acumulados <= max_estimado_actual) %>%
+  # filter(dia < 75) %>% 
+  # select(modelo) %>% table
+  # filter(modelo == "mediana.3") %>% print(n = 100)
+  # filter(modelo %in% c("real", "mediana.2")) %>%
+  
+  ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
+  geom_line(aes(col = grupo, size = grupo, linetype = grupo)) +
+  geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
+  annotate("text", label = "Fin ajuste de curva",
+           x = Sys.Date() - args$dias_retraso - 2.5,
+           y = 8000, angle = 90,
+           size = 6) +
+  # geom_vline(xintercept = fecha_inicio + fechas_dias, col = "red") +
+  scale_color_manual(values = c("#7570b3", "darkgrey", "black"),
+                     name = "") +
+  scale_size_manual(values = c(2, 0.5, 0.3)) +
+  scale_linetype_manual(values = c("solid", "dashed", "solid")) +
+  guides(size = FALSE) +
+  ylab("Casos acumulados") +
+  xlab("Fecha") +
+  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 2500)}) +
+  # scale_y_log10() +
+  guides(color = guide_legend(override.aes = list(size = 3,
+                                                  linetype = c("solid", "dashed", "solid")),
+                              nrow = 2),
+         linetype = FALSE) +
+  AMOR::theme_blackbox() +
+  theme(panel.background = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", size = 3),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.key = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10, color = "black"),
+        plot.margin = margin(l = 20, r = 20))
+p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "aplanamiento.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "aplanamiento@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
 ##### R_hat
 
 p1 <- R_hat %>%
