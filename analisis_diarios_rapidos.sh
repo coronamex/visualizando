@@ -18,7 +18,7 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
-Rscript clinicos/tiempo_deteccion.r
+Rscript clinicos/tiempos_deteccion.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
