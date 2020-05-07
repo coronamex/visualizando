@@ -30,6 +30,32 @@ Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI", "FECHA_DEF")] %>%
   mutate(SEXO = replace(SEXO, SEXO == "1", "f")) %>%
   mutate(SEXO = replace(SEXO, SEXO == "2", "h"))
 
+# Dat %>%
+#   filter(!is.na(FECHA_DEF)) %>%
+#   select(SEXO) %>%
+#   table
+# 
+# Dat %>%
+#   filter(!is.na(FECHA_DEF)) %>%
+#   # print %>%
+#   filter(DIABETES == "2") %>%
+#   filter(EPOC == "2") %>%
+#   filter(ASMA == "2") %>%
+#   filter(INMUSUPR == "2") %>%
+#   filter(HIPERTENSION == "2") %>% 
+#   filter(OTRA_COM == "2") %>%
+#   filter(CARDIOVASCULAR == "2") %>%
+#   filter(OBESIDAD == "2") %>%
+#   filter(RENAL_CRONICA == "2") %>%
+#   filter(TABAQUISMO == "2") %>%
+#   filter(HABLA_LENGUA_INDIG == "2")  %>%
+#   select(SEXO) %>%
+#   table
+
+# 123/857
+# 456/1847
+# (123 + 456)/(857 + 1847)
+
 RR_hosp <- comorb %>%
   map_dfr(function(variable, Dat, respuesta = "TIPO_PACIENTE"){
     dat <- tibble(exposicion = Dat[[variable]],
@@ -75,7 +101,6 @@ RR_uci <- comorb %>%
   pivot_wider(names_from = "parametro", values_from = "valor")
 # RR_uci %>%
 #   arrange(lower)
-
 
 
 RR_def <- comorb %>%
