@@ -16,7 +16,7 @@ Dat <- Dat %>%
   mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
-Dat
+# Dat
 
 # Seleccionar defunciones confirmadas
 dat <- Dat %>%
@@ -36,7 +36,7 @@ dat <- Dat %>%
   # arrange(numero_dias) %>%
   # filter(HABLA_LENGUA_INDI == "1")
   # print(n = 500)
-dat
+# dat
 
 
 dat <- Dat %>%
@@ -49,13 +49,14 @@ dat <- Dat %>%
   select(-FECHA_ACTUALIZACION, -ENTIDAD_NAC, -OTRO_CASO, -RESULTADO, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN, -FECHA_DEF,
          -FECHA_INGRESO, -FECHA_SINTOMAS, -MUNICIPIO_RES , -ENTIDAD_RES, -UCI, -INTUBADO, -ORIGEN, -TIPO_PACIENTE,
          -ENTIDAD_UM, -NACIONALIDAD) 
-dat
+# dat
 
 p1 <- ggplot(dat, aes(x = numero_dias)) +
   # facet_wrap(~ RENAL_CRONICA, ncol = 1) + 
   # facet_grid(ASMA ~ ., scales = "free_y") +
   geom_histogram(bins = 15) +
   geom_vline(aes(xintercept = median(numero_dias))) +
+  scale_x_continuous(breaks = function(lims){seq(from = 0, to = lims[2], by = 5)}) +
   ylab("Número de defunciones") +
   xlab("Días entre inicio de síntomas y defunción") +
   AMOR::theme_blackbox() +

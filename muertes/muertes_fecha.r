@@ -114,7 +114,7 @@ p1 <- dat %>%
            parse = TRUE) +
   
   # ylab(label = paste(max_muertes_diarias, "muertes")) +
-  ylab(label = "") +
+  ylab(label = "Muertes nuevas por día") +
   xlab(label = "Fecha de defunción") +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
