@@ -103,10 +103,10 @@ p1 <- dat %>%
   scale_fill_brewer(type = "qual", breaks = unique(Dat$region), name = "") +
   guides(fill = guide_legend(nrow = 2)) +
   
-  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = 90, yend = 140) +
+  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = 120, yend = 170, size =2) +
   annotate("text",
            x = parse_date("2020-03-20") - 1.5,
-           y = 115,
+           y = 145,
            size = 6,
            angle = 90,
            label = 'italic("50 fallecimientos")',
@@ -131,7 +131,7 @@ p1 <- dat %>%
         axis.text.y = element_blank(),
 
         plot.margin = margin(l = 20, r = 20))
-# p1
+p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_region.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
