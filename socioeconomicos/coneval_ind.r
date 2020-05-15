@@ -1,6 +1,15 @@
 library(tidyverse)
 library(broom)
 
+#' Title
+#'
+#' @param expresion 
+#' @param Dat 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 modelar <- function(expresion, Dat){
   expresion <- enexpr(expresion)
   
@@ -40,7 +49,7 @@ Dens <- read_csv(args$densidad,
                                                  .default = col_number()))
 Dens <- Dens %>%
   select(NOM_MUN, CVMUN, POBTOT15, AREAKM, DENS15)
-Dens
+# Dens
 
 
 # Leer indicadores
@@ -52,8 +61,10 @@ Ind <- read_csv(args$indicadores,
                                  .default = col_number()),
                 na = c("", "NA", "n.d"))
 Ind <- Ind %>%
-  select(!ends_with("_pob"))
-Ind
+  select(!ends_with("_pob")) %>%
+  rename(pv = npnv) %>%
+  mutate(pv = 100 - pv)
+# Ind 
 
 # Unir densidad e indicadores
 Dat <- Dens %>%
@@ -66,7 +77,7 @@ Dat <- Dens %>%
   mutate(clave_entidad = str_pad(string = clave_entidad, width = 2, side = "left", pad = "0")) %>%
   mutate(clave = paste(clave_entidad, mun, sep = "_")) %>%
   select(clave, everything(), -clave_entidad, -clave_municipio, -mun)
-Dat
+# Dat
 
 # Leer datos
 Serie <- read_csv(args$serie_municipios)
@@ -78,7 +89,7 @@ Casos <- Serie %>%
             dia_10 = min(fecha[ sintomas_acumulados >= 10])) %>%
   filter(casos_totales >= 10) %>%
   mutate(brote_dias = as.numeric(dia_10 - dia_1))
-Casos
+# Casos
 
 # Unir datos COVID19 con indicadores
 Dat <- Casos %>%
@@ -89,9 +100,7 @@ Dat <- Casos %>%
   # mutate(incidencia = 1e5 * (casos_totales + 1) / (poblacion + 1),
   #        mortalidad = 1e5 * (muertes_totales + 1) / (poblacion + 1),
   #        letalidad = (muertes_totales + 1)/ (casos_totales + 1))
-
-Dat
-
+# Dat
 
 # Calcular residuales de datos COVID-19 controlados por población
 variables <- c("incidencia", "mortalidad", "letalidad")
@@ -106,7 +115,7 @@ Dat <- bind_cols(Dat,
                        augment(newdata = dat) %>%
                        transmute(!!new_var := log10(!!var) - .fitted)
                    }))
-Dat
+# Dat
 
 # Limpiar para análisis de indicadores
 Dat <- Dat %>%
@@ -124,36 +133,55 @@ Dat %>%
   facet_wrap(~ indicador, scales = "free_x") +
   geom_point() +
   stat_smooth(method = "lm") +
-  scale_x_log10()
+  scale_x_log10(labels = function(x) scales::percent(x / 100)) +
+  scale_y_continuous(labels = function(x){
+    labs <- (10 ^ x) - 1
+    scales::percent(labs)
+  })
  
-Dat %>%
-  ggplot(aes(x = valor, y = resid_mortalidad)) +
-  facet_wrap(~ indicador, scales = "free_x") +
-  geom_point() +
-  stat_smooth(method = "lm") +
-  scale_x_log10()
-
-Dat %>%
-  ggplot(aes(x = valor, y = resid_letalidad)) +
-  facet_wrap(~ indicador, scales = "free_x") +
-  geom_point() +
-  stat_smooth(method = "lm") +
-  scale_x_log10()
-
-
-Dat %>%
-  ggplot(aes(x = valor, y = resid_mortalidad - resid_incidencia)) +
-  facet_wrap(~ indicador, scales = "free_x") +
-  geom_point() +
-  stat_smooth(method = "lm") +
-  scale_x_log10()
+# Dat %>%
+#   ggplot(aes(x = valor, y = resid_mortalidad)) +
+#   facet_wrap(~ indicador, scales = "free_x") +
+#   geom_point() +
+#   stat_smooth(method = "lm") +
+#   scale_x_log10()
+# 
+# Dat %>%
+#   ggplot(aes(x = valor, y = resid_letalidad)) +
+#   facet_wrap(~ indicador, scales = "free_x") +
+#   geom_point() +
+#   stat_smooth(method = "lm") +
+#   scale_x_log10()
+# 
+# 
+# Dat %>%
+#   ggplot(aes(x = valor, y = resid_mortalidad - resid_incidencia)) +
+#   facet_wrap(~ indicador, scales = "free_x") +
+#   geom_point() +
+#   stat_smooth(method = "lm") +
+#   scale_x_log10(labels = function(x) scales::percent(x / 100)) +
+#   scale_y_continuous(labels = function(x){
+#     labs <- (10 ^ x) - 1
+#     scales::percent(labs)
+#   })
 
 Dat %>%
   ggplot(aes(x = valor, y = resid_letalidad - resid_mortalidad)) +
   facet_wrap(~ indicador, scales = "free_x") +
   geom_point() +
   stat_smooth(method = "lm") +
-  scale_x_log10() +
+  scale_x_log10(labels = function(x) scales::percent(x / 100)) +
+  scale_y_continuous(labels = function(x){
+    labs <- (10 ^ x) - 1
+    scales::percent(labs)
+  })
+
+Dat %>%
+  ggplot(aes(x = valor, y = resid_letalidad - resid_incidencia)) +
+  facet_wrap(~ indicador, scales = "free_x") +
+  geom_point() +
+  stat_smooth(method = "lm") +
+  scale_x_log10(labels = function(x) scales::percent(x / 100)) +
   scale_y_continuous(labels = function(x){
     labs <- (10 ^ x) - 1
     scales::percent(labs)
@@ -165,4 +193,4 @@ modelar(resid_mortalidad, Dat = Dat)
 modelar(resid_letalidad, Dat = Dat)
 modelar(resid_mortalidad - resid_incidencia, Dat = Dat)
 modelar(resid_letalidad - resid_mortalidad, Dat = Dat)
-
+modelar(resid_letalidad - resid_incidencia, Dat = Dat)
