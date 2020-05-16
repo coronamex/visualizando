@@ -1,5 +1,6 @@
 library(tidyverse)
 library(broom)
+source("util/leer_datos_abiertos.r")
 
 #' Title
 #'
@@ -36,12 +37,22 @@ modelar <- function(expresion, Dat){
 }
 
 
-
 args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              densidad = "../socioeconomicos/cedrus/DENSIDAD-POB-MUNS-MEXICO.csv",
              indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobreza_municipa_2015.csv",
              serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv")
 
+# Número de pruebas por municipio
+n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)
+n_pruebas <- n_pruebas %>%
+  filter(RESULTADO %in% c("1", "2")) %>%
+  group_by(ENTIDAD_RES, MUNICIPIO_RES) %>%
+  summarise(n_pruebas = length(ID_REGISTRO)) %>%
+  ungroup() %>%
+  mutate(clave_municipio = paste(ENTIDAD_RES, MUNICIPIO_RES, sep = "")) %>%
+  select(clave_municipio, n_pruebas) %>%
+  mutate(clave_municipio = str_remove(clave_municipio, "^0"))
+  
 # Leer densidad
 Dens <- read_csv(args$densidad,
                  col_types = cols(NOM_MUN = col_character(),
@@ -50,7 +61,6 @@ Dens <- read_csv(args$densidad,
 Dens <- Dens %>%
   select(NOM_MUN, CVMUN, POBTOT15, AREAKM, DENS15)
 # Dens
-
 
 # Leer indicadores
 Ind <- read_csv(args$indicadores,
@@ -66,22 +76,9 @@ Ind <- Ind %>%
   mutate(pv = 100 - pv)
 # Ind 
 
-# Unir densidad e indicadores
-Dat <- Dens %>%
-  mutate(CVMUN = str_remove(string = CVMUN, pattern = "^0")) %>%
-  rename(clave_municipio = CVMUN) %>%
-  full_join(Ind, by = "clave_municipio") %>%
-  select(-POBTOT15, -AREAKM,
-         -NOM_MUN, -municipio, -entidad_federativa) %>%
-  mutate(mun = str_sub(clave_municipio, start = -3)) %>%
-  mutate(clave_entidad = str_pad(string = clave_entidad, width = 2, side = "left", pad = "0")) %>%
-  mutate(clave = paste(clave_entidad, mun, sep = "_")) %>%
-  select(clave, everything(), -clave_entidad, -clave_municipio, -mun)
-# Dat
-
 # Leer datos
-Serie <- read_csv(args$serie_municipios)
-Casos <- Serie %>%
+Casos <- read_csv(args$serie_municipios)
+Casos <- Casos %>%
   group_by(clave) %>%
   summarise(casos_totales = sum(sintomas_nuevos),
             muertes_totales = sum(muertes_nuevas),
@@ -89,7 +86,21 @@ Casos <- Serie %>%
             dia_10 = min(fecha[ sintomas_acumulados >= 10])) %>%
   filter(casos_totales >= 10) %>%
   mutate(brote_dias = as.numeric(dia_10 - dia_1))
-# Casos
+Casos
+
+# Unir densidad, indicadores y pruebas
+Dat <- Dens %>%
+  mutate(CVMUN = str_remove(string = CVMUN, pattern = "^0")) %>%
+  rename(clave_municipio = CVMUN) %>%
+  full_join(Ind, by = "clave_municipio") %>%
+  full_join(n_pruebas, by = "clave_municipio") %>%
+  select(-POBTOT15, -AREAKM,
+         -NOM_MUN, -municipio, -entidad_federativa) %>%
+  mutate(mun = str_sub(clave_municipio, start = -3)) %>%
+  mutate(clave_entidad = str_pad(string = clave_entidad, width = 2, side = "left", pad = "0")) %>%
+  mutate(clave = paste(clave_entidad, mun, sep = "_")) %>%
+  select(clave, everything(), -clave_entidad, -clave_municipio, -mun)
+# Dat
 
 # Unir datos COVID19 con indicadores
 Dat <- Casos %>%
@@ -102,6 +113,16 @@ Dat <- Casos %>%
   #        letalidad = (muertes_totales + 1)/ (casos_totales + 1))
 # Dat
 
+Dat %>%
+  select(clave, casos_totales, poblacion, DENS15, n_pruebas) %>%
+  pivot_longer(cols = c(-clave, -casos_totales), names_to = "indicador", values_to = "valor") %>%
+  ggplot(aes(x = valor, y = casos_totales)) +
+  facet_wrap(~ indicador, scales = "free_x") +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10()
+
+
 # Calcular residuales de datos COVID-19 controlados por población
 variables <- c("incidencia", "mortalidad", "letalidad")
 Dat <- bind_cols(Dat,
@@ -110,7 +131,7 @@ Dat <- bind_cols(Dat,
                      var <- ensym(var)
                      dat_filtrada <- dat %>% filter(!!var > 0)
                      new_var = paste0("resid_", var)
-                     f1 <- paste("log10(", var, ") ~ log10(poblacion) + log10(DENS15)")
+                     f1 <- paste("log10(", var, ") ~ log10(poblacion) + log10(DENS15) + log10(n_pruebas)")
                      lm(f1, data = dat_filtrada) %>%
                        augment(newdata = dat) %>%
                        transmute(!!new_var := log10(!!var) - .fitted)
@@ -122,38 +143,63 @@ Dat <- Dat %>%
   pivot_longer(cols = c(-clave, -casos_totales, -muertes_totales,
                         -dia_1, -dia_10, -brote_dias,
                         -incidencia, -mortalidad, -letalidad,
-                        -poblacion, -DENS15,
+                        -poblacion, -DENS15, -n_pruebas,
                         -resid_incidencia, -resid_mortalidad, -resid_letalidad),
                names_to = "indicador", values_to = "valor")
-Dat
+# Dat
 
-
-Dat %>%
+p1 <- Dat %>%
   ggplot(aes(x = valor, y = resid_incidencia)) +
+  facet_wrap(~ indicador, scales = "free_x") +
+  # facet_wrap(~ indicador) +
+  geom_point(aes(col = poblacion / 1e4), size = 0.5) +
+  scale_color_gradient(low = "#f6e8c3", high = "#543005", trans = "log10",
+                       name = "Población\n(decenas de miles)", labels = scales::comma) +
+  # scale_radius(trans = "log2") +
+  stat_smooth(method = "lm") +
+  scale_x_log10(labels = function(x) scales::percent(x / 100)) +
+  # scale_x_continuous(labels = function(x) scales::percent(x / 100)) +
+  scale_y_continuous(labels = function(x){
+    # labs <- (10 ^ x) - 1
+    # scales::percent(labs)
+    labs <- (10 ^ x)
+    scales::number(labs, accuracy = 0.01)
+  }) +
+  coord_cartesian() +
+  theme_classic() +
+  theme(legend.position = "top",
+        axis.text.x = element_text(angle = 90))
+p1
+ggsave("test.png", p1, width = 7, height = 9, dpi = 75)
+# archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+# archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional@2x.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+ 
+Dat %>%
+  ggplot(aes(x = valor, y = resid_mortalidad)) +
   facet_wrap(~ indicador, scales = "free_x") +
   geom_point() +
   stat_smooth(method = "lm") +
+  scale_x_log10() +
   scale_x_log10(labels = function(x) scales::percent(x / 100)) +
   scale_y_continuous(labels = function(x){
     labs <- (10 ^ x) - 1
     scales::percent(labs)
   })
- 
-# Dat %>%
-#   ggplot(aes(x = valor, y = resid_mortalidad)) +
-#   facet_wrap(~ indicador, scales = "free_x") +
-#   geom_point() +
-#   stat_smooth(method = "lm") +
-#   scale_x_log10()
-# 
+
 # Dat %>%
 #   ggplot(aes(x = valor, y = resid_letalidad)) +
 #   facet_wrap(~ indicador, scales = "free_x") +
 #   geom_point() +
 #   stat_smooth(method = "lm") +
-#   scale_x_log10()
-# 
-# 
+#   scale_x_log10() +
+#   scale_x_log10(labels = function(x) scales::percent(x / 100)) +
+#   scale_y_continuous(labels = function(x){
+#     labs <- (10 ^ x) - 1
+#     scales::percent(labs)
+#   })
+
 # Dat %>%
 #   ggplot(aes(x = valor, y = resid_mortalidad - resid_incidencia)) +
 #   facet_wrap(~ indicador, scales = "free_x") +
@@ -176,16 +222,16 @@ Dat %>%
     scales::percent(labs)
   })
 
-Dat %>%
-  ggplot(aes(x = valor, y = resid_letalidad - resid_incidencia)) +
-  facet_wrap(~ indicador, scales = "free_x") +
-  geom_point() +
-  stat_smooth(method = "lm") +
-  scale_x_log10(labels = function(x) scales::percent(x / 100)) +
-  scale_y_continuous(labels = function(x){
-    labs <- (10 ^ x) - 1
-    scales::percent(labs)
-  })
+# Dat %>%
+#   ggplot(aes(x = valor, y = resid_letalidad - resid_incidencia)) +
+#   facet_wrap(~ indicador, scales = "free_x") +
+#   geom_point() +
+#   stat_smooth(method = "lm") +
+#   scale_x_log10(labels = function(x) scales::percent(x / 100)) +
+#   scale_y_continuous(labels = function(x){
+#     labs <- (10 ^ x) - 1
+#     scales::percent(labs)
+#   })
 
 
 modelar(resid_incidencia, Dat = Dat)
