@@ -247,11 +247,12 @@ fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 5))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 5))
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      dias_int = fechas_dias,
                                      T_inc = T_inc, T_inf = T_inf, pob = pob)
+save(R_hat_cen_coronamex, file = "R_hat_cen_coronamex.rdat")
 R_hat_cen_coronamex
 sims_cen_coronames <- simular_multiples_modelos(modelos = R_hat_cen_coronamex,
                                                 FUN = sir, real = Tab, pob = pob,

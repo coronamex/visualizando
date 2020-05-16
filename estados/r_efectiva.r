@@ -3,11 +3,7 @@ library(tidyverse)
 args <- list(tabla_estimados = "estimados/rt_live_estimados.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
-
-
 Dat <- read_csv(args$tabla_estimados)
-Dat
-
 
 p1 <- Dat %>%
   ggplot(aes(x = date, y = median)) +
@@ -27,7 +23,7 @@ p1 <- Dat %>%
         axis.title = element_text(face = "bold", size = 12),
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
-p1
+# p1
 # archivo <- file.path(args$dir_salida, "r_efectiva.png")
 # ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 # archivo <- file.path(args$dir_salida, "r_efectiva@2x.png")

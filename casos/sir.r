@@ -64,7 +64,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas <- fechas - 3
 # fechas
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 10, length.out = 5))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 5))
 fechas_dias
 
 # Parameters to make optimization
@@ -82,7 +82,8 @@ pob <- 127792286
 R_hat <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                        dias_int = fechas_dias,
                        T_inc = T_inc, T_inf = T_inf, pob = pob)
-R_hat 
+R_hat
+save(R_hat, file = "R_hat_coronamex.rdat")
 
 # Simular con parámetros estimados
 sims <- simular_multiples_modelos(modelos = R_hat,
