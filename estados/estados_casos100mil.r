@@ -4,6 +4,7 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              tasa_min = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              max_dias = 10,
+             dias_activos = 14,
              serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv")
 
 # Leer poblaciones
@@ -33,23 +34,35 @@ pal <- colorRampPalette(colors = rev(c("#a50026",
 # Para graficar subconjunto de estados
 estados <- NULL
 # estados <- "Guanajuato"
-p1 <- Dat %>% 
+Dat <- Dat %>%
   left_join(pob %>% select(estado, pob = conapo_2020), 
             by = "estado") %>%
   mutate(casos_100mil = sintomas_acumulados / (pob/1e5)) %>%
   split(.$estado) %>%
   map_dfr(function(d, tasa_min){
-    if(max(d$casos_100mil >= tasa_min) || d$estado[1] %in% estados){
+    d <- d %>%
+      mutate(casos_recientes = sintomas_acumulados - lag(sintomas_acumulados, args$dias_activos, default = 0)) %>%
+      mutate(recientes = casos_recientes / (pob/1e5))
+    
+    if(max(d$sintomas_acumulados >= tasa_min) || d$estado[1] %in% estados){
       return(d)
     }
   }, tasa_min = args$tasa_min) %>%
-  select(estado, casos_100mil, fecha) %>%
+  select(estado, acumulados = casos_100mil, recientes, fecha) %>%
   filter(fecha > max(fecha) - args$max_dias) %>%
-  mutate(estado = factor(estado, levels = rev(unique(estado)))) %>%
+  pivot_longer(cols = c(-estado, -fecha), names_to = "grupo", values_to = "casos_100mil") %>%
+  filter(!(grupo == "recientes" & fecha < max(fecha))) %>%
+  mutate(estado = factor(estado, levels = rev(unique(estado))))
+Dat
+
+p1 <- Dat %>%
+  filter(grupo == "acumulados") %>%
+  
   ggplot(aes(x = fecha, y = estado)) +
   geom_tile(aes(fill = casos_100mil), width = 0.8, height = 0.8) +
+  # facet_grid(~ grupo, scales = "free_x", space = "free_x") +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
-                       high = pal(11)[11], midpoint = 10,
+                       high = pal(11)[11], midpoint = 20,
                        name = expression(frac(Casos, "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +
@@ -59,10 +72,27 @@ p1 <- Dat %>%
         axis.title = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "top",
-        plot.margin = margin(l = 20, r = 20, b = 20))
-p1
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+        plot.margin = margin(l = 20))
+
+p2 <- Dat %>%
+  filter(grupo == "recientes") %>%
+  
+  ggplot(aes(x = casos_100mil, y = estado)) +
+  # geom_bar(stat = "identity") +
+  geom_col() +
+  xlab(label = expression(frac("Casos recientes", "100 mil habitantes"))) +
+  AMOR::theme_blackbox() +
+  theme(panel.background = element_blank(),
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(angle = 90),
+        axis.title.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "top",
+        plot.margin = margin(r = 20))
+
+pp <- cowplot::plot_grid(p1, p2 + aplot::ylim2(p1), axis = "bt", align = "h", rel_widths = c(0.8, 0.2))
+# ggsave("test.png", pp, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+ggsave(archivo, pp, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_100mil_estados@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+ggsave(archivo, pp, width = 7, height = 6.7, dpi = 150)
