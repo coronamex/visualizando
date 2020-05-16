@@ -63,7 +63,7 @@ p1 <- Dat %>%
   # facet_grid(~ grupo, scales = "free_x", space = "free_x") +
   scale_fill_gradient2(low = pal(11)[1], mid = pal(11)[6],
                        high = pal(11)[11], midpoint = 20,
-                       name = expression(frac(Casos, "100 mil habitantes"))) +
+                       name = expression(frac("Casos totales", "100 mil habitantes"))) +
   scale_x_date(breaks = unique(Dat$fecha), labels = function(x){strftime(x, format = "%b %d")}) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
