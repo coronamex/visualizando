@@ -55,3 +55,8 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+Rscript municipios/incidencia_mortalidad_letalidad_municipio.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi

@@ -1,5 +1,6 @@
 library(tidyverse)
 library(broom)
+library(geojsonio)
 source("util/leer_datos_abiertos.r")
 
 #' Title
@@ -40,7 +41,13 @@ modelar <- function(expresion, Dat){
 args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              densidad = "../socioeconomicos/cedrus/DENSIDAD-POB-MUNS-MEXICO.csv",
              indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobreza_municipa_2015.csv",
-             serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv")
+             serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv",
+             mapa_shp = "../socioeconomicos/mapas/municipalities.shp",
+             min_casos = 0)
+
+# Leer mapa
+mun_sp <- geojson_read(args$mapa_shp, what = "sp")
+mun_sp@data$clave <- paste(mun_sp@data$CVE_ENT, mun_sp@data$CVE_MUN, sep = "_")
 
 # Número de pruebas por municipio
 n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)
@@ -82,7 +89,7 @@ Casos <- Casos %>%
             muertes_totales = sum(muertes_nuevas),
             dia_1 = min(fecha[ sintomas_acumulados >= 1]),
             dia_10 = min(fecha[ sintomas_acumulados >= 10])) %>%
-  filter(casos_totales >= 10) %>%
+  filter(casos_totales >= args$min_casos) %>%
   mutate(brote_dias = as.numeric(dia_10 - dia_1))
 
 # Unir densidad, indicadores y pruebas
@@ -107,7 +114,8 @@ Dat <- Casos %>%
   mutate(incidencia = 1e5 * (casos_totales) / (poblacion),
          mortalidad = 1e5 * (muertes_totales) / (poblacion),
          letalidad = (muertes_totales)/ (casos_totales))
-  # mutate(incidencia = 1e5 * (casos_totales + 1) / (poblacion + 1),
+  
+# mutate(incidencia = 1e5 * (casos_totales + 1) / (poblacion + 1),
   #        mortalidad = 1e5 * (muertes_totales + 1) / (poblacion + 1),
   #        letalidad = (muertes_totales + 1)/ (casos_totales + 1))
 # Dat
@@ -163,6 +171,34 @@ Dat <- bind_cols(Dat,
 # hist(Dat$resid_mortalidad)
 # hist(Dat$resid_letalidad)
 # hist(Dat$resid_incidencia)
+Dat
+# Mapas
+mun_sp <- tidy(mun_sp, region = "clave") %>%
+  left_join(Dat %>%
+              select(clave, casos_totales, muertes_totales, brote_dias,
+                     resid_incidencia, resid_mortalidad, resid_letalidad),
+            by = c(id = "clave"))
+mun_sp
+p1 <- mun_sp %>%
+  ggplot() +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = resid_incidencia), color = NA) +
+  # geom_polygon(aes(x = long, y = lat, group = group, fill = brote_dias), color = NA) +
+  scale_fill_gradient2(low = "#053061", high = "#67001f", mid = "#f7f7f7", midpoint = 0,
+                       name = expression(frac("Casos observados en municipio",
+                                              "Casos esperados en municipio")),
+                       labels = function(x){
+                         labs <- (10 ^ x)
+                         scales::number(labs, accuracy = 0.1)
+                       }) +
+  # scale_fill_gradient(low = "#f7f4f9", high = "#67001f") +
+  theme_void() +
+  coord_map() +
+  theme(legend.position = "top",
+        plot.margin = margin(t = 0, r = 0 , b = 0, l = 0))
+# p1
+ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+
+
 
 # Limpiar para análisis de indicadores
 Dat <- Dat %>%
@@ -175,6 +211,8 @@ Dat <- Dat %>%
 Dat
 
 indicadores_para_graficar <- c("pobreza", "ic_asalud", "ic_cv", "ic_segsoc")
+indicadores_para_graficar <- c("pobreza_e", "vul_ing", "ic_cv", "carencias3")
+# indicadores_para_graficar <- unique(Dat$indicador)
 p1 <- Dat %>%
   filter(indicador %in% indicadores_para_graficar) %>%
   ggplot(aes(x = valor, y = resid_incidencia)) +
@@ -193,13 +231,13 @@ p1 <- Dat %>%
     labs <- (10 ^ x)
     scales::number(labs, accuracy = 0.01)
   }) +
-  ylab(expression(frac("Casos totales observados","Casos totatels esperados"))) +
+  ylab(expression(frac("Casos observados en municipio","Casos esperados en municipio"))) +
   # coord_cartesian() +
   theme_classic() +
   theme(legend.position = "top",
         axis.text.x = element_text(angle = 90))
 p1
-ggsave("test.png", p1, width = 7, height = 9, dpi = 75)
+ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 # archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.png")
 # ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 # archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional@2x.png")
@@ -247,16 +285,16 @@ ggsave("test.png", p1, width = 7, height = 9, dpi = 75)
 #     scales::percent(labs)
 #   })
 
-Dat %>%
-  ggplot(aes(x = valor, y = resid_letalidad - resid_mortalidad)) +
-  facet_wrap(~ indicador, scales = "free_x") +
-  geom_point() +
-  stat_smooth(method = "lm") +
-  scale_x_log10(labels = function(x) scales::percent(x / 100))
-  # scale_y_continuous(labels = function(x){
-  #   labs <- (10 ^ x) - 1
-  #   scales::percent(labs)
-  # })
+# Dat %>%
+#   ggplot(aes(x = valor, y = resid_letalidad - resid_mortalidad)) +
+#   facet_wrap(~ indicador, scales = "free_x") +
+#   geom_point() +
+#   stat_smooth(method = "lm") +
+#   scale_x_log10(labels = function(x) scales::percent(x / 100))
+#   # scale_y_continuous(labels = function(x){
+#   #   labs <- (10 ^ x) - 1
+#   #   scales::percent(labs)
+#   # })
 
 # Dat %>%
 #   ggplot(aes(x = valor, y = resid_letalidad - resid_incidencia)) +
@@ -278,7 +316,13 @@ modelar(resid_letalidad - resid_mortalidad, Dat = Dat)
 modelar(resid_letalidad - resid_incidencia, Dat = Dat)
 
 ################
-# library(geojsonio)
-# 
-# mun_sp <- geojson_read("../socioeconomicos/mapas/municipios.json")
-# mun_sp
+
+
+
+
+
+
+
+
+
+
