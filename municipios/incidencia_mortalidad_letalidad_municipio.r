@@ -95,7 +95,7 @@ Dat <- bind_cols(Dat,
 # Dat
 
 p1 <- ggplot(Dat, aes(x = poblacion, y = casos_totales)) +
-  geom_point() +
+  geom_point(alpha = 0.2) +
   scale_y_log10(labels = function(x) scales::comma(x, accuracy = 1)) +
   scale_x_log10(labels = function(x) scales::comma(x, accuracy = 1)) + 
   ylab("Casos observados en municipio") +
@@ -104,7 +104,7 @@ p1 <- ggplot(Dat, aes(x = poblacion, y = casos_totales)) +
 # p1
 
 p2 <- ggplot(Dat, aes(x = n_pruebas, y = casos_totales)) +
-  geom_point() +
+  geom_point(alpha = 0.2) +
   scale_y_log10(labels = function(x) scales::comma(x, accuracy = 1)) +
   scale_x_log10(labels = function(x) scales::comma(x, accuracy = 1)) + 
   ylab("Casos observados en municipio") +
@@ -113,7 +113,7 @@ p2 <- ggplot(Dat, aes(x = n_pruebas, y = casos_totales)) +
 # p2
 
 p3 <- ggplot(Dat, aes(x = DENS15, y = casos_totales)) +
-  geom_point() +
+  geom_point(alpha = 0.2) +
   scale_y_log10(labels = function(x) scales::comma(x, accuracy = 1)) +
   scale_x_log10(labels = function(x) scales::comma(x, accuracy = 1)) + 
   ylab("Casos observados en municipio") +
@@ -122,7 +122,7 @@ p3 <- ggplot(Dat, aes(x = DENS15, y = casos_totales)) +
 # p3
 
 p4 <- ggplot(Dat, aes(x = esperados_incidencia, y = incidencia)) +
-  geom_point() +
+  geom_point(alpha = 0.2) +
   scale_x_log10(labels = function(x) scales::comma(x, accuracy = 1)) +
   scale_y_log10(labels = function(x) scales::comma(x, accuracy = 1)) +
   geom_abline(intercept = 0, slope = 1, col = "darkblue", size = 3) +

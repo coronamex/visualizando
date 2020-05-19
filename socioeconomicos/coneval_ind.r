@@ -131,15 +131,16 @@ p1 <- Dat %>%
   mutate(indicador = as.vector(indicadores_para_graficar[indicador])) %>%
   ggplot(aes(x = valor, y = resid_incidencia)) +
   facet_wrap(~ indicador, scales = "free_x") +
-  geom_point(size = 2) +
+  geom_point(size = 2, alpha = 0.1) +
   stat_smooth(method = "lm") +
   scale_x_log10(labels = function(x) scales::percent(x / 100, accuracy = 1)) +
   scale_y_continuous(labels = function(x){
     labs <- (10 ^ x)
-    scales::number(labs, accuracy = 0.1)
+    scales::number(labs, accuracy = 0.2)
   }) +
   xlab(label = "% de población municipal") +
-  ylab(expression(frac("Casos observados en municipio","Casos esperados en municipio"))) +
+  # ylab(expression(frac("Casos observados en municipio","Casos esperados en municipio"))) +
+  ylab(expression(atop("Exceso", "de casos") == frac("Casos observados en municipio","Casos esperados en municipio"))) +
   theme_classic() +
   theme(legend.position = "top")
 # axis.text.x = element_text(angle = 90))

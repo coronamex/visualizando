@@ -43,7 +43,7 @@ p1 <- Dat %>%
   filter(!is.na(incidencia)) %>%
   ggplot(aes(x = prop_indigena, y = resid_incidencia) ) +
   geom_point(aes(col = gradomargi_2015), size = 2) +
-  scale_color_brewer(palette = "Dark2", 
+  scale_color_brewer(palette = "Set1", 
                      name = "Grado de\nmarginación") +
   geom_smooth(method = "lm") +
   scale_x_log10(labels = function(x) scales::percent(x = x, accuracy = 0.1)) +
@@ -52,7 +52,8 @@ p1 <- Dat %>%
     scales::number(labs, accuracy = 0.1)
   }) +
   xlab("Población indígena municipal") +
-  ylab(expression(bold(frac("Casos observados en municipio","Casos esperados en municipio")))) +
+  ylab(expression(bold(atop("Exceso", "de casos") == frac("Casos observados en municipio","Casos esperados en municipio")))) +
+  # ylab(expression(atop(a,f) == frac(b,c))) +
   guides(col = guide_legend(nrow=2, override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
   theme(legend.position = "top",
