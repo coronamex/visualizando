@@ -39,8 +39,8 @@ p1 <- Dat %>%
             fill = "pink") +
   geom_bar(aes(y=..count.., fill=TIPO_PACIENTE), width = 1) +
   scale_fill_manual(values = c("#66c2a5", "#8da0cb"),
-                     labels = c("Ambulatorio", "Hospitalizado"),
-                     name = "") +
+                    labels = c("Ambulatorio", "Hospitalizado"),
+                    name = "") +
   annotate("text",
            x = fecha_final - 5,
            y = 0.85 * max(table(Dat$FECHA_SINTOMAS)),
@@ -59,7 +59,7 @@ p1 <- Dat %>%
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.background = element_blank())
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -90,4 +90,3 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   theme(panel.background = element_blank(),
 #         axis.text.x = element_text(angle = 0))
 # ggsave("inicio_sintomas_por_fecha_estado.png", p1, width = 10, height = 6, dpi = 150)
-
