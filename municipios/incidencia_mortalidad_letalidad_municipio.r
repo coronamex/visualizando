@@ -72,9 +72,9 @@ Dat <- Dens %>%
   mutate(incidencia = 1e5 * (casos_totales) / (poblacion),
          mortalidad = 1e5 * (muertes_totales) / (poblacion),
          letalidad = (muertes_totales)/ (casos_totales))
-  # mutate(incidencia = 1e5 * (casos_totales + 1) / (poblacion + 1),
-  #        mortalidad = 1e5 * (muertes_totales + 1) / (poblacion + 1),
-  #        letalidad = (muertes_totales + 1)/ (casos_totales + 1))
+# mutate(incidencia = 1e5 * (casos_totales + 1) / (poblacion + 1),
+#        mortalidad = 1e5 * (muertes_totales + 1) / (poblacion + 1),
+#        letalidad = (muertes_totales + 1)/ (casos_totales + 1))
 
 # Calcular residuales de datos COVID-19 controlados por población, densidad y pruebas
 variables <- c("incidencia", "mortalidad", "letalidad")

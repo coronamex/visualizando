@@ -99,47 +99,42 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 # Limpiar para análisis de indicadores
 Dat <- Dat %>%
-  pivot_longer(cols = c(-clave, -casos_totales, -muertes_totales,
+  pivot_longer(cols = c(-clave,
                         -dia_1, -dia_10, -brote_dias,
                         -incidencia, -mortalidad, -letalidad,
-                        -poblacion, -DENS15, -n_pruebas,
                         -resid_incidencia, -resid_mortalidad, -resid_letalidad),
                names_to = "indicador", values_to = "valor")
-Dat
 
-indicadores_para_graficar <- c("pobreza", "ic_asalud", "ic_cv", "ic_segsoc")
-indicadores_para_graficar <- c("pobreza_e", "vul_ing", "ic_cv", "carencias3")
+# indicadores_para_graficar <- c("pobreza", "ic_asalud", "ic_cv", "ic_segsoc")
+indicadores_para_graficar <- c(pobreza_e = "Pobreza extrema",
+                               vul_ing = "Vulnerable por ingreso",
+                               ic_cv = "Vulnerabale por calidad y espacios de la vivienda",
+                               carencias3 = "3 ó más carencias sociales")
 # indicadores_para_graficar <- unique(Dat$indicador)
 p1 <- Dat %>%
-  filter(indicador %in% indicadores_para_graficar) %>%
+  filter(indicador %in% names(indicadores_para_graficar)) %>%
+  mutate(indicador = as.vector(indicadores_para_graficar[indicador])) %>%
   ggplot(aes(x = valor, y = resid_incidencia)) +
   facet_wrap(~ indicador, scales = "free_x") +
-  geom_point(aes(col = poblacion / 1e4), size = 2) +
-  scale_color_gradient(low = "#f6e8c3", high = "#543005", trans = "log10",
-                       name = "Población\n(decenas de miles)", labels = scales::comma) +
-  # scale_radius(trans = "log2") +
+  geom_point(size = 2) +
   stat_smooth(method = "lm") +
-  scale_x_log10(labels = function(x) scales::percent(x / 100)) +
-  # scale_x_continuous(labels = function(x) scales::percent(x / 100)) +
-  # scale_y_log10() +
+  scale_x_log10(labels = function(x) scales::percent(x / 100, accuracy = 1)) +
   scale_y_continuous(labels = function(x){
-    # labs <- (10 ^ x) - 1
-    # scales::percent(labs)
     labs <- (10 ^ x)
-    scales::number(labs, accuracy = 0.01)
+    scales::number(labs, accuracy = 0.1)
   }) +
+  xlab(label = "% de población municipal") +
   ylab(expression(frac("Casos observados en municipio","Casos esperados en municipio"))) +
-  # coord_cartesian() +
   theme_classic() +
-  theme(legend.position = "top",
-        axis.text.x = element_text(angle = 90))
+  theme(legend.position = "top")
+# axis.text.x = element_text(angle = 90))
 p1
-ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
- 
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "coneval_exceso_incidencia.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "coneval_exceso_incidencia@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
 # Dat %>%
 #   filter(indicador %in% indicadores_para_graficar) %>%
 #   ggplot(aes(x = valor, y = resid_mortalidad)) +
@@ -205,21 +200,11 @@ ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 #   })
 
 
-modelar(resid_incidencia, Dat = Dat)
-modelar(resid_mortalidad, Dat = Dat)
-modelar(resid_letalidad, Dat = Dat)
-modelar(resid_mortalidad - resid_incidencia, Dat = Dat)
-modelar(resid_letalidad - resid_mortalidad, Dat = Dat)
-modelar(resid_letalidad - resid_incidencia, Dat = Dat)
+# modelar(resid_incidencia, Dat = Dat)
+# modelar(resid_mortalidad, Dat = Dat)
+# modelar(resid_letalidad, Dat = Dat)
+# modelar(resid_mortalidad - resid_incidencia, Dat = Dat)
+# modelar(resid_letalidad - resid_mortalidad, Dat = Dat)
+# modelar(resid_letalidad - resid_incidencia, Dat = Dat)
 
 ################
-
-
-
-
-
-
-
-
-
-

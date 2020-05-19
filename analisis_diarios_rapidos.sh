@@ -60,3 +60,14 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+
+Rscript socioeconomicos/coneval_ind.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+Rscript socioeconomicos/pob_indigena.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
