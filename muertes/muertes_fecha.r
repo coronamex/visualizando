@@ -131,7 +131,7 @@ p1 <- dat %>%
         axis.text.y = element_blank(),
 
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_region.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

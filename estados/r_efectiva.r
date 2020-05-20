@@ -30,9 +30,9 @@ p1 <- Dat %>%
 # archivo <- file.path(args$dir_salida, "r_efectiva@2x.png")
 # ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "r_efectiva.png")
-ggsave(archivo, p1, width = 7, height = 9.5, dpi = 75)
+ggsave(archivo, p1, width = 7, height = 11, dpi = 75)
 archivo <- file.path(args$dir_salida, "r_efectiva@2x.png")
-ggsave(archivo, p1, width = 7, height = 9.5, dpi = 150)
+ggsave(archivo, p1, width = 7, height = 11, dpi = 150)
 
 
 
