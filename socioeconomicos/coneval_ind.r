@@ -53,13 +53,26 @@ modelar <- function(expresion, Dat){
 
 args <- list(indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobreza_municipa_2015.csv",
              mapa_shp = "../socioeconomicos/mapas/municipalities.shp",
+             mapa_topojson = "../socioeconomicos/mapas/mx_tj.json",
              datos_municipios = "estimados/municipios_obs_esp.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
 # Leer mapa
-mun_sp <- geojson_read(args$mapa_shp, what = "sp")
-mun_sp@data$clave <- paste(mun_sp@data$CVE_ENT, mun_sp@data$CVE_MUN, sep = "_")
-mun_sp <- tidy(mun_sp, region = "clave")
+# mun_sp <- geojson_read(args$mapa_shp, what = "sp")
+# mun_sp@data$clave <- paste(mun_sp@data$CVE_ENT, mun_sp@data$CVE_MUN, sep = "_")
+# mun_sp <- tidy(mun_sp, region = "clave")
+mun_sp <- rgdal::readOGR(args$mapa_topojson, layer = "municipalities")
+mun_sp@data <- mun_sp@data %>%
+  mutate(clave = paste(str_pad(state_code, width = 2, side = "left", pad = "0"),
+                       str_pad(mun_code, width = 3, side = "left", pad = "0"),
+                       sep = "_"))
+mun_sp <- mun_sp %>% fortify(region = "clave")  %>%
+  rename(clave = id)
+# head(mun_sp)
+# mun_sp$group %>% table %>% length
+# mun_sp$piece %>% table %>% length
+# mun_sp$id %>% table %>% length
+# mun_sp %>% ggplot() + geom_polygon(aes(x = long, y = lat, group = group), fill = NA, col = "red")
 
 # Leer indicadores
 Ind <- read_csv(args$indicadores,
@@ -89,7 +102,7 @@ Dat <- Casos %>%
 mun_sp <- mun_sp %>%
   left_join(Dat %>%
               select(clave, resid_incidencia),
-            by = c(id = "clave"))
+            by = "clave")
 p1 <- mun_sp %>%
   ggplot() +
   geom_polygon(aes(x = long, y = lat, group = group, fill = resid_incidencia), color = NA) +
@@ -110,7 +123,6 @@ archivo <- file.path(args$dir_salida, "exceso_incidencia_mapa.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "exceso_incidencia_mapa@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
 
 # Limpiar para análisis de indicadores
 Dat <- Dat %>%
