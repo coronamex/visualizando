@@ -247,7 +247,7 @@ fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 5))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 6))
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      dias_int = fechas_dias,
@@ -315,7 +315,7 @@ p1 <- dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

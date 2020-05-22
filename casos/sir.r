@@ -64,7 +64,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas <- fechas - 3
 # fechas
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 5))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 6))
 fechas_dias
 
 # Parameters to make optimization
@@ -158,7 +158,7 @@ p1 <- Tab %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "sir_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -289,14 +289,14 @@ p1 <- R_hat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "sir_nacional_r0.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_r0@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-  # dgamma_otimizable <- function(x, dat, dias_cambio = 10){
+# dgamma_otimizable <- function(x, dat, dias_cambio = 10){
 #   # dat <- d
 #   # x <- c(4.2, 1.32)
 #   
