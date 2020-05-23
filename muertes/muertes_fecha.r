@@ -62,7 +62,7 @@ Dat <- Dat %>%
 
   # filter(muertes > 0) %>%
   filter(fecha >= "2020-03-18")
-Dat
+# Dat
 
 adj <- tibble(Parent = "0", Identity = unique(Dat$region))
 dat <- Dat %>%
@@ -103,10 +103,10 @@ p1 <- dat %>%
   scale_fill_brewer(type = "qual", breaks = unique(Dat$region), name = "") +
   guides(fill = guide_legend(nrow = 2)) +
   
-  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = 120, yend = 170, size =2) +
+  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = 170, yend = 220, size =2) +
   annotate("text",
-           x = parse_date("2020-03-20") - 1.5,
-           y = 145,
+           x = parse_date("2020-03-20") - 3,
+           y = 195,
            size = 6,
            angle = 90,
            label = 'italic("50 fallecimientos")',
