@@ -16,41 +16,42 @@
 library(tidyverse)
 library(deSolve)
 source("casos/sir_funciones.r")
+source("util/leer_datos_abiertos.r")
 # https://rstudio-pubs-static.s3.amazonaws.com/6852_c59c5a2e8ea3456abbeb017185de603e.html
 # https://gabgoh.github.io/COVID/index.html
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology
 
 args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
-             # reportes_diarios = "../datos/ssa_dge/reportes_diarios.csv",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              dir_estimados = "estimados/")
 
 # Lee base de datos
-Tab <- read_csv(args$base_de_datos,
-                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-                                 FECHA_DEF = col_character(),
-                                 EDAD = col_number(),
-                                 .default = col_character())) 
-stop_for_problems(Tab)
-Tab <- Tab %>%
-  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
-Tab <- Tab %>%
-  filter(RESULTADO == "1") %>%
-  select(fecha_sintomas = FECHA_SINTOMAS)
-Tab <- table(Tab$fecha_sintomas)
+Tab <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
+# Tab <- read_csv(args$base_de_datos,
+#                 col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
+#                                  FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
+#                                  FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
+#                                  FECHA_DEF = col_character(),
+#                                  EDAD = col_number(),
+#                                  .default = col_character())) 
+# stop_for_problems(Tab)
+# Tab <- Tab %>%
+#   mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
+#          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
+#          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
+# Tab <- Tab %>%
+#   filter(RESULTADO == "1") %>%
+#   select(fecha_sintomas = FECHA_SINTOMAS)
+Tab <- table(Tab$FECHA_SINTOMAS)
 Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
               casos_nuevos = as.vector(Tab)) %>%
   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
   filter(casos_acumulados >= 5) %>%
   # filter(fecha >= "2020-03-01") %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
-Tab
+# Tab
 
 # Precalcular dias
 fecha_inicio <- min(Tab$fecha)
@@ -65,7 +66,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
 fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 6))
-fechas_dias
+# fechas_dias
 
 # Parameters to make optimization
 # pob <- 135552447
@@ -84,6 +85,7 @@ R_hat <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                        T_inc = T_inc, T_inf = T_inf, pob = pob)
 R_hat
 save(R_hat, file = "R_hat_coronamex.rdat")
+# load("R_hat_coronamex.rdat")
 
 # Simular con parámetros estimados
 sims <- simular_multiples_modelos(modelos = R_hat,
@@ -114,9 +116,9 @@ sims <- sims %>%
     # if(max_diff < 500)
     #   return(d)
   })
-sims %>%
-  filter(dia >= 50) %>%
-  print(n = 300)
+# sims %>%
+#   filter(dia >= 50) %>%
+#   print(n = 300)
 
 p1 <- Tab %>%
   select(fecha, dia, casos_acumulados) %>%
@@ -179,7 +181,7 @@ sims_parciales <- R_hat %>%
 
 
       Ms <- list()
-      for(i in c(2, 4, 5)){
+      for(i in c(2, 4, 6)){
         m_parcial <- l
         m_parcial$tiempos_int <- m_parcial$tiempos_int[1:i]
         m_parcial$efectos_int <- m_parcial$efectos_int[1:i]
@@ -192,7 +194,7 @@ sims_parciales <- R_hat %>%
 
     }
   })
-sims_parciales
+# sims_parciales
 # sims_parciales <- sims_parciales %>%
 #   separate(modelo, into = c("base", "dias"), sep = "[.]") %>%
 #   group_by(dia, dias) %>%
@@ -200,14 +202,12 @@ sims_parciales
 #   ungroup() %>%
 #   transmute(dia, casos_acumulados, modelo = paste("mediana", dias, sep = "."))
 
-
-
 p1 <- Tab %>%
   select(fecha, dia, casos_acumulados) %>%
   mutate(modelo = "real") %>%
   bind_rows(sims_parciales %>% mutate(fecha = fecha_inicio + dia)) %>%
   mutate(grupo = "¿Qué pudo haber pasado?") %>%
-  mutate(grupo =  replace(grupo, modelo %>% str_detect(pattern = "[.]5$"), "¿Qué creemos que está pasando?")) %>%
+  mutate(grupo =  replace(grupo, modelo %>% str_detect(pattern = "[.]6$"), "¿Qué creemos que está pasando?")) %>%
   mutate(grupo = replace(grupo,
                          modelo %>% str_detect(pattern = "[.]2$"),
                          paste("¿Qué pudo haber pasado?\n(hace", n_dias - fechas_dias[2], "días)"))) %>%
@@ -221,13 +221,16 @@ p1 <- Tab %>%
                                           "¿Qué creemos que está pasando?"))) %>%
   mutate(modelo = factor(modelo, levels = c("real", unique(sims_parciales$modelo)))) %>%
 
-  # filter(fecha >= "2020-02-15") %>%
   filter(casos_acumulados <= max_estimado_actual) %>%
+  
+  # filter(fecha >= "2020-02-15") %>%
+  # filter(modelo == "real") %>%
   # filter(dia < 75) %>%
   # select(modelo) %>% table
   # select(grupo) %>% table
   # filter(modelo == "mediana.3") %>% print(n = 100)
   # filter(modelo %in% c("real", "mediana.2")) %>%
+  # print(n = 100)
 
   ggplot(aes(x = fecha, y = casos_acumulados, group = modelo)) +
   geom_line(aes(col = grupo, size = grupo, linetype = grupo)) +
