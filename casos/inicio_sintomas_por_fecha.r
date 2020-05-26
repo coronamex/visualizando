@@ -25,7 +25,7 @@ Dat <- Dat %>%
          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA"))) %>%
   filter(RESULTADO == "1")
-Dat
+# Dat
 
 
 # Todo el país
@@ -42,8 +42,8 @@ p1 <- Dat %>%
                     labels = c("Ambulatorio", "Hospitalizado"),
                     name = "") +
   annotate("text",
-           x = fecha_final - 5,
-           y = 0.85 * max(table(Dat$FECHA_SINTOMAS)),
+           x = fecha_final - 6,
+           y = 0.88 * max(table(Dat$FECHA_SINTOMAS)),
            label = 'italic("Estos\nnúmeros\npueden\naumentar")',
            hjust = "middle",
            parse = TRUE) +
