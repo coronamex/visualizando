@@ -138,8 +138,8 @@ p1 <- Tab %>%
   geom_line(aes(col = grupo, size = grupo)) +
   geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
   annotate("text", label = "Fin ajuste de curva",
-           x = Sys.Date() - args$dias_retraso - 1.5,
-           y = 10000, angle = 90,
+           x = Sys.Date() - args$dias_retraso - 3,
+           y = 75000, angle = 90,
            size = 6) +
   geom_vline(xintercept = fecha_inicio + fechas_dias, col = "red") +
   scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02"),
@@ -236,8 +236,8 @@ p1 <- Tab %>%
   geom_line(aes(col = grupo, size = grupo, linetype = grupo)) +
   geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
   annotate("text", label = "Fin ajuste de curva",
-           x = Sys.Date() - args$dias_retraso - 2.5,
-           y = 9000, angle = 90,
+           x = Sys.Date() - args$dias_retraso - 3,
+           y = 27000, angle = 90,
            size = 6) +
   # geom_vline(xintercept = fecha_inicio + fechas_dias, col = "red") +
   scale_color_manual(values = c("#7570b3", "#b35806",
