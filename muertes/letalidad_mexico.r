@@ -7,9 +7,9 @@ args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_nacional_confi
 Dat <- read_csv(args$serie_tiempo,
                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
                                  .default = col_number()))
-Dat
-Dat %>%
-  filter(muertes_acumuladas > 0)
+# Dat
+# Dat %>%
+#   filter(muertes_acumuladas > 0)
 
 p1 <- Dat %>%
   mutate(letalidad_retr = muertes_acumuladas / lag(sintomas_acumulados, args$dias_retraso, default = 0)) %>%
@@ -18,7 +18,9 @@ p1 <- Dat %>%
   select(fecha, letalidad_inst, letalidad_retr) %>%
   pivot_longer(-fecha, names_to = "estimado", values_to = "letalidad") %>%
   
-  filter(fecha >= "2020-03-01") %>%
+  filter(fecha >= "2020-03-15") %>%
+  # filter(letalidad < 0.15) %>%
+  # arrange(desc(letalidad)) %>%
   # print(n = 100)
   
   ggplot(aes(x = fecha, y = letalidad, group = estimado)) +
@@ -38,7 +40,7 @@ p1 <- Dat %>%
         axis.title.x = element_blank(),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "letalidad_mexico.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

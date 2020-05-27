@@ -59,9 +59,11 @@ p1 <- Dat %>%
   theme(legend.position = "top",
         plot.margin = margin(l = 20, r = 20),
         legend.key = element_blank(),
-        axis.title.y = element_text(face = "bold"))
+        axis.title.y = element_text(size = 16),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),)
 # p1
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)  
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "pob_indigena_exceso_incidencia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "pob_indigena_exceso_incidencia@2x.png")
