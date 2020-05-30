@@ -41,7 +41,7 @@ Cen_oficial <- Cen_oficial %>%
   #           dia = as.numeric(fecha - min(fecha)),
   #           casos_nuevos = estimados_positivos_nacional,
   #           casos_acumulados = estimados_acumulados_nacional)
-Cen_oficial
+# Cen_oficial
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,
@@ -67,8 +67,7 @@ Dat <- Dat %>%
   mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
-Dat
-
+# Dat
 
 Cen_oficial %>%
   mutate(prop_usmer = total_usmer / totales_nacional) %>%
@@ -84,7 +83,7 @@ Dat <- Dat %>%
          FECHA_SINTOMAS,
          EDAD,
          RESULTADO)
-Dat
+# Dat
 
 ########### Rellenar centinela oficial con "factor de corrección" de la SSA
 
@@ -140,7 +139,7 @@ Dat <- Dat %>%
   }, .id = "estado") %>%
   mutate(fecha = parse_date(fecha, format = "%Y-%m-%d")) %>%
   arrange(estado, fecha)
-Dat
+# Dat
 
 # Suavizar
 roll_mean <- tibbletime::rollify(function(x){
@@ -215,7 +214,7 @@ pob <- 127792286
 Tab <- dat %>% filter(estimado == "SSA") %>%
   filter(casos_acumulados > 0) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
-Tab
+# Tab
 fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 # n_dias <- as.numeric(fecha_final - fecha_inicio)
@@ -253,6 +252,7 @@ R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      dias_int = fechas_dias,
                                      T_inc = T_inc, T_inf = T_inf, pob = pob)
 save(R_hat_cen_coronamex, file = "R_hat_cen_coronamex.rdat")
+# load("R_hat_cen_coronamex.rdat")
 R_hat_cen_coronamex
 sims_cen_coronames <- simular_multiples_modelos(modelos = R_hat_cen_coronamex,
                                                 FUN = sir, real = Tab, pob = pob,
@@ -266,7 +266,7 @@ sims <- sims_cen_coronames  %>%
   select(fecha, casos_acumulados, estimado, tipo, modelo) %>%
   bind_rows(sims_cen_oficial %>%
               select(fecha, casos_acumulados, estimado, tipo, modelo))
-sims
+# sims
 # sims <- sims_cen_oficial %>%
 #               select(fecha, casos_acumulados, estimado, tipo, modelo)
 # sims
@@ -301,7 +301,7 @@ p1 <- dat %>%
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
   scale_y_continuous(labels = scales::comma,
-                     breaks = function(lims){seq(from = 0, to = lims[2], by = 25000)}) +
+                     breaks = function(lims){seq(from = 0, to = lims[2], by = 1e5)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +

@@ -148,7 +148,7 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
-  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 2500)}) +
+  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 1e4)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
@@ -249,7 +249,7 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
-  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 2500)}) +
+  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 1e4)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3,
                                                   linetype = c("solid", "dashed", "dashed", "solid")),
