@@ -25,11 +25,6 @@ sir <- function(time, state, parameters) {
   T_inf <- parameters$T_inf
   T_inc <- parameters$T_inc
   
-  # T_int1 <- parameters$T_int1
-  # T_int2 <- parameters$T_int2
-  # Int_f1 <- parameters$Int_f1
-  # Int_f2 <- parameters$Int_f2
-  
   tiempos_int <- parameters$tiempos_int
   efectos_int <- parameters$efectos_int
   
@@ -46,13 +41,6 @@ sir <- function(time, state, parameters) {
       R_t <- efectos_int[i]
     }
   }
-  # if(t >= T_int1){
-  #   R_t <- Int_f1 * R_0
-  # }else if(t >= T_int2){
-  #   R_t <- Int_f2 * R_0
-  # }else{
-  #   R_t <- R_0
-  # }
   
   # Parametrización alternativa
   # beta <- R_t / T_inf
@@ -172,40 +160,74 @@ encontrar_R_0 <- function(real,
   cat("Estimando parámetros\n")
   Est <- Dat %>% pmap(function(T_inc, T_inf, modelo, real, pob, dias){
     # T_inc <- 4
-    # T_inf <- 2
+    # T_inf <- 4
     # dias <- dias_int
     cat(T_inc, T_inf, "\n")
-    cat(">intentando optimización L-BFGS-B\n")
-    metodo <- "L-BFGS-B"
-    sombrero <- optim(par = c(1.5, rep(2, length(dias))),
-                      fn = sir_optmizable,
-                      method = "L-BFGS-B",
-                      lower = c(1, rep(0.01, length(dias))),
-                      upper = c(10, rep(5, length(dias))),
-                      real = real, 
-                      pob = pob,
-                      n_dias = n_dias_ajuste,
-                      T_inc = T_inc,
-                      T_inf = T_inf,
-                      tiempos_int = dias)$par
-    if(sombrero[1] > 0){
-      cat(">Aproximando con SANN\n")
-      metodo <- "SANN"
-      sombrero <- optim(par = sombrero,
-                        fn = sir_optmizable,
-                        method = "SANN",
-                        real = real,
-                        pob = pob,
-                        n_dias = n_dias_ajuste,
-                        T_inf = T_inf,
-                        T_inc = T_inc,
-                        tiempos_int = dias)$par
-      if(sombrero[1] < 1 || any(sombrero[-1] < 0)){
-        cat("===", sombrero, "===\n")
-        cat("--Falló\n")
-        sombrero <- rep(NA, length(sombrero))
-        metodo <- NA
-      }
+    # cat(">intentando optimización L-BFGS-B\n")
+    # metodo <- "L-BFGS-B"
+    # sombrero <- optim(par = c(1.5, rep(2, length(dias))),
+    #                   fn = sir_optmizable,
+    #                   method = "L-BFGS-B",
+    #                   lower = c(1, rep(0.01, length(dias))),
+    #                   upper = c(5, rep(5, length(dias))),
+    #                   real = real, 
+    #                   pob = pob,
+    #                   n_dias = n_dias_ajuste,
+    #                   T_inc = T_inc,
+    #                   T_inf = T_inf,
+    #                   tiempos_int = dias)$par
+    
+    # optim(par = c(1, rep(2, length(dias))),
+    #       fn = sir_optmizable,
+    #       method = "L-BFGS-B",
+    #       lower = c(0.5, rep(0.01, length(dias))),
+    #       upper = c(5, rep(5, length(dias))),
+    #       real = real,
+    #       pob = pob,
+    #       n_dias = n_dias_ajuste,
+    #       T_inc = T_inc,
+    #       T_inf = T_inf,
+    #       tiempos_int = dias)
+    
+    cat(">Aproximando con SANN\n")
+    metodo <- "SANN"
+    sombrero <- optim(par = c(2, rep(1, length(dias))),
+          fn = sir_optmizable,
+          method = "SANN",
+          real = real,
+          pob = pob,
+          n_dias = n_dias_ajuste,
+          T_inf = T_inf,
+          T_inc = T_inc,
+          tiempos_int = dias,
+          control = list(trace = 1,
+                         maxit = 1e4))$par
+    
+    # if(sombrero[1] > 0){
+    #   cat(">Aproximando con SANN\n")
+    #   metodo <- "SANN"
+    #   sombrero <- optim(par = sombrero,
+    #                     fn = sir_optmizable,
+    #                     method = "SANN",
+    #                     real = real,
+    #                     pob = pob,
+    #                     n_dias = n_dias_ajuste,
+    #                     T_inf = T_inf,
+    #                     T_inc = T_inc,
+    #                     tiempos_int = dias)$par
+    # }
+    # if(any(sombrero[-1] < 0)){
+    #   cat("===", sombrero, "===\n")
+    #   cat("--Falló\n")
+    #   sombrero <- rep(NA, length(sombrero))
+    #   metodo <- NA
+    # }
+    
+    if(sombrero[1] < 1 || any(sombrero[-1] < 0)){
+      cat("===", sombrero, "===\n")
+      cat("--Falló\n")
+      sombrero <- rep(NA, length(sombrero))
+      metodo <- NA
     }
     
     list(modelo = modelo,
