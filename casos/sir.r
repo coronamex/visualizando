@@ -24,20 +24,10 @@ source("casos/sir_funciones.r")
 args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              casos_nacionales = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
              dir_estimados = "estimados/")
 
-# Lee base de datos
-# Tab <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
-# Tab <- table(Tab$FECHA_SINTOMAS)
-# Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
-#               casos_nuevos = as.vector(Tab)) %>%
-#   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
-#   filter(casos_acumulados >= 5) %>%
-#   # filter(fecha >= "2020-03-01") %>%
-#   mutate(dia = as.numeric(fecha - min(fecha)))
-# Tab
+# Leer base de datos
 Tab <- read_csv(args$casos_nacionales,
                  col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
                                   .default = col_number()))
@@ -50,9 +40,6 @@ Tab <- Tab %>%
   filter(casos_nuevos > 0) %>%
   # print(n = 30)
   mutate(dia = as.numeric(fecha - min(fecha)))
-
-
-
 
 # Precalcular dias
 fecha_inicio <- min(Tab$fecha)
@@ -69,7 +56,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
 fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 5))
 # fechas_dias <- seq(from = 15, by = 15, length.out = 6)
-fechas_dias
+# fechas_dias
 
 # Parameters to make optimization
 # pob <- 135552447
@@ -200,13 +187,7 @@ sims_parciales <- R_hat %>%
 
     }
   })
-# sims_parciales
-# sims_parciales <- sims_parciales %>%
-#   separate(modelo, into = c("base", "dias"), sep = "[.]") %>%
-#   group_by(dia, dias) %>%
-#   summarise(casos_acumulados = median(casos_acumulados)) %>%
-#   ungroup() %>%
-#   transmute(dia, casos_acumulados, modelo = paste("mediana", dias, sep = "."))
+))
 
 p1 <- Tab %>%
   select(fecha, dia, casos_acumulados) %>%
