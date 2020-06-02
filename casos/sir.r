@@ -25,33 +25,28 @@ args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_f
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
+             casos_nacionales = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
              dir_estimados = "estimados/")
 
 # Lee base de datos
-Tab <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
-# Tab <- read_csv(args$base_de_datos,
-#                 col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-#                                  FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-#                                  FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-#                                  FECHA_DEF = col_character(),
-#                                  EDAD = col_number(),
-#                                  .default = col_character())) 
-# stop_for_problems(Tab)
-# Tab <- Tab %>%
-#   mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-#          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-#          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
-# Tab <- Tab %>%
-#   filter(RESULTADO == "1") %>%
-#   select(fecha_sintomas = FECHA_SINTOMAS)
-Tab <- table(Tab$FECHA_SINTOMAS)
-Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
-              casos_nuevos = as.vector(Tab)) %>%
-  mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
-  filter(casos_acumulados >= 5) %>%
-  # filter(fecha >= "2020-03-01") %>%
-  mutate(dia = as.numeric(fecha - min(fecha)))
+# Tab <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
+# Tab <- table(Tab$FECHA_SINTOMAS)
+# Tab <- tibble(fecha = names(Tab) %>% as.Date("%Y-%m-%d"),
+#               casos_nuevos = as.vector(Tab)) %>%
+#   mutate(casos_acumulados = cumsum(casos_nuevos)) %>%
+#   filter(casos_acumulados >= 5) %>%
+#   # filter(fecha >= "2020-03-01") %>%
+#   mutate(dia = as.numeric(fecha - min(fecha)))
 # Tab
+Tab <- read_csv(args$casos_nacionales,
+                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
+                                  .default = col_number()))
+Tab <- Tab %>%
+  select(fecha, casos_nuevos = sintomas_nuevos,
+         casos_acumulados = sintomas_acumulados) %>%
+  arrange(fecha) %>%
+  filter(casos_acumulados >= 5 & casos_nuevos > 0) %>%
+  mutate(dia = as.numeric(fecha - min(fecha)))
 
 # Precalcular dias
 fecha_inicio <- min(Tab$fecha)
@@ -61,9 +56,8 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas <- c("2020-03-02", "2020-03-09", "2020-03-16") %>% parse_date(format = "%Y-%m-%d")
 # fechas <- c("2020-03-09", "2020-03-16", "2020-03-23") %>% parse_date(format = "%Y-%m-%d")
 # fechas <- c("2020-03-02", "2020-03-09","2020-03-16", "2020-03-23", "2020-03-30") %>% parse_date(format = "%Y-%m-%d")
-# fechas <- c("2020-03-01","2020-03-08", "2020-03-15", "2020-03-22", "2020-03-29", "2020-04-05") %>% parse_date(format = "%Y-%m-%d")
-# fechas <- fechas - 3
-# fechas
+# fechas <- c("2020-03-01","2020-03-08", "2020-03-15", "2020-03-22", "2020-03-29", "2020-04-05") %>%
+#   parse_date(format = "%Y-%m-%d")
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
 fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 6))
 # fechas_dias
