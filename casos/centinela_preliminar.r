@@ -16,7 +16,9 @@
 library(tidyverse)
 library(deSolve)
 source("casos/sir_funciones.r")
-args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
+source("util/leer_datos_abiertos.r")
+args <- list(#dir_salida = "../sitio_hugo/static/imagenes/",
+             dir_salida = "./",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
@@ -26,7 +28,6 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              dias_retraso = 15,
              dias_pronostico_max = 20,
              dir_estimados = "estimados/")
-
 
 # Leer Centinela oficial
 Cen_oficial <- read_csv(args$centinela_official,
@@ -55,18 +56,8 @@ stop_for_problems(estados_lut)
 estados_lut <- set_names(estados_lut$X2, estados_lut$X1)
 
 # Leer base de datos ssa
-Dat <- read_csv(args$base_de_datos,
-                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-                                 FECHA_DEF = col_character(),
-                                 EDAD = col_number(),
-                                 .default = col_character())) 
-stop_for_problems(Dat)
-Dat <- Dat %>%
-  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
+                           solo_confirmados = FALSE, solo_fallecidos = FALSE)
 # Dat
 
 Cen_oficial %>%
@@ -246,7 +237,7 @@ fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 6))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 7))
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      dias_int = fechas_dias,
