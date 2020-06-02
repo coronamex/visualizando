@@ -16,7 +16,9 @@
 library(tidyverse)
 library(deSolve)
 source("casos/sir_funciones.r")
+source("util/leer_datos_abiertos.r")
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
+             # dir_salida = "./",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
@@ -26,7 +28,6 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              dias_retraso = 15,
              dias_pronostico_max = 20,
              dir_estimados = "estimados/")
-
 
 # Leer Centinela oficial
 Cen_oficial <- read_csv(args$centinela_official,
@@ -55,18 +56,8 @@ stop_for_problems(estados_lut)
 estados_lut <- set_names(estados_lut$X2, estados_lut$X1)
 
 # Leer base de datos ssa
-Dat <- read_csv(args$base_de_datos,
-                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-                                 FECHA_DEF = col_character(),
-                                 EDAD = col_number(),
-                                 .default = col_character())) 
-stop_for_problems(Dat)
-Dat <- Dat %>%
-  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
+                           solo_confirmados = FALSE, solo_fallecidos = FALSE)
 # Dat
 
 Cen_oficial %>%
@@ -86,7 +77,6 @@ Dat <- Dat %>%
 # Dat
 
 ########### Rellenar centinela oficial con "factor de corrección" de la SSA
-
 Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FECHA_SINTOMAS) - min(Dat$FECHA_SINTOMAS)))) %>%
     left_join(Dat %>%
               mutate(fecha = FECHA_SINTOMAS) %>%
@@ -113,12 +103,9 @@ Cen_oficial <- tibble(fecha = min(Dat$FECHA_SINTOMAS) + (0:as.numeric(max(Dat$FE
   select(fecha, dia, acumulados_estimados) %>%
   filter(acumulados_estimados > 0 ) %>%
   mutate(casos_estimados = acumulados_estimados - lag(acumulados_estimados, 1, default = 0),
-         dia = as.numeric(fecha - min(fecha))) %>%
-  print(n = 20)
-
+         dia = as.numeric(fecha - min(fecha)))
   
 #########
-
 # Estimación rápida por fecha síntomas, estado, (10%/100% de ambulatorio/hospitalizado )
 # Calcular agregados para estratificación.
 # Falta desagregado por edad
@@ -228,7 +215,7 @@ fechas_dias <- sort(n_dias_ajuste - seq(from = 15, by = 15, length.out = 2))
 #                                    T_inc = T_inc, T_inf = T_inf, pob = pob)
 # save(R_hat_cen_oficial, file = "R_hat_cen_oficial.rdat")
 load("R_hat_cen_oficial.rdat")
-R_hat_cen_oficial
+# R_hat_cen_oficial
 
 sims_cen_oficial <- simular_multiples_modelos(modelos = R_hat_cen_oficial,
                                   FUN = sir, real = Tab, pob = pob,
@@ -238,6 +225,7 @@ sims_cen_oficial <- sims_cen_oficial %>%
          fecha = fecha_inicio + dia)
 
 # Precalcular dias
+T_inf <- c(5, 6, 7)
 Tab <- dat %>% filter(estimado == "CoronaMex") %>%
   filter(casos_acumulados > 0) %>%
   filter(fecha >= "2020-02-15") %>%
@@ -246,7 +234,8 @@ fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 11, length.out = 6))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 5))
+# fechas_dias
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      dias_int = fechas_dias,
@@ -325,61 +314,3 @@ archivo <- file.path(args$dir_estimados, "centinela_seir_estimados.csv")
 write_csv(p1$data %>%
             select(-grupo, - grupo_col) %>%
             mutate(fecha_estimacion = Sys.Date()), archivo)
-
-########### R_hat
-
-# R_hat <- bind_rows(R_hat_cen_coronamex %>%
-#             map_dfr(~ tibble(R0 = c(.x$R_0, .x$R_0 * .x$efectos_int),
-#                              dias = c(0, .x$tiempos_int),
-#                              modelo = .x$modelo)) %>%
-#             mutate(fecha = parse_date("2020-02-15") + dias,
-#                    grupo = "CoronaMex") %>%
-#             mutate(modelo = paste(modelo, grupo, sep = ".")),
-#           R_hat_cen_oficial %>%
-#             map_dfr(~ tibble(R0 = c(.x$R_0, .x$R_0 * .x$efectos_int),
-#                              dias = c(0, .x$tiempos_int),
-#                              modelo = .x$modelo)) %>%
-#             mutate(fecha = parse_date("2020-02-17") + dias,
-#                    grupo = "SSA") %>%
-#             mutate(modelo = paste(modelo, grupo, sep = ".")))
-# R_hat
-#  
-# p1 <- R_hat %>%
-#   ggplot(aes(x = fecha, y = R0, group = modelo)) +
-#   geom_line(aes(col = grupo), size = 2) +
-#   scale_color_manual(values = c("#1f78b4", "#33a02c"),
-#                      labels = c("Centinela\n(CoronaMex)", "CoronaMex\n+\nSEIR",
-#                                 "Centinela\n(SSA)", "SSA\n+\nSEIR"),
-#                      name = "") +
-#   ylab("Promedio de infectados por enfermo (R_t)") +
-#   xlab("Fecha") +
-#   guides(color = guide_legend(override.aes = list(size = 3))) +
-#   AMOR::theme_blackbox() +
-#   theme(panel.background = element_blank(),
-#         panel.border = element_rect(fill = NA, color = "black", size = 3),
-#         legend.position = "top",
-#         legend.text = element_text(size = 14),
-#         legend.key = element_blank(),
-#         axis.title = element_text(size = 20),
-#         axis.text = element_text(size = 10, color = "black"),
-#         plot.margin = margin(l = 20, r = 20))
-# p1
-# # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-# archivo <- file.path(args$dir_salida, "centinela_nacional_r0.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "centinela_nacional_r0@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-
-# simular_multiples_modelos(modelos = R_hat_cen_coronamex,
-#                           FUN = sir, real = Tab, pob = pob,
-#                           n_dias = 400) %>%
-#   mutate(fecha = fecha_inicio + dia) %>%
-#   split(.$modelo) %>%
-#   map_dfr(function(d){
-#     d %>%
-#       arrange(fecha) %>%
-#       mutate(casos_nuevos = casos_acumulados - lag(casos_acumulados))
-#   }) %>%
-#   ggplot(aes(x = fecha, y = casos_nuevos, group = modelo)) +
-#   geom_line()
