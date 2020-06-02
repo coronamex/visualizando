@@ -25,11 +25,6 @@ sir <- function(time, state, parameters) {
   T_inf <- parameters$T_inf
   T_inc <- parameters$T_inc
   
-  # T_int1 <- parameters$T_int1
-  # T_int2 <- parameters$T_int2
-  # Int_f1 <- parameters$Int_f1
-  # Int_f2 <- parameters$Int_f2
-  
   tiempos_int <- parameters$tiempos_int
   efectos_int <- parameters$efectos_int
   
@@ -46,13 +41,6 @@ sir <- function(time, state, parameters) {
       R_t <- efectos_int[i]
     }
   }
-  # if(t >= T_int1){
-  #   R_t <- Int_f1 * R_0
-  # }else if(t >= T_int2){
-  #   R_t <- Int_f2 * R_0
-  # }else{
-  #   R_t <- R_0
-  # }
   
   # Parametrización alternativa
   # beta <- R_t / T_inf
