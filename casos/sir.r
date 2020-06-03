@@ -187,7 +187,7 @@ sims_parciales <- R_hat %>%
 
     }
   })
-))
+
 
 p1 <- Tab %>%
   select(fecha, dia, casos_acumulados) %>%
