@@ -31,6 +31,8 @@ stan_datos <- list(n_obs = nrow(Dat),
                           Dat$sintomas_acumulados[1], 0) / 1e6)
   
 m1.stan <- stan("casos/sir.stan", data = stan_datos,
+                pars = c("T_inc", "T_inf", "r_beta",
+                         "params", "R_0", "E_hoy"),
                 chains = 1, iter = 100)
 m1.stan
 # 
