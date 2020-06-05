@@ -284,8 +284,8 @@ p1 <- dat %>%
   scale_size_manual(values = c(3, 0.2), guide = FALSE) +
   geom_vline(xintercept = Sys.Date() - 15) +
   annotate("text", label = "Fin ajuste de curva",
-           x = Sys.Date() - args$dias_retraso - 1.5,
-           y = 200000, angle = 90,
+           x = Sys.Date() - args$dias_retraso - 3,
+           y = 400000, angle = 90,
            size = 6) +
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
