@@ -94,7 +94,8 @@ stan_datos <- list(n_obs = nrow(Dat),
                    y = Dat$sintomas_acumulados,
                    t0 = 0,
                    ts = Dat$dia,
-                   fake_ts = 1:(nrow(Dat) + 10))
+                   fake_ts = 1:(nrow(Dat) + 10),
+                   y0 = c(1e6 - Dat$sintomas_acumulados[1], Dat$sintomas_acumulados[1], 0) / 1e6)
 
 # sample_days = 20 # number of days sampled throughout the epidemic
 # sample_n = 25 # number of host individuals sampled per day
@@ -121,5 +122,7 @@ stan_datos <- list(n_obs = nrow(Dat),
 #                     fake_ts = c(1:t_max))
 
 m1.stan <- stan("casos/sir.stan", data = stan_datos,
-                pars = c("y_hat", "y0", "params", "fake_I"),
+                # pars = c("y_hat", "y0", "params", "fake_I"),
+                # pars = c("y_hat", "params"),
                 chains = 1, iter = 100)
+m1.stan

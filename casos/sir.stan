@@ -1,5 +1,6 @@
 functions {
-  real[] sir(real t,
+  real[] sir(
+    real t,
     real[] y,
     real[] params,
     real[] x_r,
@@ -13,6 +14,22 @@ functions {
 
       return dy;
   }
+
+  // real[] seir(
+  //   real t,
+  //   real[] estado,
+  //   real[] params,
+  //   real[] x_r,
+  //   int[] x_i){
+  //
+  //     real dy[3];
+  //
+  //     dy[1] = - params[1] * y[1] * y[2];
+  //     dy[2] = params[1] * y[1] * y[2] - params[2] * y[2];
+  //     dy[3] = params[2] * y[2];
+  //
+  //     return dy;
+  // }
 }
 
 data {
@@ -20,13 +37,15 @@ data {
   int<lower = 1> n_params;
   int<lower = 1> n_difeq;
   int<lower = 1> n_sample;
-  int<lower = 1> n_fake;
+  // int<lower = 1> n_fake;
 
   int y[n_obs];
   real t0;
   real ts[n_obs];
 
-  real fake_ts[n_fake];
+  real y0[n_difeq];
+
+  // real fake_ts[n_fake];
 }
 
 transformed data {
@@ -37,27 +56,27 @@ transformed data {
 
 parameters {
   real<lower = 0> params[n_params];
-  real<lower = 0, upper = 1> S0;
+  // real<lower = 0, upper = 1> S0;
 }
 
 transformed parameters {
   real y_hat[n_obs, n_difeq];
-  real y0[n_difeq];
-
-  y0[1] = S0;
-  y0[2] = 1 - S0;
-  y0[3] = 0;
+  // real y0[n_difeq];
+  //
+  // y0[1] = S0;
+  // y0[2] = 1 - S0;
+  // y0[3] = 0;
 
   y_hat = integrate_ode_rk45(sir, y0, t0, ts, params, x_r, x_i);
 }
 
-// model {
-//   params ~ normal(0, 2);
-//   S0 ~ normal(0.5, 0.5);
-//
-//   y ~ binomial(n_sample, y_hat[, 2]);
-// }
-//
+model {
+  params ~ normal(0, 2);
+  // S0 ~ normal(0.5, 0.5);
+
+  y ~ binomial(n_sample, y_hat[, 2]);
+}
+
 // generated quantities {
 //   real fake_I[n_fake, n_difeq];
 //
@@ -119,17 +138,17 @@ transformed parameters {
 //
 // }
 
-model {
-  params ~ normal(0, 2); //constrained to be positive
-  S0 ~ normal(0.5, 0.5); //constrained to be 0-1.
-
-  y ~ binomial(n_sample, y_hat[, 2]); //y_hat[,2] are the fractions infected from the ODE solver
-
-}
-
-generated quantities {
-  // Generate predicted data over the whole time series:
-  real fake_I[n_fake, n_difeq];
-
-  fake_I = integrate_ode_rk45(sir, y0, t0, fake_ts, params, x_r, x_i);
-}
+// model {
+//   params ~ normal(0, 2); //constrained to be positive
+//   S0 ~ normal(0.5, 0.5); //constrained to be 0-1.
+//
+//   y ~ binomial(n_sample, y_hat[, 2]); //y_hat[,2] are the fractions infected from the ODE solver
+//
+// }
+//
+// generated quantities {
+//   // Generate predicted data over the whole time series:
+//   real fake_I[n_fake, n_difeq];
+//
+//   fake_I = integrate_ode_rk45(sir, y0, t0, fake_ts, params, x_r, x_i);
+// }
