@@ -15,29 +15,46 @@ functions {
       return dy;
   }
 
-  // real[] seir(
-  //   real t,
-  //   real[] estado,
-  //   real[] params,
-  //   real[] x_r,
-  //   int[] x_i){
-  //
-  //     real dy[3];
-  //
-  //     dy[1] = - params[1] * y[1] * y[2];
-  //     dy[2] = params[1] * y[1] * y[2] - params[2] * y[2];
-  //     dy[3] = params[2] * y[2];
-  //
-  //     return dy;
-  // }
+  real[] seir(
+    real t,
+    real[] estado,
+    real[] params,
+    real[] x_r,
+    int[] x_i){
+
+      real dydt[4];
+      real S;
+      real E;
+      real I;
+      real R;
+      real beta;
+      real alpha;
+      real gamma;
+
+      S = estado[1];
+      E = estado[2];
+      I = estado[3];
+      R = estado[4];
+
+      beta = params[1];
+      alpha = params[2];
+      gamma = params[3];
+
+      dydt[1] = - beta * I * S;
+      dydt[2] = beta * I * S - alpha * E;
+      dydt[3] = alpha * E - gamma * I;
+      dydt[4] = gamma * I;
+
+      return dydt;
+  }
 }
 
 data {
   int<lower = 1> n_obs;
   int<lower = 1> n_params;
   int<lower = 1> n_difeq;
-  int<lower = 1> n_sample;
-  // int<lower = 1> n_fake;
+  // int<lower = 1> n_sample;
+  real<lower = 1> pob;
 
   int y[n_obs];
   real t0;
@@ -55,100 +72,40 @@ transformed data {
 
 
 parameters {
-  real<lower = 0> params[n_params];
+  real<lower = 0> T_inc;
+  real<lower = 0> T_inf;
+
   // real<lower = 0, upper = 1> S0;
 }
 
 transformed parameters {
   real y_hat[n_obs, n_difeq];
+  real<lower = 0> params[n_params];
+  real E_hat[n_obs];
   // real y0[n_difeq];
   //
   // y0[1] = S0;
   // y0[2] = 1 - S0;
   // y0[3] = 0;
+  params[1] = 2.2 / T_inf;
+  params[2] = 1 / T_inc;
+  params[3] = 1 / T_inf;
 
-  y_hat = integrate_ode_rk45(sir, y0, t0, ts, params, x_r, x_i);
+  // y_hat = integrate_ode_rk45(sir, y0, t0, ts, params, x_r, x_i);
+  y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
+
+  for (i in 1:n_obs){
+    E_hat[i] = pob * y_hat[i, 3];
+  }
 }
 
 model {
-  params ~ normal(0, 2);
+  T_inc ~ gamma(2.03, 2.54);
+  T_inf ~ gamma(2.712, 4.06);
+
+  // params ~ normal(0, 2);
   // S0 ~ normal(0.5, 0.5);
 
-  y ~ binomial(n_sample, y_hat[, 2]);
+  // y ~ binomial(n_sample, y_hat[, 2]);
+  y ~ poisson(E_hat);
 }
-
-// generated quantities {
-//   real fake_I[n_fake, n_difeq];
-//
-//   fake_I = integrate_ode_rk45(sir, y0, t0, fake_ts, params, x_r, x_i);
-// }
-
-/////////////////////////////////////////////
-
-// functions {
-//   real[] sir(real t,
-//             real[] y,
-//             real[] params,
-//             real[] x_r,
-//             int[] x_i) {
-//
-//       real dydt[3];
-//
-//       dydt[1] = - params[1] * y[1] * y[2];
-//       dydt[2] = params[1] * y[1] * y[2] - params[2] * y[2];
-//       dydt[3] = params[2] * y[2];
-//
-//       return dydt;
-//     }
-// }
-
-// data {
-//   int<lower = 1> n_obs; // Number of days sampled
-//   int<lower = 1> n_params; // Number of model parameters
-//   int<lower = 1> n_difeq; // Number of differential equations in the system
-//   int<lower = 1> n_sample; // Number of hosts sampled at each time point.
-//   int<lower = 1> n_fake; // This is to generate "predicted"/"unsampled" data
-//
-//   int y[n_obs]; // The binomially distributed data
-//   real t0; // Initial time point (zero)
-//   real ts[n_obs]; // Time points that were sampled
-//
-//   real fake_ts[n_fake]; // Time points for "predicted"/"unsampled" data
-// }
-
-// transformed data {
-//   real x_r[0];
-//   int x_i[0];
-// }
-
-// parameters {
-//   real<lower = 0> params[n_params]; // Model parameters
-//   real<lower = 0, upper = 1> S0; // Initial fraction of hosts susceptible
-// }
-//
-// transformed parameters{
-//   real y_hat[n_obs, n_difeq]; // Output from the ODE solver
-//   real y0[n_difeq]; // Initial conditions for both S and I
-//
-//   y0[1] = S0;
-//   y0[2] = 1 - S0;
-//   y0[3] = 0;
-//
-//   y_hat = integrate_ode_rk45(sir, y0, t0, ts, params, x_r, x_i);
-//
-// }
-
-// model {
-//   params ~ normal(0, 2); //constrained to be positive
-//   S0 ~ normal(0.5, 0.5); //constrained to be 0-1.
-//
-//   y ~ binomial(n_sample, y_hat[, 2]); //y_hat[,2] are the fractions infected from the ODE solver
-//
-// }
-//
-// generated quantities {
-//   // Generate predicted data over the whole time series:
-//   real fake_I[n_fake, n_difeq];
-//
-//   fake_I = integrate_ode_rk45(sir, y0, t0, fake_ts, params, x_r, x_i);
-// }

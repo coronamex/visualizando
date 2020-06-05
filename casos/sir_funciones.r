@@ -45,7 +45,7 @@ sir <- function(time, state, parameters) {
   # Parametrización alternativa
   # beta <- R_t / T_inf
   # a <- 1/T_inc
-  # gamma <- 1/D_inf
+  # gamma <- 1/T_inf
   
   # SEIR
   dS <- -(R_t / T_inf) * (I * S)
