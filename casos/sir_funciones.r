@@ -19,7 +19,7 @@ library(deSolve)
 # https://gabgoh.github.io/COVID/index.html
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology
 
-# Create an SIR function
+# Modelo SEIR
 sir <- function(time, state, parameters) {
   R_0 <- parameters$R_0
   T_inf <- parameters$T_inf
@@ -45,7 +45,7 @@ sir <- function(time, state, parameters) {
   # Parametrización alternativa
   # beta <- R_t / T_inf
   # a <- 1/T_inc
-  # gamma <- 1/D_inf
+  # gamma <- 1/T_inf
   
   # SEIR
   dS <- -(R_t / T_inf) * (I * S)
