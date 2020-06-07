@@ -1,4 +1,12 @@
 functions {
+  // Función para r_beta_variable en tiempo
+  real r_beta_t(
+    real r_beta_0,
+    real t,
+    real periodo){
+      return r_beta_0;
+  }
+  
   // Modelo SEIR básico
   real[] seir(
     real t,
@@ -22,7 +30,7 @@ functions {
       I = estado[3];
       R = estado[4];
 
-      r_beta = params[1];
+      r_beta = r_beta_t(params[1], t, 10);
       alpha = params[2];
       gamma = params[3];
 
@@ -46,53 +54,27 @@ data {
   real ts[n_obs];
   real y0[n_difeq];
 }
-
 transformed data {
   // Esto es necesario para integrar numéricamente las ODEs
   real x_r[0];
   int x_i[0];
 }
-
-
 parameters {
-  // real<lower = 0> alpha;
-  // real<lower = 0> gamma;
   real<lower = 0> r_beta;
 }
-
-// transformed parameters {
-//   real<lower = 0> params[n_params];
-//   real<lower = 0> R_0;
-//   
-//   // Convirtiendo tiempos de infección a parámetros
-//   params[1] = r_beta;
-//   params[2] = 1 / T_inc;
-//   params[3] = 1 / T_inf;
-// 
-// 
-//   // Calculando R_0
-//   R_0 = params[1] / params[3];
-// }
 
 model {
   real E_hoy[n_obs];
   real y_hat[n_obs, n_difeq];
   real acumulados_ayer;
   real params[n_params];
-
-  // T_inc ~ gamma(2.03, 1/2.54);
-  // T_inf ~ gamma(2.712, 1/4.06);
-  // r_beta_prev ~ lognormal(3, 1);
   
+  // Estimado r_beta = contactos * transmisibilidad
   r_beta ~ normal(0.2, 0.5);
-  // alpha ~ normal(0.2, 0.5);
-  // gamma ~ normal(0.1, 0.5);
   
   params[1] = r_beta;
-  // params[2] = alpha;
-  // params[3] = gamma;
-  params[2] = 0.2;
-  params[3] = 0.1;
+  params[2] = 1.0 / 5;
+  params[3] = 1.0 / 10;
   
   // Integrando ODEs
   y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
@@ -107,5 +89,6 @@ model {
     E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
   }
   
+  // Se distribuyen poisson
   y ~ poisson(E_hoy);
 }
