@@ -93,7 +93,7 @@ stan_datos <- list(n_obs = nrow(Dat) - 1,
 stan_datos
 
 m1.stan <- stan("casos/sir.stan", data = stan_datos,
-                chains = 1, iter = 1e3, cores = 4,
+                chains = 1, iter = 1e4, cores = 4,
                 control = list(adapt_delta = 0.8))
 m1.stan
 traceplot(m1.stan)

@@ -66,8 +66,12 @@ parameters {
   vector<lower = 0>[n_periodos - 1] int_f;
 }
 
-model {
+transformed parameters{
   real E_hoy[n_obs];
+}
+
+model {
+  // real E_hoy[n_obs];
   real acumulados_ayer;
   real y_hat[n_obs, n_difeq];
   real params[n_params];
