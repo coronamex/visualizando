@@ -53,6 +53,8 @@ data {
   real t0;
   real ts[n_obs];
   real y0[n_difeq];
+  int n_periodos;
+  int t_int[n_periodos + 1];
 }
 transformed data {
   // Esto es necesario para integrar numéricamente las ODEs
@@ -61,34 +63,69 @@ transformed data {
 }
 parameters {
   real<lower = 0> r_beta;
+  vector<lower = 0>[n_periodos - 1] int_f;
 }
 
 model {
   real E_hoy[n_obs];
-  real y_hat[n_obs, n_difeq];
   real acumulados_ayer;
+  real y_hat[n_obs, n_difeq];
   real params[n_params];
+  int inicio;
+  int final;
+  real y_actual[n_difeq];
+  // real t_actual;
   
   // Estimado r_beta = contactos * transmisibilidad
   r_beta ~ normal(0.2, 0.5);
   
-  params[1] = r_beta;
+  // params[1] = r_beta;
   params[2] = 1.0 / 5;
   params[3] = 1.0 / 10;
   
-  // Integrando ODEs
-  y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
-
-  // Casos esperados por día
-  for (i in 1:n_obs){
-    if(i == 1)
-      acumulados_ayer = 0;
-    else
-      acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
-
-    E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
-  }
+  // A priori efectos
+  int_f ~ normal(1, 0.5);
   
-  // Se distribuyen poisson
+  y_actual = y0;
+  // t_actual = t0;
+  for(p in 1:n_periodos){
+    inicio = t_int[p];
+    final = t_int[p + 1] - 1;
+    
+    if(p == 1)
+      params[1] = r_beta;
+    else
+      params[1] = r_beta * int_f[p - 1];
+    
+    // Integrando ODEs
+    // y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
+    y_hat[inicio:final, 1:n_difeq] = integrate_ode_rk45(seir, y_actual, inicio - 1, ts[inicio:final], params, x_r, x_i);
+    y_actual = y_hat[final, ];
+    
+    // Casos esperados por día
+    for (i in inicio:final){
+      if(i == 1)
+        acumulados_ayer = 0;
+      else
+        acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
+  
+      E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
+    }
+  }
+
+  // // Integrando ODEs
+  // y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
+
+  // // Casos esperados por día
+  // for (i in 1:n_obs){
+  //   if(i == 1)
+  //     acumulados_ayer = 0;
+  //   else
+  //     acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
+  // 
+  //   E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
+  // }
+
+  // Verosimilitud de observaciones
   y ~ poisson(E_hoy);
 }
