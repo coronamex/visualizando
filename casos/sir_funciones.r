@@ -284,3 +284,55 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
     }, n_dias = n_dias , FUN = FUN, t_0 = t_0)
   sims
 }
+
+### Modelos nueva parametrización
+
+
+#' Modelo SEIR
+#' 
+#' Utiliza parametrización estándar. Debe ser idéntico al modelo seir en
+#' stan.
+#'
+#' @param tiempo 
+#' @param estado
+#' @param params
+seir <- function(t, estado, params) {
+  r_beta <- params$r_beta
+  alpha <- params$alpha
+  gamma <- params$gamma
+
+  # R_0 <- parameters$R_0
+  # T_inf <- parameters$T_inf
+  # T_inc <- parameters$T_inc
+  # tiempos_int <- parameters$tiempos_int
+  # efectos_int <- parameters$efectos_int
+  
+  estado <- as.list(estado)
+  S <- estado$S
+  E <- estado$E
+  I <- estado$I
+  R <- estado$R
+  t <- estado$t
+  
+  # R_t <- R_0
+  # for(i in 1:length(tiempos_int)){
+  #   if(t >= tiempos_int[i]){
+  #     R_t <- efectos_int[i]
+  #   }
+  # }
+  
+  # Parametrización alternativa
+  # beta <- R_t / T_inf
+  # a <- 1/T_inc
+  # gamma <- 1/T_inf
+  
+  # SEIR
+  dS <- -r_beta * I * S
+  dE <- r_beta * I * S - (alpha * E)
+  dI <- (alpha * E) - (gamma * I)
+  dR <- gamma * I
+  dt <- 1
+  
+  return(list(c(dS, dE, dI, dR, dt)))
+}
+
