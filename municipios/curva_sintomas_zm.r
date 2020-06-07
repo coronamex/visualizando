@@ -45,7 +45,7 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final){
     # geom_text(data = zm_tots, aes(label = paste0("Casos: ", casos_totales, "\nMuertes: ", muertes_totales), 
     #                               y = 0.8 * max_casos), x = fecha_inicio + 25) +
     geom_text(data = zm_tots, aes(label = paste(casos_totales, "casos"),
-                                  y = 0.9 * max_casos), x = fecha_inicio + 17) +
+                                  y = 0.9 * max_casos), x = fecha_inicio + 20) +
     # geom_bar(aes(y = muertes_nuevas), width = 1, stat = "identity", color = "#4dac26", fill = "#4dac26") +
     # geom_line(aes(y = muertes), size = 2, col = "#b8e186") +
     # scale_fill_manual(name = "hola", values = "pink", labels = "Casos incompletos",
