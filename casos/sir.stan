@@ -65,14 +65,15 @@ parameters {
   real<lower = 0> r_beta;
   vector<lower = 0>[n_periodos - 1] int_f;
 }
+
 model {
   real E_hoy[n_obs];
   real acumulados_ayer;
+  // int inicio;
+  // int final;
+  real y_actual[n_difeq];
   real y_hat[n_obs, n_difeq];
   real params[n_params];
-  int inicio;
-  int final;
-  real y_actual[n_difeq];
 
   // Estimado r_beta = contactos * transmisibilidad
   r_beta ~ normal(0.2, 0.5);
@@ -82,31 +83,31 @@ model {
   params[3] = 1.0 / 10;
   
   // A priori efectos
-  int_f ~ normal(1, 0.5);
+  int_f ~ normal(0.2, 0.5);
   
   y_actual = y0;
   // t_actual = t0;
   for(p in 1:n_periodos){
-    inicio = t_int[p];
-    final = t_int[p + 1] - 1;
-    
+    // inicio = t_int[p];
+    // final = t_int[p + 1] - 1;
+
     if(p == 1)
       params[1] = r_beta;
     else
       params[1] = r_beta * int_f[p - 1];
-    
+
     // Integrando ODEs
     // y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
-    y_hat[inicio:final, 1:n_difeq] = integrate_ode_rk45(seir, y_actual, inicio - 1, ts[inicio:final], params, x_r, x_i);
-    y_actual = y_hat[final, ];
-    
+    y_hat[t_int[p]:(t_int[p + 1] - 1), 1:n_difeq] = integrate_ode_rk45(seir, y_actual, t_int[p] - 1, ts[t_int[p]:(t_int[p + 1] - 1)], params, x_r, x_i);
+    y_actual = y_hat[t_int[p + 1] - 1, ];
+
     // Casos esperados por día
-    for (i in inicio:final){
+    for (i in t_int[p]:(t_int[p + 1] - 1)){
       if(i == 1)
         acumulados_ayer = 0;
       else
         acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
-  
+
       E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
     }
   }
