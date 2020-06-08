@@ -297,16 +297,13 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
 #' @param estado
 #' @param params
 seir <- function(t, estado, params) {
+  
   r_beta <- params$r_beta
   alpha <- params$alpha
   gamma <- params$gamma
+  t_int <- params$t_int
+  f_int <- params$f_int
 
-  # R_0 <- parameters$R_0
-  # T_inf <- parameters$T_inf
-  # T_inc <- parameters$T_inc
-  # tiempos_int <- parameters$tiempos_int
-  # efectos_int <- parameters$efectos_int
-  
   estado <- as.list(estado)
   S <- estado$S
   E <- estado$E
@@ -314,12 +311,12 @@ seir <- function(t, estado, params) {
   R <- estado$R
   t <- estado$t
   
-  # R_t <- R_0
-  # for(i in 1:length(tiempos_int)){
-  #   if(t >= tiempos_int[i]){
-  #     R_t <- efectos_int[i]
-  #   }
-  # }
+  periodo <- min(which(t < t_int)) - 1
+  if(periodo == 1){
+    r_beta_t <- r_beta
+  }else{
+    r_beta_t <- r_beta * f_int[periodo]
+  }
   
   # Parametrización alternativa
   # beta <- R_t / T_inf
@@ -327,8 +324,8 @@ seir <- function(t, estado, params) {
   # gamma <- 1/T_inf
   
   # SEIR
-  dS <- -r_beta * I * S
-  dE <- r_beta * I * S - (alpha * E)
+  dS <- -r_beta_t * I * S
+  dE <- r_beta_t * I * S - (alpha * E)
   dI <- (alpha * E) - (gamma * I)
   dR <- gamma * I
   dt <- 1

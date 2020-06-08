@@ -99,25 +99,27 @@ m1.stan
 traceplot(m1.stan)
 pairs(m1.stan)
 
-# casos_0 <- Dat$sintomas_nuevos[1]
-# pred <- ode(y = c(S = (pob - 2 * casos_0) / pob,
-#           E = casos_0 / pob,
-#           I = casos_0 / pob,
-#           R = 0,
-#           t = 0),
-#     times = Dat$dia,
-#     func = seir,
-#     parms = list(r_beta = median(extract(m1.stan)$r_beta),
-#                  alpha = 1 / 5,
-#                  gamma = 1 / 10)) %>%
-#   as_tibble() %>%
-#   mutate_all(as.numeric) %>%
-#   mutate(I_nuevos = I + R - lag(I + R, 1, default = 0),
-#          I_acum = I + R)
-# pred
-# 
-# ggplot(Dat, aes(x = dia, y = sintomas_nuevos)) +
-#   geom_col() +
-#   geom_line(data = pred, aes(x = t, y = I_nuevos * pob), col = "grey", size = 3) +
-#   AMOR::theme_blackbox()
-# s  
+casos_0 <- Dat$sintomas_nuevos[1]
+pred <- ode(y = c(S = (pob - 2 * casos_0) / pob,
+                  E = casos_0 / pob,
+                  I = casos_0 / pob,
+                  R = 0,
+                  t = 0),
+            times = Dat$dia,
+            func = seir,
+            parms = list(r_beta = median(extract(m1.stan)$r_beta),
+                         alpha = 1 / 5,
+                         gamma = 1 / 10,
+                         t_int = c(0, 16, 31, 46, 61, 76, 81),
+                         f_int = c(0.26, 0.24, 0.18, 0.16, 0.16))) %>%
+  as_tibble() %>%
+  mutate_all(as.numeric) %>%
+  mutate(I_nuevos = I + R - lag(I + R, 1, default = 0),
+         I_acum = I + R)
+pred
+
+ggplot(Dat, aes(x = dia, y = sintomas_nuevos)) +
+  geom_col() +
+  geom_line(data = pred, aes(x = t, y = I_nuevos * pob), col = "grey", size = 3) +
+  AMOR::theme_blackbox()
+
