@@ -234,7 +234,7 @@ fecha_inicio <- min(Tab$fecha)
 fecha_final <- Sys.Date()
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- min(n_dias - args$dias_retraso + 1, max(Tab$dia))
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 5))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 6))
 # fechas_dias
 
 R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
