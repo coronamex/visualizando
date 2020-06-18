@@ -124,14 +124,12 @@ Dat <- Dat %>%
 #   map_dfr(function(d){
 #     d %>%
 #       arrange(fecha) %>%
-#       mutate(sintomas_acumulados = cumsum(sintomas_nuevos)) 
-#       # filter(sintomas_acumulados >= 500) %>%
-#       # head(1)
+#       mutate(sintomas_acumulados = cumsum(sintomas_nuevos)) %>%
+#       filter(sintomas_acumulados >= 500) %>%
+#       head(1)
 #   }) %>%
-#   # arrange(fecha) %>%
-#   filter(fecha == "2020-05-15") %>%
-#   arrange(desc(sintomas_acumulados)) %>%
-#   print(n = 30)
+#   arrange(fecha) %>%
+#   print(n = 45)
 
 # Elegir zonas por cantidad de casos en grupos
 # tab_zm <- Dat %>%
