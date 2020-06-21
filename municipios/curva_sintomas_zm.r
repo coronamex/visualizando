@@ -11,7 +11,8 @@ library(tidyverse)
 #' @export
 #'
 #' @examples
-graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final){
+graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
+                         offset_totales = 20){
   # zonas_elegidas <- zonas_grupos[[2]]
   # zonas_elegidas
   # Zonas metropolitanas
@@ -45,7 +46,7 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final){
     # geom_text(data = zm_tots, aes(label = paste0("Casos: ", casos_totales, "\nMuertes: ", muertes_totales), 
     #                               y = 0.8 * max_casos), x = fecha_inicio + 25) +
     geom_text(data = zm_tots, aes(label = paste(casos_totales, "casos"),
-                                  y = 0.9 * max_casos), x = fecha_inicio + 17) +
+                                  y = 0.9 * max_casos), x = fecha_inicio + offset_totales) +
     # geom_bar(aes(y = muertes_nuevas), width = 1, stat = "identity", color = "#4dac26", fill = "#4dac26") +
     # geom_line(aes(y = muertes), size = 2, col = "#b8e186") +
     # scale_fill_manual(name = "hola", values = "pink", labels = "Casos incompletos",
@@ -117,6 +118,19 @@ Dat <- Dat %>%
   arrange(CVE_ZM, fecha) %>%
   ungroup()
 
+
+# Dat %>%
+#   split(.$CVE_ZM) %>%
+#   map_dfr(function(d){
+#     d %>%
+#       arrange(fecha) %>%
+#       mutate(sintomas_acumulados = cumsum(sintomas_nuevos)) %>%
+#       filter(sintomas_acumulados >= 500) %>%
+#       head(1)
+#   }) %>%
+#   arrange(fecha) %>%
+#   print(n = 45)
+
 # Elegir zonas por cantidad de casos en grupos
 # tab_zm <- Dat %>%
 #   group_by(CVE_ZM, NOM_ZM) %>%
@@ -124,7 +138,7 @@ Dat <- Dat %>%
 #             muertes_acumuladas = sum(muertes_nuevas)) %>%
 #   ungroup() %>%
 #   arrange(desc(casos_acumulados)) %>%
-#   print(n = 20)
+#   print(n = 30)
 zonas_grupos <- list(c("Valle de México"),
                      c("Tijuana",
                        "Villahermosa",
@@ -143,7 +157,17 @@ zonas_grupos <- list(c("Valle de México"),
                        "Aguascalientes",
                        "Querétaro",
                        "Tampico",
-                       "Oaxaca"))
+                       "Oaxaca"),
+                     c("León",
+                       "Tuxtla Gutiérrez",
+                       "La Laguna",
+                       "Hermosillo",
+                       "Pachuca",
+                       "Mazatlán",
+                       "Tlaxcala-Apizaco",
+                       "San Luis Potosí",
+                       "Coatzacoalcos"))
+
 
 # zonas_elegidas <- Dat %>%
 #   group_by(CVE_ZM, NOM_ZM) %>%
@@ -209,14 +233,14 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "vm_casos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-
 # graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[1]],
 #              fecha_inicio = fecha_inicio,
 #              fecha_final = fecha_final)
 
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[2]],
              fecha_inicio = fecha_inicio,
-             fecha_final = fecha_final)
+             fecha_final = fecha_final,
+             offset_totales = 25)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos.png")
@@ -226,11 +250,25 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[3]],
              fecha_inicio = fecha_inicio,
-             fecha_final = fecha_final)
+             fecha_final = fecha_final,
+             offset_totales = 25)
 # p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos2.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos2@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+
+p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[4]],
+                   fecha_inicio = fecha_inicio,
+                   fecha_final = fecha_final,
+                   offset_totales = 25)
+# p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "top_zm_casos3.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "top_zm_casos3@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 

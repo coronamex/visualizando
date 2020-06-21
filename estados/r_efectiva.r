@@ -25,6 +25,7 @@ p1 <- Dat %>%
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
 # p1
+# ggsave("test.png", p1, width = 7, height = 9.5, dpi = 75)
 # archivo <- file.path(args$dir_salida, "r_efectiva.png")
 # ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 # archivo <- file.path(args$dir_salida, "r_efectiva@2x.png")
