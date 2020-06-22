@@ -13,30 +13,39 @@ functions {
       real E;
       real I;
       real R;
+      // real T;
       real r_beta;
       real alpha;
       real gamma;
-      real n_int;
 
       S = estado[1];
       E = estado[2];
       I = estado[3];
       R = estado[4];
+      // T = estado[5];
 
       r_beta = params[1];
       alpha = params[2];
       gamma = params[3];
-      n_int = params[4];
       
-      // for(i in 1:n_int){
-      //   
-      // }
+      // Equivalente a for con números reales
+      {
+        int i = 1;
+        while (i < params[4]) {
+          if(t >= (4 + params[4] + i)){
+            // Actualizando r_beta de acuerdo a tiempo
+            r_beta = params[1] * params[4 + i];
+          }
+          i = i + 1;
+        }
+      }
 
       // Ecuaciones diferenciales ordinarias (ODEs)
       dydt[1] = - r_beta * I * S;
       dydt[2] = r_beta * I * S - alpha * E;
       dydt[3] = alpha * E - gamma * I;
       dydt[4] = gamma * I;
+      // dydt[5] = 1;
 
       return dydt;
   }
@@ -70,7 +79,7 @@ parameters {
 
 transformed parameters {
   real y_hat[n_obs, n_difeq];
-  real<lower = 0> params[n_params + 1 + n_int];
+  real<lower = 0> params[n_params + 1 + n_int + n_int];
   real E_hoy[n_obs];
   real acumulados_ayer;
   real<lower = 0> R_0;
@@ -84,6 +93,7 @@ transformed parameters {
   params[4] = n_int;
   for(i in 1:n_int){
     params[4 + i] = f_int[i];
+    params[4 + n_int + i] = fechas_dias[i];
   }
 
   // Calculando R_0
