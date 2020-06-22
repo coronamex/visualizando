@@ -78,7 +78,7 @@ parameters {
 }
 
 transformed parameters {
-  real y_hat[n_obs, n_difeq];
+  real<lower = 0> y_hat[n_obs, n_difeq];
   real<lower = 0> params[n_params + 1 + n_int + n_int];
   real E_hoy[n_obs];
   real acumulados_ayer;
@@ -117,6 +117,6 @@ model {
   T_inc ~ gamma(2.03, 2.54);
   T_inf ~ gamma(2.712, 4.06);
   r_beta ~ lognormal(3, 1);
-  f_int ~ normal(1, 1);
+  f_int ~ lognormal(1, 0.5);
   y ~ poisson(E_hoy);
 }

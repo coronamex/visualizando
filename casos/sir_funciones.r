@@ -295,20 +295,13 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
 }
 
 simular_seir_post <- function(modelos, FUN, n_dias, t_0){
-  # t_0 <- c(stan_datos$y0, 0)
-  # t_0 <- c(S = t_0[1],
-  #          E = t_0[2],
-  #          I = t_0[3],
-  #          R = t_0[4],
-  #          t = 0)
-  # FUN <- sir
-  # n_dias <- nrow(Dat)
+  # FUN <- bayes_seir
   
   FUN <- match.fun(FUN)
   modelos %>%
     map_dfr(function(l, n_dias, FUN, t_0){
       # l <- modelos[[1]]
-      cat(l$modelo, "\n")
+      # cat(l$modelo, "\n")
       parametros <- list(R_0 = l$R_0, T_inf = l$T_inf, T_inc = l$T_inc,
                          tiempos_int = l$tiempos_int,
                          efectos_int = l$efectos_int)
@@ -321,3 +314,38 @@ simular_seir_post <- function(modelos, FUN, n_dias, t_0){
 }
 
 
+bayes_seir <- function(time, state, parameters) {
+  R_0 <- parameters$R_0
+  T_inf <- parameters$T_inf
+  T_inc <- parameters$T_inc
+  
+  tiempos_int <- parameters$tiempos_int
+  efectos_int <- parameters$efectos_int
+  
+  state <- as.list(state)
+  S <- state$S
+  E <- state$E
+  I <- state$I
+  R <- state$R
+  t <- state$t
+  
+  # Parametrización alternativa
+  alpha <- 1/T_inc
+  gamma <- 1/T_inf
+  beta <- R_0 * gamma
+  
+  for(i in 1:length(tiempos_int)){
+    if(t >= tiempos_int[i]){
+      beta <- R_0 * gamma * efectos_int[i]
+    }
+  }
+  
+  # SEIR
+  dS <- - beta * (I * S)
+  dE <- (beta) * (I * S) - (alpha * E)
+  dI <- (alpha * E) - (gamma * I)
+  dR <- gamma * I
+  dt <- 1
+
+  return(list(c(dS, dE, dI, dR, dt)))
+}

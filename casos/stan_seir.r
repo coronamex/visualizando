@@ -29,44 +29,71 @@ compute_hpdi <- function(xs, prob = .9) {
 args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
              modelo_stan = "casos/sir.stan",
              dias_retraso = 15,
-             dias_extra_sim = 0,
+             dias_extra_sim = 15,
              dir_esimados = "estimados/",
              dir_salida = "../sitio_hugo/static/imagenes/")
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
+pob <- 127792286
 
 Dat <- read_csv(args$serie_real)
 Dat <- Dat %>% select(fecha, sintomas_acumulados, sintomas_nuevos)
-Dat <- Dat[48: 80, ]
-Dat <- Dat %>% mutate(dia = as.numeric(fecha - min(fecha)) + 1)
-Dat
+Dat <- Dat %>%
+  filter(fecha >= fecha_inicio) %>%
+  mutate(dia = as.numeric(fecha - min(fecha)) + 1)
+# Dat
 
-stan_datos <- list(n_obs = nrow(Dat),
+# Determinando fechas
+fecha_inicio <- min(Dat$fecha)
+fecha_final <- Sys.Date()
+n_dias <- as.numeric(fecha_final - fecha_inicio)
+n_dias_ajuste <- n_dias - args$dias_retraso + 1
+
+fechas_dias <- as.numeric((c("2020-03-15") %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
+fechas_dias <- c(fechas_dias, seq(from = fechas_dias[length(fechas_dias)] + 15,
+                                  to = n_dias_ajuste,
+                                  by = 15))
+
+dat_train <- Dat %>%
+  filter(dia <= n_dias_ajuste)
+
+t_0 <- c(pob - 2 * Dat$sintomas_acumulados[1],
+         Dat$sintomas_acumulados[1],
+         Dat$sintomas_acumulados[1],
+         0) / pob
+
+stan_datos <- list(n_obs = nrow(dat_train),
                    n_params = 3,
                    n_difeq = 4,
-                   pob = 1e6,
-                   y = Dat$sintomas_nuevos,
+                   pob = pob,
+                   y = dat_train$sintomas_nuevos,
                    t0 = 0,
-                   ts = Dat$dia,
-                   y0 = c(1e6 - 2 * Dat$sintomas_acumulados[1],
-                            Dat$sintomas_acumulados[1],
-                            Dat$sintomas_acumulados[1], 0) / 1e6,
-                   n_int = 2,
-                   fechas_dias = c(10,20))
+                   ts = dat_train$dia,
+                   y0 = t_0,
+                   n_int = length(fechas_dias),
+                   fechas_dias = fechas_dias)
   
-# m1.stan <- stan("casos/sir.stan", data = stan_datos,
-#                 pars = c("T_inc", "T_inf", "r_b4eta",
-#                          "f_int",
-#                          "params", "R_0", "E_hoy"),
-#                 chains = 1, iter = 100)
-load("m1.stan.rdat")
+m1.stan <- stan("casos/sir.stan", data = stan_datos,
+                pars = c("T_inc", "T_inf", "r_beta",
+                         "f_int", "R_0", "E_hoy"),
+                init = list(list(T_inc = 6.09,
+                                 T_inf = 4.51,
+                                 r_beta = 0.7,
+                                 f_int = rep(0.8, times = length(fechas_dias)))),
+                chains = 1, iter = 2000,
+                control = list(max_treedepth = 15))
+# load("m1.stan.rdat")
 m1.stan
 save(m1.stan, file = "m1.stan.rdat")
 
 #
 post <- extract(m1.stan)
+plot(1:n_dias_ajuste, colMeans(post$E_hoy))
+
+traceplot(m1.stan, pars = c("T_inc", "T_inf", "r_beta", "f_int"))
+# pairs(m1.stan, pars = c("T_inc", "T_inf", "r_beta", "f_int"))
 
 modelos <- list()
-for(i in 1:50){
+for(i in 1:250){
   modelos[[i]] <- list(modelo = i,
                        T_inc = post$T_inc[i],
                        T_inf = post$T_inf[i],
@@ -78,35 +105,38 @@ for(i in 1:50){
 }
 
 
-t_0 <- c(stan_datos$y0, 0)
+# t_0 <- c(stan_datos$y0, 0)
 t_0 <- c(S = t_0[1],
          E = t_0[2],
          I = t_0[3],
          R = t_0[4],
          t = 0)
-
   
 sims <- simular_seir_post(modelos = modelos,
-                    FUN = sir,
-                    n_dias = nrow(Dat),
+                    FUN = bayes_seir,
+                    n_dias = n_dias + 0,
                     t_0 = t_0) %>%
   mutate(lambda = casos_acumulados - lag(casos_acumulados, 1, default = 0)) %>%
   mutate(lambda = stan_datos$pob * lambda) %>%
+  mutate(lambda = replace(lambda, lambda < 0, 1))
+sims %>% print(n = 100)
+
   mutate(casos_nuevos_pred = rpois(n = length(lambda), lambda = lambda)) %>%
-  mutate(casos_nuevos_pred = replace(casos_nuevos_pred, is.na(casos_nuevos_pred), 0)) %>%
   group_by(dia) %>%
   summarise(lower_90 = compute_hpdi(casos_nuevos_pred, prob = 0.9)[1],
             median = median(casos_nuevos_pred),
             upper_90 = compute_hpdi(casos_nuevos_pred, prob = 0.9)[2]) %>%
   mutate(dia = dia + 1)
-sims
+# sims
 
 Dat %>%
-  left_join(sims, by = "dia") %>%
+  full_join(sims, by = "dia")  %>%
+  mutate(fecha = min(fecha, na.rm = TRUE) + dia - 1) %>%
+  # print(n = 200)
   ggplot(aes(x =fecha, y = sintomas_nuevos)) +
   geom_bar(stat = "identity", fill = "darkgreen") +
   geom_ribbon(aes(ymin = lower_90, ymax = upper_90), color = "blue", alpha = 0.2) +
-  geom_line(aes(y = median), size = 2, colo = "blue") +
+  geom_line(aes(y = median), size = 2, col = "blue") +
   # scale_y_log10() +
   theme(panel.background = element_blank(),
         axis.text = element_text(size = 10),
