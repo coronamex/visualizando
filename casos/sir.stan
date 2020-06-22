@@ -16,6 +16,7 @@ functions {
       real r_beta;
       real alpha;
       real gamma;
+      real n_int;
 
       S = estado[1];
       E = estado[2];
@@ -25,6 +26,11 @@ functions {
       r_beta = params[1];
       alpha = params[2];
       gamma = params[3];
+      n_int = params[4];
+      
+      // for(i in 1:n_int){
+      //   
+      // }
 
       // Ecuaciones diferenciales ordinarias (ODEs)
       dydt[1] = - r_beta * I * S;
@@ -37,14 +43,16 @@ functions {
 }
 
 data {
-  int<lower = 1> n_obs;
+  int<lower = 1> n_obs; // Número de días
   int<lower = 1> n_params;
-  int<lower = 1> n_difeq;
-  real<lower = 1> pob;
-  int y[n_obs];
-  real t0;
+  int<lower = 1> n_difeq; // Número de cajas en modelo
+  real<lower = 1> pob; // Población
+  int y[n_obs];  // Número de casos por día
+  real t0;  // Día del estado inicial
   real ts[n_obs];
-  real y0[n_difeq];
+  real y0[n_difeq]; // Estado inicial
+  int<lower = 0> n_int; // Número de intervenciones (cambios en r_beta)
+  int fechas_dias[n_int]; // Días de las intervenciones 
 }
 
 transformed data {
@@ -53,16 +61,16 @@ transformed data {
   int x_i[0];
 }
 
-
 parameters {
   real<lower = 0> T_inc;
   real<lower = 0> T_inf;
   real<lower = 0> r_beta;
+  vector<lower = 0>[n_int] f_int;
 }
 
 transformed parameters {
   real y_hat[n_obs, n_difeq];
-  real<lower = 0> params[n_params];
+  real<lower = 0> params[n_params + 1 + n_int];
   real E_hoy[n_obs];
   real acumulados_ayer;
   real<lower = 0> R_0;
@@ -71,6 +79,12 @@ transformed parameters {
   params[1] = r_beta;
   params[2] = 1 / T_inc;
   params[3] = 1 / T_inf;
+  
+  // Añadiendo effectos de intervención
+  params[4] = n_int;
+  for(i in 1:n_int){
+    params[4 + i] = f_int[i];
+  }
 
   // Calculando R_0
   R_0 = params[1] / params[3];
@@ -93,5 +107,6 @@ model {
   T_inc ~ gamma(2.03, 2.54);
   T_inf ~ gamma(2.712, 4.06);
   r_beta ~ lognormal(3, 1);
+  f_int ~ normal(1, 1);
   y ~ poisson(E_hoy);
 }
