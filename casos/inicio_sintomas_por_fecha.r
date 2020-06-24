@@ -51,6 +51,10 @@ p1 <- Dat %>%
            hjust = "middle",
            parse = TRUE) +
   xlim(c(fecha_inicio, fecha_final)) +
+  scale_y_continuous(labels = scales::comma,
+                     breaks = function(lims){
+                       seq(from = 0, to = lims[2], by = 1e3)
+                     }) +
   ylab(label = "Número de nuevos casos") +
   xlab(label = "Fecha de inicio de síntomas") +
   AMOR::theme_blackbox() +
@@ -62,34 +66,9 @@ p1 <- Dat %>%
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.background = element_blank())
-# p1
+p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-
-# # Tabla por estado (para segunda versión)
-# fecha_inicio <- min(Tab$fecha_sintomas) - 0.5
-# fecha_final <- max(Tab$fecha_sintomas) + 0.5
-# labeller <- c(`FALSE` = "Probablemente estable", `TRUE` = "Probablemente cambiará")
-# p1 <- Tab %>%
-#   group_by(estado, fecha_sintomas) %>%
-#   summarize(casos = n()) %>%
-#   ungroup %>%
-#   mutate(estado = factor(estado, levels = rev(unique(estado)))) %>%
-#   mutate(incompleto = fecha_sintomas > (max(fecha_sintomas) - 15)) %>%
-#   filter(fecha_sintomas > fecha_inicio & fecha_sintomas < fecha_final) %>%
-#   ggplot(aes(x = fecha_sintomas, y = estado, fill = casos)) +
-#   facet_grid(~ incompleto, scales = "free_x", space = "free",labeller = as_labeller(labeller)) +
-#   geom_tile() +
-#   ylab(label = "Entidad federativa") +
-#   xlab(label = "Fecha de inicio de síntomas") +
-#   scale_fill_gradient2(low = "#313695",
-#                        mid = "#ffffbf",
-#                        high = "#a50026",
-#                        midpoint = 30) +
-#   theme(panel.background = element_blank(),
-#         axis.text.x = element_text(angle = 0))
-# ggsave("inicio_sintomas_por_fecha_estado.png", p1, width = 10, height = 6, dpi = 150)
