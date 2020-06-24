@@ -42,7 +42,17 @@ Dat <- Dat %>% select(fecha, sintomas_acumulados, sintomas_nuevos)
 Dat <- Dat %>%
   filter(fecha >= fecha_inicio) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
-# Dat
+Dat
+
+
+2.03 * 2.54
+2.712 * 4.06
+rgamma(n = 10000, shape = 2.03, rate = 1/2.54) %>% summary
+qgamma(p = 0.5, shape = 2.03, rate = 1/2.54)
+# Dat %>%
+#   pmap_dfr(function(fecha, sintomas_acumulados, sintomas_nuevos, dia){
+#     rgamma(n = sintomas_nuevos, shape = )
+#   })
 
 # Determinando fechas
 fecha_inicio <- min(Dat$fecha)
@@ -79,13 +89,16 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    fechas_dias = fechas_dias)
   
 m1.stan <- stan("casos/sir.stan", data = stan_datos,
-                pars = c("T_inc", "T_inf", "r_beta",
-                         "f_int", "R_0", "E_hoy"),
-                init = list(list(T_inc = 6.29,
-                                 T_inf = 4.1,
-                                 r_beta = 0.62,
-                                 f_int = rep(0.8, times = length(fechas_dias)))),
-                chains = 1, iter = 2000,
+                pars = c("r_beta",
+                         "f_int", 
+                         "R_0",
+                         "phi",
+                         "I_hoy"),
+                init = list(list(r_beta = 0.5,
+                                 f_int = rep(0.8, times = length(fechas_dias)),
+                                 phi = 2.3)),
+                chains = 1, iter = 1000,
+                cores = 1,
                 control = list(max_treedepth = 10))
 # load("m1.stan.rdat")
 m1.stan
@@ -93,19 +106,21 @@ m1.stan
 
 #
 post <- extract(m1.stan)
-plot(1:(n_dias_ajuste - 1), colMeans(post$E_hoy))
+plot(1:(n_dias_ajuste - 1), colMeans(post$I_hoy))
 
-traceplot(m1.stan, pars = c("T_inc", "T_inf", "r_beta", "f_int"))
-# pairs(m1.stan, pars = c("T_inc", "T_inf", "r_beta", "f_int"))
+
+traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
+pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
 
 modelos <- list()
 for(i in 1:length(post$r_beta)){
   modelos[[i]] <- list(modelo = i,
-                       T_inc = post$T_inc[i],
-                       T_inf = post$T_inf[i],
+                       T_inc = 5.1562,
+                       T_inf = 11.01072,
                        R_0 = post$R_0[i],
                        tiempos_int = stan_datos$fechas_dias,
                        efectos_int = post$f_int[i,],
+                       phi = post$phi[i],
                        metodo = "stan")
   
 }
@@ -119,10 +134,18 @@ t_0 <- c(S = t_0[1],
          R = t_0[4],
          t = 0)
 t_0
-sims <- simular_seir_post(modelos = modelos,
-                    FUN = bayes_seir,
-                    n_dias = n_dias_ajuste - 1,
-                    t_0 = t_0) %>%
+
+sims <- modelos %>%
+  map_dfr(function(l){
+    sir_simular(t_0 = t_0,
+                parametros = l,
+                n_dias = n_dias_ajuste - 1,
+                FUN = bayes_seir) %>%
+      mutate(casos_acumulados = (I + R)) %>%
+      select(dia, casos_acumulados) %>%
+      mutate(phi = l$phi,
+             modelo = l$modelo)
+  }) %>%
   mutate(lambda = casos_acumulados - lag(casos_acumulados, 1, default = 0)) %>%
   mutate(lambda = stan_datos$pob * lambda) %>%
   mutate(lambda = replace(lambda, lambda < 0, 1))
@@ -133,7 +156,7 @@ sims %>%
   summarize(lambda = mean(lambda)) %>%
   ungroup() %>%
   filter(dia > 0) %>%
-  bind_cols(post = colMeans(post$E_hoy)) %>%
+  bind_cols(post = colMeans(post$I_hoy)) %>%
   mutate(diff = post - lambda) %>%
   print(n = 100) %>%
   ggplot() +
@@ -144,16 +167,16 @@ sims %>%
   scale_y_log10() +
   theme_classic()
 
-
+sims
 
 sims <- sims %>%
-  mutate(casos_nuevos_pred = rpois(n = length(lambda), lambda = lambda)) %>%
+  mutate(casos_nuevos_pred = MASS::rnegbin(n = length(lambda), mu = lambda, theta = phi)) %>%
   group_by(dia) %>%
   summarise(lower_90 = compute_hpdi(casos_nuevos_pred, prob = 0.9)[1],
             median = median(casos_nuevos_pred),
             upper_90 = compute_hpdi(casos_nuevos_pred, prob = 0.9)[2]) %>%
   mutate(dia = dia + 1)
-# sims %>% print(n = 100)
+sims %>% print(n = 100)
 
 p1 <- Dat %>%
   full_join(sims, by = "dia")  %>%
@@ -174,3 +197,15 @@ p1 <- Dat %>%
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
 p1
+
+# res <- stan("casos/lognormal.stan",
+#             data = list(n = 1000,
+#                         # mu = 0,
+#                         # sigma = 0.5,
+#                         alpha = 2.712,
+#                         beta = 1/4.06),
+#             iter = 1,
+#             algorithm = "Fixed_param",
+#             chains = 1)
+# extract(res)$rnd %>% as.vector() %>% summary()
+# extract(res)$rnd %>% as.vector() %>% hist

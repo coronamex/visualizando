@@ -36,8 +36,8 @@ functions {
       for(i in 1:n_ints){
         if(t >= params[4 + n_ints + i]){
           // Actualizando r_beta de acuerdo a tiempo
-          // r_beta = params[1] * params[4 + i];
-          r_beta = params[4 + i];
+          r_beta = params[1] * params[4 + i];
+          // r_beta = params[4 + i];
         }
       }
       
@@ -71,23 +71,25 @@ transformed data {
 }
 
 parameters {
-  real<lower = 0> T_inc;
-  real<lower = 0> T_inf;
+  // real<lower = 0> T_inc;
+  // real<lower = 0> T_inf;
   real<lower = 0> r_beta;
   vector<lower = 0>[n_int] f_int;
+  real<lower = 0> phi;
 }
 
 transformed parameters {
   real<lower = 0> y_hat[n_obs, n_difeq];
   real<lower = 0> params[n_params + 1 + n_int + n_int];
-  real E_hoy[n_obs];
+  real I_hoy[n_obs];
   real acumulados_ayer;
   real<lower = 0> R_0;
 
   // Convirtiendo tiempos de infección a parámetros
   params[1] = r_beta;
-  params[2] = 1 / T_inc;
-  params[3] = 1 / T_inf;
+  // params[2] = 1 / T_inc;
+  params[2] = 1/ 5.1562;
+  params[3] = 1 / 11.01072;
   
   // Añadiendo effectos de intervención
   params[4] = n_int;
@@ -109,14 +111,25 @@ transformed parameters {
     else
       acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
 
-    E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
+    I_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
   }
 }
 
 model {
-  T_inc ~ gamma(2.03, 2.54);
-  T_inf ~ gamma(2.712, 4.06);
-  r_beta ~ lognormal(3, 1);
-  f_int ~ lognormal(1, 0.5);
-  y ~ poisson(E_hoy);
+  // T_inc ~ gamma(2.03, 1/2.54);
+  // T_inf ~ gamma(2.712, 1/4.06);
+  r_beta ~ lognormal(-0.2, 0.2);
+  f_int ~ lognormal(-0.2, 0.2);
+  phi ~ lognormal(-0.2, 0.2);
+  // Tratando de suavizar el cambio en el effecto
+  // for(i in 1:n_int){
+  //   if (i == 1)
+  //     f_int[i] ~ lognormal(log(r_beta) - 0.02, 0.2);
+  //   else
+  //     f_int[i] ~ lognormal(log(f_int[i - 1]) - 0.02, 0.2);
+  // }
+  
+  // f_int ~ lognormal(1, 0.5);
+  // y ~ poisson(I_hoy);
+  y ~ neg_binomial_2(I_hoy, phi);
 }

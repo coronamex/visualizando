@@ -337,8 +337,8 @@ bayes_seir <- function(time, state, parameters) {
   
   for(i in 1:length(tiempos_int)){
     if(t >= tiempos_int[i]){
-      # beta <- R_0 * gamma * efectos_int[i]
-      beta <- efectos_int[i]
+      beta <- R_0 * gamma * efectos_int[i]
+      # beta <- efectos_int[i]
     }
   }
   
