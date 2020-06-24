@@ -13,40 +13,40 @@ functions {
       real E;
       real I;
       real R;
-      // real T;
       real r_beta;
       real alpha;
       real gamma;
+      int n_ints;
 
       S = estado[1];
       E = estado[2];
       I = estado[3];
       R = estado[4];
-      // T = estado[5];
-
+      
       r_beta = params[1];
       alpha = params[2];
       gamma = params[3];
       
-      // Equivalente a for con números reales
-      {
-        int i = 1;
-        while (i < params[4]) {
-          if(t >= (4 + params[4] + i)){
-            // Actualizando r_beta de acuerdo a tiempo
-            r_beta = params[1] * params[4 + i];
-          }
-          i = i + 1;
+      // Convertir params[4] a int.
+      n_ints = 1;
+      while(n_ints < params[4]){
+        n_ints = n_ints + 1;
+      }
+      
+      for(i in 1:n_ints){
+        if(t >= params[4 + n_ints + i]){
+          // Actualizando r_beta de acuerdo a tiempo
+          // r_beta = params[1] * params[4 + i];
+          r_beta = params[4 + i];
         }
       }
-
+      
       // Ecuaciones diferenciales ordinarias (ODEs)
       dydt[1] = - r_beta * I * S;
       dydt[2] = r_beta * I * S - alpha * E;
       dydt[3] = alpha * E - gamma * I;
       dydt[4] = gamma * I;
-      // dydt[5] = 1;
-
+      
       return dydt;
   }
 }
@@ -107,7 +107,7 @@ transformed parameters {
     if(i == 1)
       acumulados_ayer = 0;
     else
-      acumulados_ayer = y_hat[i -1, 3] + y_hat[i - 1, 4];
+      acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
 
     E_hoy[i] = pob * ((y_hat[i, 3] + y_hat[i, 4]) - acumulados_ayer);
   }

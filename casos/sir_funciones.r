@@ -75,7 +75,8 @@ sir_simular <- function(t_0, parametros, n_dias, FUN = sir){
   dias <- seq(0, n_dias, by = 1)
   
   # Usar ode para resolver, convertir a tibble
-  pred <- ode(y = t_0, times = dias, func = FUN, parms = parametros)
+  pred <- ode(y = t_0, times = dias, func = FUN, parms = parametros,
+              method = "ode45")
   pred <- tibble(dia = pred[,"time"],
                  S = pred[,"S"],
                  E = pred[,'E'],
@@ -336,7 +337,8 @@ bayes_seir <- function(time, state, parameters) {
   
   for(i in 1:length(tiempos_int)){
     if(t >= tiempos_int[i]){
-      beta <- R_0 * gamma * efectos_int[i]
+      # beta <- R_0 * gamma * efectos_int[i]
+      beta <- efectos_int[i]
     }
   }
   
