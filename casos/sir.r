@@ -54,7 +54,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso + 1
 # fechas <- c("2020-03-01", "2020-03-15", "2020-04-15", "2020-05-10") %>%
 #   parse_date(format = "%Y-%m-%d")
 # fechas_dias <- as.numeric(fechas - fecha_inicio)
-fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 5))
+fechas_dias <- sort(n_dias_ajuste - seq(from = 10, by = 15, length.out = 6))
 # fechas_dias <- seq(from = 15, by = 15, length.out = 6)
 # fechas_dias
 
@@ -174,7 +174,7 @@ sims_parciales <- R_hat %>%
 
 
       Ms <- list()
-      for(i in c(2, 3, 5)){
+      for(i in c(2, 3, 6)){
         m_parcial <- l
         m_parcial$tiempos_int <- m_parcial$tiempos_int[1:i]
         m_parcial$efectos_int <- m_parcial$efectos_int[1:i]
@@ -196,7 +196,7 @@ p1 <- Tab %>%
   # select(modelo) %>% table
   # filter(str_detect(modelo, "[.]7$"))
   mutate(grupo = "¿Qué pudo haber pasado?") %>%
-  mutate(grupo =  replace(grupo, modelo %>% str_detect(pattern = "[.]5$"), "¿Qué creemos que está pasando?")) %>%
+  mutate(grupo =  replace(grupo, modelo %>% str_detect(pattern = "[.]6$"), "¿Qué creemos que está pasando?")) %>%
   mutate(grupo = replace(grupo,
                          modelo %>% str_detect(pattern = "[.]2$"),
                          paste("¿Qué pudo haber pasado?\n(hace", n_dias - fechas_dias[2], "días)"))) %>%

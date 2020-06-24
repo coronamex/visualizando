@@ -64,6 +64,8 @@ Dat <- Dat %>%
   filter(fecha >= "2020-03-18")
 # Dat
 
+# max_muertes <- Dat %>% group_by(fecha) %>% summarise(muertes = sum(muertes)) %>% select(muertes) %>% max
+
 adj <- tibble(Parent = "0", Identity = unique(Dat$region))
 dat <- Dat %>%
   transmute(Generation = as.numeric(fecha - min(fecha)),
@@ -86,6 +88,9 @@ max_muertes_diarias <- dat %>%
   select(muertes) %>%
   max()
 
+y_top <- (max_muertes_diarias / 2) + 25
+y_bottom <- (max_muertes_diarias / 2) - 25
+
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = muertes, group = grupo)) +
   
@@ -103,10 +108,10 @@ p1 <- dat %>%
   scale_fill_brewer(type = "qual", breaks = unique(Dat$region), name = "") +
   guides(fill = guide_legend(nrow = 2)) +
   
-  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = 170, yend = 220, size =2) +
+  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = y_top, yend = y_bottom, size =2) +
   annotate("text",
            x = parse_date("2020-03-20") - 3,
-           y = 195,
+           y = max_muertes_diarias / 2,
            size = 6,
            angle = 90,
            label = 'italic("50 fallecimientos")',

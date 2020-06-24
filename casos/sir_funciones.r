@@ -252,6 +252,13 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
   # modelos = R_hat
   # FUN = sir
   # real = Tab
+  # modelos = modelos[1]
+  # FUN = sir
+  # real =  Dat %>%
+  #   rename(casos_acumulados = sintomas_acumulados) %>%
+  #   mutate(dia = dia - 1)
+  # pob <- 1e6
+  # n_dias = nrow(Dat)
   
   FUN <- match.fun(FUN)
   # Definir t_0
@@ -272,6 +279,7 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
     # bind_cols(modelo = paste0("m", 1:nrow(modelos))) %>%
     map_dfr(function(l, n_dias, FUN, t_0){
       # 5     2.5  4.04  0.262
+      # l <- modelos[[1]]
       cat(l$modelo, "\n")
       parametros <- list(R_0 = l$R_0, T_inf = l$T_inf, T_inc = l$T_inc,
                          tiempos_int = l$tiempos_int,
@@ -279,57 +287,65 @@ simular_multiples_modelos <- function(modelos, FUN, real, pob, n_dias){
       
       sir_simular(t_0 = t_0, parametros = parametros, n_dias = n_dias, FUN = FUN) %>%
         mutate(casos_acumulados = floor(pob * (I + R))) %>%
+        # mutate(casos_acumulados = (I + R)) %>%
         select(dia, casos_acumulados) %>%
         mutate(modelo = l$modelo)
     }, n_dias = n_dias , FUN = FUN, t_0 = t_0)
   sims
 }
 
-### Modelos nueva parametrización
-
-
-#' Modelo SEIR
-#' 
-#' Utiliza parametrización estándar. Debe ser idéntico al modelo seir en
-#' stan.
-#'
-#' @param tiempo 
-#' @param estado
-#' @param params
-seir <- function(t, estado, params) {
+simular_seir_post <- function(modelos, FUN, n_dias, t_0){
+  # FUN <- bayes_seir
   
-  r_beta <- params$r_beta
-  alpha <- params$alpha
-  gamma <- params$gamma
-  t_int <- params$t_int
-  f_int <- params$f_int
+  FUN <- match.fun(FUN)
+  modelos %>%
+    map_dfr(function(l, n_dias, FUN, t_0){
+      # l <- modelos[[1]]
+      # cat(l$modelo, "\n")
+      parametros <- list(R_0 = l$R_0, T_inf = l$T_inf, T_inc = l$T_inc,
+                         tiempos_int = l$tiempos_int,
+                         efectos_int = l$efectos_int)
+      
+      sir_simular(t_0 = t_0, parametros = parametros, n_dias = n_dias, FUN = FUN) %>%
+        mutate(casos_acumulados = (I + R)) %>%
+        select(dia, casos_acumulados) %>%
+        mutate(modelo = l$modelo)
+    }, n_dias = n_dias , FUN = FUN, t_0 = t_0)
+}
 
-  estado <- as.list(estado)
-  S <- estado$S
-  E <- estado$E
-  I <- estado$I
-  R <- estado$R
-  t <- estado$t
+
+bayes_seir <- function(time, state, parameters) {
+  R_0 <- parameters$R_0
+  T_inf <- parameters$T_inf
+  T_inc <- parameters$T_inc
   
-  periodo <- min(which(t < t_int)) - 1
-  if(periodo == 1){
-    r_beta_t <- r_beta
-  }else{
-    r_beta_t <- r_beta * f_int[periodo]
-  }
+  tiempos_int <- parameters$tiempos_int
+  efectos_int <- parameters$efectos_int
+  
+  state <- as.list(state)
+  S <- state$S
+  E <- state$E
+  I <- state$I
+  R <- state$R
+  t <- state$t
   
   # Parametrización alternativa
-  # beta <- R_t / T_inf
-  # a <- 1/T_inc
-  # gamma <- 1/T_inf
+  alpha <- 1/T_inc
+  gamma <- 1/T_inf
+  beta <- R_0 * gamma
+  
+  for(i in 1:length(tiempos_int)){
+    if(t >= tiempos_int[i]){
+      beta <- R_0 * gamma * efectos_int[i]
+    }
+  }
   
   # SEIR
-  dS <- -r_beta_t * I * S
-  dE <- r_beta_t * I * S - (alpha * E)
+  dS <- - beta * (I * S)
+  dE <- (beta) * (I * S) - (alpha * E)
   dI <- (alpha * E) - (gamma * I)
   dR <- gamma * I
   dt <- 1
-  
+
   return(list(c(dS, dE, dI, dR, dt)))
 }
-
