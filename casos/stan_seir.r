@@ -65,6 +65,12 @@ fechas_dias <- c(fechas_dias, seq(from = fechas_dias[length(fechas_dias)] + 15,
                                   to = n_dias_ajuste,
                                   by = 15))
 fechas_dias
+fecha_inicio + fechas_dias
+fechas_dias <- as.numeric((c("2020-03-15", "2020-03-30", "2020-04-29")
+                           %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
+fechas_dias
+fechas_dias <- seq(from=14, to = n_dias_ajuste - 14, length.out = 6) %>% floor
+fechas_dias
 
 dat_train <- Dat %>%
   filter(dia < n_dias_ajuste)
@@ -97,7 +103,10 @@ m1.stan <- stan("casos/sir.stan", data = stan_datos,
                 init = list(list(r_beta = 0.5,
                                  f_int = rep(0.8, times = length(fechas_dias)),
                                  phi = 2.3)),
-                chains = 1, iter = 1000,
+                chains = 1,
+                iter = 1000,
+                warmup = 500,
+                thin = 1,
                 cores = 1,
                 control = list(max_treedepth = 10))
 # load("m1.stan.rdat")
@@ -111,6 +120,7 @@ plot(1:(n_dias_ajuste - 1), colMeans(post$I_hoy))
 
 traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
 pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
+
 
 modelos <- list()
 for(i in 1:length(post$r_beta)){
@@ -167,7 +177,7 @@ sims %>%
   scale_y_log10() +
   theme_classic()
 
-sims
+# sims
 
 sims <- sims %>%
   mutate(casos_nuevos_pred = MASS::rnegbin(n = length(lambda), mu = lambda, theta = phi)) %>%
@@ -186,6 +196,7 @@ p1 <- Dat %>%
   geom_bar(stat = "identity", fill = "darkgreen") +
   geom_ribbon(aes(ymin = lower_90, ymax = upper_90), color = "blue", alpha = 0.2) +
   geom_line(aes(y = median), size = 2, col = "blue") +
+  geom_vline(xintercept = fecha_inicio + fechas_dias) +
   # scale_y_log10() +
   theme(panel.background = element_blank(),
         axis.text = element_text(size = 10),
