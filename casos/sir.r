@@ -132,7 +132,7 @@ p1 <- Tab %>%
   geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
   annotate("text", label = "Fin ajuste de curva",
            x = Sys.Date() - args$dias_retraso - 3,
-           y = 27000, angle = 90,
+           y = 50000, angle = 90,
            size = 6) +
   geom_vline(xintercept = fecha_inicio + fechas_dias, col = "red") +
   scale_color_manual(values = c("#1b9e77", "#7570b3", "#d95f02"),
@@ -141,7 +141,7 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
-  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 1e4)}) +
+  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 2.5 * 1e4)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +
@@ -228,7 +228,7 @@ p1 <- Tab %>%
   geom_vline(xintercept = Sys.Date() - args$dias_retraso) +
   annotate("text", label = "Fin ajuste de curva",
            x = Sys.Date() - args$dias_retraso - 3,
-           y = 27000, angle = 90,
+           y = 50000, angle = 90,
            size = 6) +
   # geom_vline(xintercept = fecha_inicio + fechas_dias, col = "red") +
   scale_color_manual(values = c("#7570b3", "#b35806",
@@ -240,7 +240,7 @@ p1 <- Tab %>%
   guides(size = FALSE) +
   ylab("Casos acumulados") +
   xlab("Fecha") +
-  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 1e4)}) +
+  scale_y_continuous(labels = scales::comma, breaks = function(lims){seq(from = 0, to = lims[2], by = 2.5 * 1e4)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3,
                                                   linetype = c("solid", "dashed", "dashed", "solid")),

@@ -39,6 +39,10 @@ p1 <- dat  %>%
   
   ylab("# muncipios con casos en semana previa") +
   xlab("Fecha de inicio de síntomas") +
+  scale_y_continuous(labels = scales::comma,
+                     breaks = function(lims){
+                       seq(from = 0, to = lims[2], by = 100)
+                     }) +
   AMOR::theme_blackbox() +
   theme(axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
@@ -48,7 +52,7 @@ p1 <- dat  %>%
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.background = element_blank())
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "n_municipios.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

@@ -53,7 +53,7 @@ Dat <- Dat %>%
   pivot_longer(cols = c(-estado, -fecha), names_to = "grupo", values_to = "casos_100mil") %>%
   filter(!(grupo == "recientes" & fecha < max(fecha))) %>%
   mutate(estado = factor(estado, levels = rev(unique(estado))))
-Dat
+# Dat
 
 p1 <- Dat %>%
   filter(grupo == "acumulados") %>%
@@ -80,6 +80,7 @@ p2 <- Dat %>%
   ggplot(aes(x = casos_100mil, y = estado)) +
   # geom_bar(stat = "identity") +
   geom_col() +
+  geom_vline(xintercept = 20, col = "red", size = 1) +
   xlab(label = expression(frac("Casos recientes", "100 mil habitantes"))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
