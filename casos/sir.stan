@@ -23,21 +23,19 @@ functions {
       I = estado[3];
       R = estado[4];
       
-      r_beta = params[1];
-      alpha = params[2];
-      gamma = params[3];
+      alpha = params[1];
+      gamma = params[2];
       
-      // Convertir params[4] a int.
+      // Convertir params[3] a int.
       n_ints = 1;
-      while(n_ints < params[4]){
+      while(n_ints < params[3]){
         n_ints = n_ints + 1;
       }
       
       for(i in 1:n_ints){
-        if(t >= params[4 + n_ints + i]){
+        if(t >= params[3 + n_ints + i]){
           // Actualizando r_beta de acuerdo a tiempo
-          // r_beta = params[1] * params[4 + i];
-          r_beta = params[4 + i];
+          r_beta = params[3 + i];
         }
       }
       
@@ -52,20 +50,19 @@ functions {
 }
 
 data {
-  int<lower = 1> n_obs; // Número de días
-  int<lower = 1> n_params;
+  int<lower = 1> n_obs; // Número de días para ajustar
   int<lower = 1> n_difeq; // Número de cajas en modelo
   real<lower = 1> pob; // Población
-  int y[n_obs];  // Número de casos por día
-  real t0;  // Día del estado inicial
-  real ts[n_obs];
+  int y[n_obs];  // Número de casos observados por día
+  real t0;  // Día del estado inicial (0)
+  real ts[n_obs]; // Días en que hay observaciones para ajustar
   real y0[n_difeq]; // Estado inicial
-  int<lower = 0> n_int; // Número de intervenciones (cambios en r_beta)
-  int fechas_dias[n_int]; // Días de las intervenciones
-  real<lower = 0> T_inc;
-  real<lower = 0> T_inf;
-  int<lower = 0, upper = 1> likelihood;
-  real f_red;
+  int<lower = 0> n_int; // Número de periodos (betas)
+  int fechas_dias[n_int]; // Días de los cambios en beta
+  real<lower = 0> T_inc; // Tiempo de incubación promedio
+  real<lower = 0> T_inf; // Tiempo de contagioso promedio
+  int<lower = 0, upper = 1> likelihood; // Bandera, ¿incorporar verosimilitud?
+  real f_red; // Factor de reducción en beta a priori para cada periodo consecutivo
 }
 
 transformed data {
@@ -76,36 +73,35 @@ transformed data {
 
 parameters {
   // Al tomar el valor de una lognormal a priori no necesito checar la no negatividad
-  // real r_beta;
-  real logphi;
-  vector[n_int] f_int;
+  real logphi;  // Logaritmo de parametro de sobredispersión. Se usa el logaritmo para reducir la curvatura del modelo.
+  vector[n_int] r_betas; // Vector de r_betas 
 }
 
 transformed parameters {
-  real<lower = 0> y_hat[n_obs, n_difeq];
-  real params[n_params + 1 + n_int + n_int];
-  real I_hoy[n_obs];
-  real acumulados_ayer;
-  real phi;
+  real<lower = 0> y_hat[n_obs, n_difeq]; // Proporciones de poblacion en cada caja de acuerdo al modelo
+  real params[3 + n_int + n_int]; // Parámetros para la funcion que calcula modelo seir
+  real I_hoy[n_obs]; // Promedio de casos infecciosos (sintomáticos) esperados por día.
+  real acumulados_ayer; // Sirve para calcular casos nuevos
+  real phi; // Parámetro de sobredispersión
   
   phi = exp(logphi);
+  
+  // Pre parando parámetros para ODE solver
   // Convirtiendo tiempos de infección a parámetros
-  // params[1] = r_beta;
-  params[1] = -5;
-  params[2] = 1/ T_inc;
-  params[3] = 1 / T_inf;
+  params[1] = 1/ T_inc;
+  params[2] = 1 / T_inf;
 
-  // Añadiendo effectos de intervención
-  params[4] = n_int;
+  // Añadiendo r_betas y días de cambio de periodo
+  params[3] = n_int;
   for(i in 1:n_int){
-    params[4 + i] = f_int[i];
-    params[4 + n_int + i] = fechas_dias[i];
+    params[3 + i] = r_betas[i];
+    params[3 + n_int + i] = fechas_dias[i];
   }
 
   // Integrando ODEs
   y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
 
-  // Casos esperados por día
+  // Casos infecciosos (sintomáticos) esperados por día
   for (i in 1:n_obs){
     if(i == 1)
       acumulados_ayer = 0;
@@ -117,21 +113,20 @@ transformed parameters {
 }
 
 model {
+  // Distribuciones a priori
   // T_inc ~ gamma(2.03, 1/2.54);
   // T_inf ~ gamma(2.712, 1/4.06);
-  // r_beta ~ lognormal(-0.5, 0.2);
   logphi ~ normal(1, 0.2);
   
   // Tratando de suavizar el cambio en el effecto
-  // f_red = log(1.2);
   for(i in 1:n_int){
     if (i == 1)
-      // f_int[i] ~ lognormal(log(r_beta) - 0.02 - f_red, 0.2);
-      f_int[i] ~ lognormal(-0.5, 0.2);
+      r_betas[i] ~ lognormal(-0.5, 0.2);
     else
-      f_int[i] ~ lognormal(log(f_int[i - 1]) - 0.02 - f_red, 0.2);
+      r_betas[i] ~ lognormal(log(r_betas[i - 1]) - 0.02 - f_red, 0.2);
   }
   
+  // Verosimilitud
   if(likelihood)
     y ~ neg_binomial_2(I_hoy, phi);
 }

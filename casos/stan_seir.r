@@ -89,7 +89,6 @@ dat_train <- dat_train %>%
 m1.model <- stan_model("casos/sir.stan", model_name = "seir")
 
 stan_datos <- list(n_obs = nrow(dat_train),
-                   n_params = 3,
                    n_difeq = 4,
                    pob = pob,
                    y = dat_train$sintomas_nuevos,
@@ -121,13 +120,13 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                        0.3560217, 0.2849129,
 #                        0.2384390, 0.2038462, 0.1873019))
 init <- list(logphi = log(9),
-             f_int = c(0.6226926, 0.4447154,
+             r_betas = c(0.6226926, 0.4447154,
                        0.3560217, 0.2849129,
                        0.2384390, 0.2038462, 0.1873019))
 init
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
-                    pars = c("f_int",
+                    pars = c("r_betas",
                              "phi",
                              "I_hoy"),
                     init = list(chain_1 = init,
@@ -155,8 +154,8 @@ m1.stan
 # summary(m1.stan, pars = c("f_int"))$summary
 # summary(m1.stan, pars = c("r_beta", "f_int", "phi"))
 #
-print(m1.stan, pars = c("f_int", "phi"))
-post <- extract(m1.stan)
+print(m1.stan, pars = c("r_betas", "phi"))
+post <- rstan::extract(m1.stan)
 
 p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
@@ -173,7 +172,7 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   theme_classic()
 p1
 
-par.names <- summary(m1.stan, pars = c("f_int", "phi"))$summary %>% 
+par.names <- summary(m1.stan, pars = c("r_betas", "phi"))$summary %>% 
   row.names()
 
 lp <- bayesplot::log_posterior(m1.stan)
@@ -184,14 +183,10 @@ bayesplot::mcmc_parcoord(as.matrix(m1.stan),
                          transformations = list(phi = "log"))
 
 bayesplot::mcmc_trace(as.array(m1.stan), pars = par.names, np = np)
-# bayesplot::mcmc_trace(as.array(m1.stan), pars = c("r_beta", "phi", names(init$f_int)), np = np,
-#                       window = c(240,300))
-# traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
 bayesplot::mcmc_pairs(as.array(m1.stan),
                       pars = par.names,
                       np = np,
                       off_diag_args = list(size = 0.75))
-# pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
 
 bayesplot::mcmc_nuts_divergence(np, lp)
 bayesplot::mcmc_nuts_energy(np)
