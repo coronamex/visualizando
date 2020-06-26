@@ -315,8 +315,8 @@ simular_seir_post <- function(modelos, FUN, n_dias, t_0){
 }
 
 
-bayes_seir <- function(time, state, parameters) {
-  R_0 <- parameters$R_0
+seir2 <- function(time, state, parameters) {
+  r_beta <- parameters$r_beta
   T_inf <- parameters$T_inf
   T_inc <- parameters$T_inc
   
@@ -333,11 +333,11 @@ bayes_seir <- function(time, state, parameters) {
   # Parametrización alternativa
   alpha <- 1/T_inc
   gamma <- 1/T_inf
-  beta <- R_0 * gamma
+  beta <- r_beta
   
   for(i in 1:length(tiempos_int)){
     if(t >= tiempos_int[i]){
-      beta <- R_0 * gamma * efectos_int[i]
+      beta <- r_beta * efectos_int[i]
       # beta <- efectos_int[i]
     }
   }

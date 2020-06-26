@@ -65,6 +65,7 @@ data {
   real<lower = 0> T_inc;
   real<lower = 0> T_inf;
   int<lower = 0, upper = 1> likelihood;
+  real f_red;
 }
 
 transformed data {
@@ -76,7 +77,7 @@ transformed data {
 parameters {
   // Al tomar el valor de una lognormal a priori no necesito checar la no negatividad
   real r_beta;
-  real phi;
+  real logphi;
   vector[n_int] f_int;
 }
 
@@ -85,7 +86,9 @@ transformed parameters {
   real params[n_params + 1 + n_int + n_int];
   real I_hoy[n_obs];
   real acumulados_ayer;
+  real phi;
   
+  phi = exp(logphi);
   // Convirtiendo tiempos de infección a parámetros
   params[1] = r_beta;
   params[2] = 1/ T_inc;
@@ -115,15 +118,16 @@ transformed parameters {
 model {
   // T_inc ~ gamma(2.03, 1/2.54);
   // T_inf ~ gamma(2.712, 1/4.06);
-  r_beta ~ lognormal(-0.2, 0.2);
-  phi ~ lognormal(-0.2, 0.2);
+  r_beta ~ lognormal(-0.5, 0.2);
+  logphi ~ normal(1, 0.2);
   
   // Tratando de suavizar el cambio en el effecto
+  // f_red = log(1.2);
   for(i in 1:n_int){
     if (i == 1)
-      f_int[i] ~ lognormal(log(r_beta) - 0.02, 0.2);
+      f_int[i] ~ lognormal(log(r_beta) - 0.02 - f_red, 0.2);
     else
-      f_int[i] ~ lognormal(log(f_int[i - 1]) - 0.02, 0.2);
+      f_int[i] ~ lognormal(log(f_int[i - 1]) - 0.02 - f_red, 0.2);
   }
   
   if(likelihood)

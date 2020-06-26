@@ -85,6 +85,8 @@ t_0 <- c(pob - 2 * Dat$sintomas_acumulados[1],
 dat_train <- dat_train %>%
   filter(dia > 0)
 
+m1.model <- stan_model("casos/sir.stan", model_name = "seir")
+
 stan_datos <- list(n_obs = nrow(dat_train),
                    n_params = 3,
                    n_difeq = 4,
@@ -97,9 +99,8 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    fechas_dias = fechas_dias,
                    T_inc = 5.1562,
                    T_inf = 11.01072,
-                   likelihood = 1)
-
-m1.model <- stan_model("casos/sir.stan", model_name = "seir")
+                   likelihood = 1,
+                   f_red = log(1.22))
 # m1.opt <- optimizing(m1.model,
 #                      data = stan_datos,
 #                      verbose = TRUE,
@@ -110,7 +111,8 @@ m1.model <- stan_model("casos/sir.stan", model_name = "seir")
 #                      iter = 2000,
 #                      algorithm = "Newton")
 # init <- list(r_beta = m1.opt$par["r_beta"],
-#              phi = m1.opt$par["phi"],
+#              # phi = m1.opt$par["phi"],
+#              logphi = log(m1.opt$par["phi"]),
 #              f_int = m1.opt$par[3:(2+stan_datos$n_int)])
 init
 m1.stan <- sampling(m1.model,
@@ -119,16 +121,17 @@ m1.stan <- sampling(m1.model,
                              "f_int",
                              "phi",
                              "I_hoy"),
-                    init = list(init,
-                                init,
-                                init,
-                                init),
+                    init = list(chain_1 = init,
+                                chain_2 = init,
+                                chain_3 = init,
+                                chain_4 = init),
                     chains = 4,
-                    iter = 100,
-                    # warmup = 3000,
+                    iter = 8500,
+                    warmup = 8000,
                     thin = 1,
                     cores = 4,
-                    control = list(max_treedepth = 10))
+                    control = list(max_treedepth = 10,
+                                   adapt_delta = 0.5))
 # m1.vb <- vb(object = m1.model,
 #             data = stan_datos,
 #             init = list(r_beta = 0.61,
@@ -143,14 +146,50 @@ m1.stan
 # summary(m1.stan, pars = c("f_int"))$summary
 # summary(m1.stan, pars = c("r_beta", "f_int", "phi"))
 #
+print(m1.stan, pars = c("r_beta", "f_int", "phi"))
 post <- extract(m1.stan)
-plot(1:(n_dias_ajuste - 1), colMeans(post$I_hoy))
 
+p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
+  t %>%
+  as_tibble() %>%
+  rename(stan_lower = "10%",
+         stan_median = "50%",
+         stan_upper = "90%") %>%
+  mutate(dia = 1:(n_dias_ajuste - 1 )) %>%
+  left_join(Dat, by = "dia") %>%
+  ggplot(aes(x = fecha)) +
+  geom_bar(aes(y = sintomas_nuevos), stat = "identity") +
+  geom_line(aes(y = stan_median)) +
+  geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), alpha = 0.2) +
+  theme_classic()
+p1
 
-traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
-pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
+lp <- bayesplot::log_posterior(m1.stan)
+np <- bayesplot::nuts_params(m1.stan)
+bayesplot::mcmc_parcoord(as.matrix(m1.stan), np = np, pars = c("r_beta", "phi", names(init$f_int)))
+
+bayesplot::mcmc_trace(as.array(m1.stan), pars = c("r_beta", "phi", names(init$f_int)), np = np)
+# bayesplot::mcmc_trace(as.array(m1.stan), pars = c("r_beta", "phi", names(init$f_int)), np = np,
+#                       window = c(240,300))
+# traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
+bayesplot::mcmc_pairs(as.array(m1.stan),
+                      pars = c("r_beta", "phi", names(init$f_int)),
+                      np = np,
+                      off_diag_args = list(size = 0.75))
+# pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
+
+bayesplot::mcmc_nuts_divergence(np, lp)
+bayesplot::mcmc_nuts_energy(np)
+bayesplot::mcmc_acf(as.array(m1.stan),
+                    pars =  c("r_beta", "phi", names(init$f_int)),
+                    lags = 10)
+
+# bayesplot::mcmc_pairs(as.matrix(m1.stan), np = np, pars = c("r_beta", "phi", names(init$f_int)),
+#                       off_diag_args = list(size = 0.75))
 
 stan_diag(m1.stan)
+
+
 
 modelos <- list()
 for(i in 1:length(post$r_beta)){
