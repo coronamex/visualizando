@@ -44,10 +44,10 @@ Dat <- Dat %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
 # Dat
 
-2.03 * 2.54
-2.712 * 4.06
-rgamma(n = 10000, shape = 2.03, rate = 1/2.54) %>% summary
-qgamma(p = 0.5, shape = 2.03, rate = 1/2.54)
+# 2.03 * 2.54
+# 2.712 * 4.06
+# rgamma(n = 10000, shape = 2.03, rate = 1/2.54) %>% summary
+# qgamma(p = 0.5, shape = 2.03, rate = 1/2.54)
 # Dat %>%
 #   pmap_dfr(function(fecha, sintomas_acumulados, sintomas_nuevos, dia){
 #     rgamma(n = sintomas_nuevos, shape = )
@@ -69,9 +69,10 @@ n_dias_ajuste <- n_dias - args$dias_retraso
 #                            %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
 # fechas_dias
 fechas_dias <- seq(from=14, to = n_dias_ajuste, by = 15) %>% floor
+fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 # fechas_dias <- fechas_dias[1:5]
 fechas_dias
-fechas_dias %>% diff
+c(fechas_dias, n_dias_ajuste) %>% diff
 
 
 dat_train <- Dat %>%
@@ -114,11 +115,19 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #              # phi = m1.opt$par["phi"],
 #              logphi = log(m1.opt$par["phi"]),
 #              f_int = m1.opt$par[3:(2+stan_datos$n_int)])
+# init <- list(r_beta = 0.6226926,
+#              logphi = log(9),
+#              f_int = c(0.6226926, 0.4447154,
+#                        0.3560217, 0.2849129,
+#                        0.2384390, 0.2038462, 0.1873019))
+init <- list(logphi = log(9),
+             f_int = c(0.6226926, 0.4447154,
+                       0.3560217, 0.2849129,
+                       0.2384390, 0.2038462, 0.1873019))
 init
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
-                    pars = c("r_beta",
-                             "f_int",
+                    pars = c("f_int",
                              "phi",
                              "I_hoy"),
                     init = list(chain_1 = init,
@@ -126,8 +135,8 @@ m1.stan <- sampling(m1.model,
                                 chain_3 = init,
                                 chain_4 = init),
                     chains = 4,
-                    iter = 8500,
-                    warmup = 8000,
+                    iter = 4000,
+                    warmup = 3000,
                     thin = 1,
                     cores = 4,
                     control = list(max_treedepth = 10,
@@ -146,7 +155,7 @@ m1.stan
 # summary(m1.stan, pars = c("f_int"))$summary
 # summary(m1.stan, pars = c("r_beta", "f_int", "phi"))
 #
-print(m1.stan, pars = c("r_beta", "f_int", "phi"))
+print(m1.stan, pars = c("f_int", "phi"))
 post <- extract(m1.stan)
 
 p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
@@ -164,16 +173,22 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   theme_classic()
 p1
 
+par.names <- summary(m1.stan, pars = c("f_int", "phi"))$summary %>% 
+  row.names()
+
 lp <- bayesplot::log_posterior(m1.stan)
 np <- bayesplot::nuts_params(m1.stan)
-bayesplot::mcmc_parcoord(as.matrix(m1.stan), np = np, pars = c("r_beta", "phi", names(init$f_int)))
+bayesplot::mcmc_parcoord(as.matrix(m1.stan),
+                         np = np,
+                         pars = par.names,
+                         transformations = list(phi = "log"))
 
-bayesplot::mcmc_trace(as.array(m1.stan), pars = c("r_beta", "phi", names(init$f_int)), np = np)
+bayesplot::mcmc_trace(as.array(m1.stan), pars = par.names, np = np)
 # bayesplot::mcmc_trace(as.array(m1.stan), pars = c("r_beta", "phi", names(init$f_int)), np = np,
 #                       window = c(240,300))
 # traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
 bayesplot::mcmc_pairs(as.array(m1.stan),
-                      pars = c("r_beta", "phi", names(init$f_int)),
+                      pars = par.names,
                       np = np,
                       off_diag_args = list(size = 0.75))
 # pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
@@ -181,7 +196,7 @@ bayesplot::mcmc_pairs(as.array(m1.stan),
 bayesplot::mcmc_nuts_divergence(np, lp)
 bayesplot::mcmc_nuts_energy(np)
 bayesplot::mcmc_acf(as.array(m1.stan),
-                    pars =  c("r_beta", "phi", names(init$f_int)),
+                    pars = par.names,
                     lags = 10)
 
 # bayesplot::mcmc_pairs(as.matrix(m1.stan), np = np, pars = c("r_beta", "phi", names(init$f_int)),
