@@ -29,7 +29,7 @@ compute_hpdi <- function(xs, prob = .9) {
 args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
              modelo_stan = "casos/sir.stan",
              dias_retraso = 15,
-             dias_extra_sim = 15,
+             dias_extra_sim = 30,
              dir_esimados = "estimados/",
              dir_salida = "../sitio_hugo/static/imagenes/")
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
@@ -58,22 +58,9 @@ fecha_inicio <- min(Dat$fecha)
 fecha_final <- max(Dat$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
-
-# fechas_dias <- as.numeric((c("2020-03-15") %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
-# fechas_dias <- c(fechas_dias, seq(from = fechas_dias[length(fechas_dias)] + 15,
-#                                   to = n_dias_ajuste,
-#                                   by = 15))
-# fechas_dias
-# fecha_inicio + fechas_dias
-# fechas_dias <- as.numeric((c("2020-03-15", "2020-03-30", "2020-04-29")
-#                            %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
-# fechas_dias
-fechas_dias <- seq(from=14, to = n_dias_ajuste, by = 15) %>% floor
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
-# fechas_dias <- fechas_dias[1:5]
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
-
 
 dat_train <- Dat %>%
   filter(dia < n_dias_ajuste)
@@ -110,15 +97,6 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                      hessian = TRUE,
 #                      iter = 2000,
 #                      algorithm = "Newton")
-# init <- list(r_beta = m1.opt$par["r_beta"],
-#              # phi = m1.opt$par["phi"],
-#              logphi = log(m1.opt$par["phi"]),
-#              f_int = m1.opt$par[3:(2+stan_datos$n_int)])
-# init <- list(r_beta = 0.6226926,
-#              logphi = log(9),
-#              f_int = c(0.6226926, 0.4447154,
-#                        0.3560217, 0.2849129,
-#                        0.2384390, 0.2038462, 0.1873019))
 init <- list(logphi = log(9),
              r_betas = c(0.6226926, 0.4447154,
                        0.3560217, 0.2849129,
@@ -129,10 +107,14 @@ m1.stan <- sampling(m1.model,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    init = list(chain_1 = init,
-                                chain_2 = init,
-                                chain_3 = init,
-                                chain_4 = init),
+                    # init = list(chain_1 = init,
+                    #             chain_2 = init,
+                    #             chain_3 = init,
+                    #             chain_4 = init),
+                    init = function(){
+                      list(logphi = rnorm(n=1, mean = 2, sd = 0.2),
+                           r_betas = runif(length(stan_datos$fechas_dias), 0, 1))
+                    },
                     chains = 4,
                     iter = 4000,
                     warmup = 3000,
@@ -140,20 +122,9 @@ m1.stan <- sampling(m1.model,
                     cores = 4,
                     control = list(max_treedepth = 10,
                                    adapt_delta = 0.5))
-# m1.vb <- vb(object = m1.model,
-#             data = stan_datos,
-#             init = list(r_beta = 0.61,
-#                         f_int = c(0.5,0.4,0.3,0.3,0.2,0.2),
-#                         phi = 3))
-
-
+# save(m1.stan, file = "m1.stan.rdat")
 # load("m1.stan.rdat")
 m1.stan
-# save(m1.stan, file = "m1.stan.rdat")
-# q()
-# summary(m1.stan, pars = c("f_int"))$summary
-# summary(m1.stan, pars = c("r_beta", "f_int", "phi"))
-#
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
 
@@ -172,17 +143,18 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   theme_classic()
 p1
 
+
+### Diagnostics
 par.names <- summary(m1.stan, pars = c("r_betas", "phi"))$summary %>% 
   row.names()
-
 lp <- bayesplot::log_posterior(m1.stan)
 np <- bayesplot::nuts_params(m1.stan)
 bayesplot::mcmc_parcoord(as.matrix(m1.stan),
                          np = np,
                          pars = par.names,
                          transformations = list(phi = "log"))
-
 bayesplot::mcmc_trace(as.array(m1.stan), pars = par.names, np = np)
+
 bayesplot::mcmc_pairs(as.array(m1.stan),
                       pars = par.names,
                       np = np,
@@ -194,28 +166,24 @@ bayesplot::mcmc_acf(as.array(m1.stan),
                     pars = par.names,
                     lags = 10)
 
-# bayesplot::mcmc_pairs(as.matrix(m1.stan), np = np, pars = c("r_beta", "phi", names(init$f_int)),
-#                       off_diag_args = list(size = 0.75))
-
 stan_diag(m1.stan)
+##
 
+# R0
+apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
+  t %>%
+  as_tibble() %>%
+  rename(stan_lower = "10%",
+         stan_median = "50%",
+         stan_upper = "90%") %>%
+  mutate(dia = stan_datos$fechas_dias,
+         param = "r_beta") %>%
+  ggplot(aes(x = dia)) +
+  geom_line(aes(y = stan_median), size = 2) +
+  geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), alpha = 0.2) +
+  ylab("R0") +
+  theme_classic()
 
-
-modelos <- list()
-for(i in 1:length(post$r_beta)){
-  modelos[[i]] <- list(modelo = i,
-                       T_inc = 5.1562,
-                       T_inf = 11.01072,
-                       R_0 = post$R_0[i],
-                       tiempos_int = stan_datos$fechas_dias,
-                       efectos_int = post$f_int[i,],
-                       phi = post$phi[i],
-                       metodo = "stan")
-  
-}
-
-
-# t_0 <- c(stan_datos$y0, 0)
 t_0 <- as.numeric(t_0)
 t_0 <- c(S = t_0[1],
          E = t_0[2],
@@ -223,63 +191,105 @@ t_0 <- c(S = t_0[1],
          R = t_0[4],
          t = 0)
 t_0
+modelos <- list()
+for(i in 1:length(post$phi)){
+  modelos[[i]] <- list(modelo = i,
+                       T_inc = stan_datos$T_inc,
+                       T_inf = stan_datos$T_inf,
+                       tiempos_betas = stan_datos$fechas_dias,
+                       r_betas = post$r_betas[i,],
+                       phi = post$phi[i],
+                       t_0 = t_0,
+                       metodo = "stan")
+  
+}
 
-sims <- modelos %>%
-  map_dfr(function(l){
-    sir_simular(t_0 = t_0,
-                parametros = l,
-                n_dias = n_dias_ajuste - 1,
-                FUN = bayes_seir) %>%
-      mutate(casos_acumulados = (I + R)) %>%
-      select(dia, casos_acumulados) %>%
-      mutate(phi = l$phi,
-             modelo = l$modelo)
+
+
+# Simular modelos posterior
+sims <- simular_ode(modelos = modelos,
+                    n_dias = stan_datos$n_obs,
+                    odefun = seir2,
+                    otros_par = NULL)
+sims
+
+# Encontrar mediana posterior casos nuevos
+nuevos_prev <- sims %>%
+  split(.$modelo) %>%
+  map_dfr(function(d){
+    d %>%
+      mutate(acum = I + R) %>%
+      mutate(nuevos = acum - lag(acum, 1, 0)) %>%
+      select(dia, nuevos)
   }) %>%
-  mutate(lambda = casos_acumulados - lag(casos_acumulados, 1, default = 0)) %>%
-  mutate(lambda = stan_datos$pob * lambda) %>%
-  mutate(lambda = replace(lambda, lambda < 0, 1))
-# sims %>% print(n = 100)
+  mutate(nuevos = nuevos * stan_datos$pob) %>%
+  split(.$dia) %>%
+  map_dfr(function(d){
+    ci <- compute_hpdi(d$nuevos,
+                       prob = 0.8)
+    tibble(dia = d$dia[1],
+           nuevos_10 = ci[1],
+           nuevos_50 = median(d$nuevos),
+           nuevos_90 = ci[2])
+  })
+nuevos_prev
 
-sims %>%
-  group_by(dia) %>%
-  summarize(lambda = mean(lambda)) %>%
-  ungroup() %>%
-  filter(dia > 0) %>%
-  bind_cols(post = colMeans(post$I_hoy)) %>%
-  mutate(diff = post - lambda) %>%
-  print(n = 100) %>%
-  ggplot() +
-  # geom_histogram(aes(x = diff), bins = 20) +
-  geom_point(aes(x = lambda, y = post)) +
-  geom_abline(intercept = 0, slope = 1) +
-  scale_x_log10() +
-  scale_y_log10() +
-  theme_classic()
-
-# sims
-
-sims <- sims %>%
-  mutate(casos_nuevos_pred = MASS::rnegbin(n = length(lambda), mu = lambda, theta = phi)) %>%
-  group_by(dia) %>%
-  summarise(lower_90 = compute_hpdi(casos_nuevos_pred, prob = 0.9)[1],
-            median = median(casos_nuevos_pred),
-            upper_90 = compute_hpdi(casos_nuevos_pred, prob = 0.9)[2]) %>%
-  mutate(dia = dia + 1)
-sims %>% print(n = 100)
+# Calcular post condición inicial
+y_final <- sims %>%
+  filter(dia == n_dias_ajuste - 1)
+modelos_final <- modelos %>%
+  map(function(l, y){
+    t_0 <- y %>% filter(modelo == l$modelo)
+    l$t_0 <- c(S = t_0$S,
+               E = t_0$E,
+               I = t_0$I,
+               R = t_0$R,
+               t = t_0$dia)
+    l
+  }, y = y_final)
+# Simular modelos desde situación final
+sims_pronostico <- simular_ode(modelos = modelos_final,
+                               n_dias = 100,
+                               odefun = seir2,
+                               otros_par = "phi")
+sims_pronostico 
+nuevos_prox <- sims_pronostico %>%
+  split(.$modelo) %>%
+  map_dfr(function(d){
+    d %>%
+      mutate(acum = I + R) %>%
+      mutate(nuevos = acum - lag(acum, 1)) %>%
+      select(dia, nuevos, phi)
+  }) %>%
+  filter(!is.na(nuevos)) %>%
+  mutate(lambda = nuevos*stan_datos$pob) %>%
+  mutate(pred = MASS::rnegbin(n = length(phi), mu = lambda, theta = phi)) %>%
+  split(.$dia) %>%
+  map_dfr(function(d){
+    ci <- compute_hpdi(d$pred,
+                       prob = 0.8)
+    tibble(dia = d$dia[1],
+           pred_10 = ci[1],
+           pred_50 = median(d$pred),
+           pred_90 = ci[2])
+  })
+nuevos_prox  
 
 p1 <- Dat %>%
-  full_join(sims, by = "dia") %>%
-  # left_join(apply(post$I_hoy,2,compute_hpdi, prob = 0.9) %>%
-  #             t %>% as_tibble() %>%
-  #             rename(stan_lower = V1, stan_upper = V2) %>%
-  #             mutate(dia = 1:(n_dias_ajuste-1)),
-  #           by = "dia") %>%
-  # print(n = 200)
-  ggplot(aes(x =fecha, y = sintomas_nuevos)) +
+  full_join(nuevos_prev, by = "dia") %>%
+  full_join(nuevos_prox, by = "dia") %>%
+  mutate(fecha = min(fecha, na.rm = TRUE) + dia) %>%
+  filter(fecha <= Sys.Date()) %>%
+  # print(n = 500)
+  ggplot(aes(x = fecha, y = sintomas_nuevos)) +
   geom_bar(stat = "identity", fill = "darkgreen") +
-  geom_ribbon(aes(ymin = lower_90, ymax = upper_90), color = "blue", alpha = 0.2) +
-  # geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), color = "green", alpha = 0.2) +
-  geom_line(aes(y = median), size = 2, col = "blue") +
+  
+  geom_ribbon(aes(ymin = nuevos_10, ymax = nuevos_90), color = "blue", alpha = 0.2) +
+  geom_line(aes(y = nuevos_50), size = 2, col = "blue") +
+  
+  geom_ribbon(aes(ymin = pred_10, ymax = pred_90), color = "red", alpha = 0.2) +
+  geom_line(aes(y = pred_50), size = 2, col = "red") +
+  
   geom_vline(xintercept = fecha_inicio + fechas_dias) +
   # scale_y_log10() +
   theme(panel.background = element_blank(),
@@ -292,15 +302,3 @@ p1 <- Dat %>%
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
 p1
-
-# res <- stan("casos/lognormal.stan",
-#             data = list(n = 1000,
-#                         # mu = 0,
-#                         # sigma = 0.5,
-#                         alpha = 2.712,
-#                         beta = 1/4.06),
-#             iter = 1,
-#             algorithm = "Fixed_param",
-#             chains = 1)
-# extract(res)$rnd %>% as.vector() %>% summary()
-# extract(res)$rnd %>% as.vector() %>% hist

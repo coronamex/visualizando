@@ -116,7 +116,7 @@ model {
   // Distribuciones a priori
   // T_inc ~ gamma(2.03, 1/2.54);
   // T_inf ~ gamma(2.712, 1/4.06);
-  logphi ~ normal(1, 0.2);
+  logphi ~ normal(3, 0.5);
   
   // Tratando de suavizar el cambio en el effecto
   for(i in 1:n_int){

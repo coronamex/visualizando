@@ -316,12 +316,11 @@ simular_seir_post <- function(modelos, FUN, n_dias, t_0){
 
 
 seir2 <- function(time, state, parameters) {
-  r_beta <- parameters$r_beta
   T_inf <- parameters$T_inf
   T_inc <- parameters$T_inc
   
-  tiempos_int <- parameters$tiempos_int
-  efectos_int <- parameters$efectos_int
+  tiempos_betas <- parameters$tiempos_betas
+  r_betas <- parameters$r_betas
   
   state <- as.list(state)
   S <- state$S
@@ -333,21 +332,44 @@ seir2 <- function(time, state, parameters) {
   # Parametrización alternativa
   alpha <- 1/T_inc
   gamma <- 1/T_inf
-  beta <- r_beta
   
-  for(i in 1:length(tiempos_int)){
-    if(t >= tiempos_int[i]){
-      beta <- r_beta * efectos_int[i]
-      # beta <- efectos_int[i]
+  for(i in 1:length(tiempos_betas)){
+    if(t >= tiempos_betas[i]){
+      r_beta <- r_betas[i]
     }
   }
   
   # SEIR
-  dS <- - beta * (I * S)
-  dE <- (beta) * (I * S) - (alpha * E)
+  dS <- - r_beta * (I * S)
+  dE <- (r_beta) * (I * S) - (alpha * E)
   dI <- (alpha * E) - (gamma * I)
   dR <- gamma * I
   dt <- 1
 
   return(list(c(dS, dE, dI, dR, dt)))
+}
+
+simular_ode <- function(modelos, n_dias,odefun = seir2, otros_par = NULL){
+  odefun <- match.fun(odefun)
+  modelos %>%
+    map_dfr(function(l, n_dias, otros_par = NULL){
+      sims <- ode(y = l$t_0,
+          times = l$t_0["t"]:(l$t_0["t"] + n_dias),
+          func = odefun,
+          parms = l,
+          method = "ode45") %>%
+        as_tibble() %>%
+        select(-t) %>%
+        rename(dia = time) %>%
+        mutate_all(as.numeric) %>%
+        mutate(modelo = l$modelo)
+      
+      if(length(otros_par) > 0){
+        for(p in otros_par){
+          sims[p] <- l[[p]]
+        }
+      }
+      
+      sims
+    }, n_dias = n_dias, otros_par = otros_par)
 }
