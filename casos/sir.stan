@@ -61,7 +61,10 @@ data {
   real ts[n_obs];
   real y0[n_difeq]; // Estado inicial
   int<lower = 0> n_int; // Número de intervenciones (cambios en r_beta)
-  int fechas_dias[n_int]; // Días de las intervenciones 
+  int fechas_dias[n_int]; // Días de las intervenciones
+  real<lower = 0> T_inc;
+  real<lower = 0> T_inf;
+  int<lower = 0, upper = 1> likelihood;
 }
 
 transformed data {
@@ -71,16 +74,10 @@ transformed data {
 }
 
 parameters {
-  // real<lower = 0> T_inc;
-  // real<lower = 0> T_inf;
-  // real<lower = 0> r_beta;
-  // vector<lower = 0>[n_int] f_int;
-  // real<lower = 0> phi;
-  
   // Al tomar el valor de una lognormal a priori no necesito checar la no negatividad
   real r_beta;
-  vector[n_int] f_int;
   real phi;
+  vector[n_int] f_int;
 }
 
 transformed parameters {
@@ -88,23 +85,18 @@ transformed parameters {
   real params[n_params + 1 + n_int + n_int];
   real I_hoy[n_obs];
   real acumulados_ayer;
-  real R_0;
-
+  
   // Convirtiendo tiempos de infección a parámetros
   params[1] = r_beta;
-  // params[2] = 1 / T_inc;
-  params[2] = 1/ 5.1562;
-  params[3] = 1 / 11.01072;
-  
+  params[2] = 1/ T_inc;
+  params[3] = 1 / T_inf;
+
   // Añadiendo effectos de intervención
   params[4] = n_int;
   for(i in 1:n_int){
     params[4 + i] = f_int[i];
     params[4 + n_int + i] = fechas_dias[i];
   }
-
-  // Calculando R_0
-  R_0 = params[1] / params[3];
 
   // Integrando ODEs
   y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
@@ -121,22 +113,19 @@ transformed parameters {
 }
 
 model {
-  vector[n_int] f_mu;
   // T_inc ~ gamma(2.03, 1/2.54);
   // T_inf ~ gamma(2.712, 1/4.06);
   r_beta ~ lognormal(-0.2, 0.2);
   phi ~ lognormal(-0.2, 0.2);
+  
   // Tratando de suavizar el cambio en el effecto
   for(i in 1:n_int){
     if (i == 1)
-      // f_int[i] ~ lognormal(log(r_beta) - 0.02, 0.2);
-      f_mu[i] = log(r_beta) - 0.02;
+      f_int[i] ~ lognormal(log(r_beta) - 0.02, 0.2);
     else
-      // f_int[i] ~ lognormal(log(f_int[i - 1]) - 0.02, 0.2);
-      f_mu[i] = log(f_mu[i - 1]) - 0.02;
+      f_int[i] ~ lognormal(log(f_int[i - 1]) - 0.02, 0.2);
   }
-  // Usando vectorización para tratar de ganar tiempo
-  f_int  ~ lognormal(f_mu, 0.2);
   
-  y ~ neg_binomial_2(I_hoy, phi);
+  if(likelihood)
+    y ~ neg_binomial_2(I_hoy, phi);
 }

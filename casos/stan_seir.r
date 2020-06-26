@@ -42,8 +42,7 @@ Dat <- Dat %>% select(fecha, sintomas_acumulados, sintomas_nuevos)
 Dat <- Dat %>%
   filter(fecha >= fecha_inicio) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
-Dat
-
+# Dat
 
 2.03 * 2.54
 2.712 * 4.06
@@ -60,17 +59,20 @@ fecha_final <- max(Dat$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 
-fechas_dias <- as.numeric((c("2020-03-15") %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
-fechas_dias <- c(fechas_dias, seq(from = fechas_dias[length(fechas_dias)] + 15,
-                                  to = n_dias_ajuste,
-                                  by = 15))
+# fechas_dias <- as.numeric((c("2020-03-15") %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
+# fechas_dias <- c(fechas_dias, seq(from = fechas_dias[length(fechas_dias)] + 15,
+#                                   to = n_dias_ajuste,
+#                                   by = 15))
+# fechas_dias
+# fecha_inicio + fechas_dias
+# fechas_dias <- as.numeric((c("2020-03-15", "2020-03-30", "2020-04-29")
+#                            %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
+# fechas_dias
+fechas_dias <- seq(from=14, to = n_dias_ajuste, by = 15) %>% floor
+# fechas_dias <- fechas_dias[1:5]
 fechas_dias
-fecha_inicio + fechas_dias
-fechas_dias <- as.numeric((c("2020-03-15", "2020-03-30", "2020-04-29")
-                           %>% parse_date(format = "%Y-%m-%d")) - fecha_inicio)
-fechas_dias
-fechas_dias <- seq(from=14, to = n_dias_ajuste - 14, length.out = 6) %>% floor
-fechas_dias
+fechas_dias %>% diff
+
 
 dat_train <- Dat %>%
   filter(dia < n_dias_ajuste)
@@ -92,27 +94,54 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    ts = dat_train$dia,
                    y0 = t_0,
                    n_int = length(fechas_dias),
-                   fechas_dias = fechas_dias)
-  
-m1.stan <- stan("casos/sir.stan", data = stan_datos,
-                pars = c("r_beta",
-                         "f_int", 
-                         "R_0",
-                         "phi",
-                         "I_hoy"),
-                init = list(list(r_beta = 0.5,
-                                 f_int = rep(0.8, times = length(fechas_dias)),
-                                 phi = 2.3)),
-                chains = 1,
-                iter = 1000,
-                warmup = 500,
-                thin = 1,
-                cores = 1,
-                control = list(max_treedepth = 10))
+                   fechas_dias = fechas_dias,
+                   T_inc = 5.1562,
+                   T_inf = 11.01072,
+                   likelihood = 1)
+
+m1.model <- stan_model("casos/sir.stan", model_name = "seir")
+# m1.opt <- optimizing(m1.model,
+#                      data = stan_datos,
+#                      verbose = TRUE,
+#                      init = list(r_beta = 0.61,
+#                                  f_int = c(0.5,0.4,0.3,0.3,0.2,0.2),
+#                                  phi = 3),
+#                      hessian = TRUE,
+#                      iter = 2000,
+#                      algorithm = "Newton")
+# init <- list(r_beta = m1.opt$par["r_beta"],
+#              phi = m1.opt$par["phi"],
+#              f_int = m1.opt$par[3:(2+stan_datos$n_int)])
+init
+m1.stan <- sampling(m1.model,
+                    data = stan_datos,
+                    pars = c("r_beta",
+                             "f_int",
+                             "phi",
+                             "I_hoy"),
+                    init = list(init,
+                                init,
+                                init,
+                                init),
+                    chains = 4,
+                    iter = 100,
+                    # warmup = 3000,
+                    thin = 1,
+                    cores = 4,
+                    control = list(max_treedepth = 10))
+# m1.vb <- vb(object = m1.model,
+#             data = stan_datos,
+#             init = list(r_beta = 0.61,
+#                         f_int = c(0.5,0.4,0.3,0.3,0.2,0.2),
+#                         phi = 3))
+
+
 # load("m1.stan.rdat")
 m1.stan
 # save(m1.stan, file = "m1.stan.rdat")
-
+# q()
+# summary(m1.stan, pars = c("f_int"))$summary
+# summary(m1.stan, pars = c("r_beta", "f_int", "phi"))
 #
 post <- extract(m1.stan)
 plot(1:(n_dias_ajuste - 1), colMeans(post$I_hoy))
@@ -121,6 +150,7 @@ plot(1:(n_dias_ajuste - 1), colMeans(post$I_hoy))
 traceplot(m1.stan, pars = c("r_beta", "f_int", "phi"))
 pairs(m1.stan, pars = c("r_beta", "f_int", "phi"))
 
+stan_diag(m1.stan)
 
 modelos <- list()
 for(i in 1:length(post$r_beta)){
@@ -189,12 +219,17 @@ sims <- sims %>%
 sims %>% print(n = 100)
 
 p1 <- Dat %>%
-  full_join(sims, by = "dia")  %>%
-  mutate(fecha = min(fecha, na.rm = TRUE) + dia - 1) %>%
+  full_join(sims, by = "dia") %>%
+  # left_join(apply(post$I_hoy,2,compute_hpdi, prob = 0.9) %>%
+  #             t %>% as_tibble() %>%
+  #             rename(stan_lower = V1, stan_upper = V2) %>%
+  #             mutate(dia = 1:(n_dias_ajuste-1)),
+  #           by = "dia") %>%
   # print(n = 200)
   ggplot(aes(x =fecha, y = sintomas_nuevos)) +
   geom_bar(stat = "identity", fill = "darkgreen") +
   geom_ribbon(aes(ymin = lower_90, ymax = upper_90), color = "blue", alpha = 0.2) +
+  # geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), color = "green", alpha = 0.2) +
   geom_line(aes(y = median), size = 2, col = "blue") +
   geom_vline(xintercept = fecha_inicio + fechas_dias) +
   # scale_y_log10() +
