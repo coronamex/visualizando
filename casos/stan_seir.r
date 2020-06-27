@@ -26,7 +26,7 @@ compute_hpdi <- function(xs, prob = .9) {
   x_sorted[edges]
 }
 
-args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
+args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              modelo_stan = "casos/sir.stan",
              dias_retraso = 15,
              dias_extra_sim = 30,
@@ -97,10 +97,10 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                      hessian = TRUE,
 #                      iter = 2000,
 #                      algorithm = "Newton")
-init <- list(logphi = log(9),
-             r_betas = c(0.6226926, 0.4447154,
-                       0.3560217, 0.2849129,
-                       0.2384390, 0.2038462, 0.1873019))
+init <- list(logphi = log(30),
+             r_betas = c(0.59, 0.27,
+                       0.22, 0.15,
+                       0.15, 0.13, 0.11))
 init
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
@@ -112,8 +112,11 @@ m1.stan <- sampling(m1.model,
                     #             chain_3 = init,
                     #             chain_4 = init),
                     init = function(){
-                      list(logphi = rnorm(n=1, mean = 2, sd = 0.2),
-                           r_betas = runif(length(stan_datos$fechas_dias), 0, 1))
+                      list(logphi = rnorm(n=1, mean = 3, sd = 0.5),
+                           r_betas = runif(length(stan_datos$fechas_dias),
+                                           min = 0,
+                                           max = 1) %>%
+                             sort(decreasing = TRUE))
                     },
                     chains = 4,
                     iter = 4000,
