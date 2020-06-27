@@ -1,6 +1,6 @@
 library(tidyverse)
 
-args <- list(serie_tiempo_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv",
+args <- list(serie_tiempo_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv.gz",
              dias_previos = 7,
              muncipios_lut = "../datos/util/municipios_lut_datos_abiertos.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
@@ -25,6 +25,7 @@ dat <- Tab %>%
   summarise(n_municipios = sum(casos_recientes > 0)) %>%
   filter(fecha >= "2020-02-01")
 p1 <- dat  %>%
+  filter(fecha >= "2020-03-01") %>%
   ggplot(aes(x = fecha, y = n_municipios)) +
   geom_rect(aes(xmin = max(fecha) - 15, xmax = max(fecha),
                 ymin = -Inf, ymax = Inf),
@@ -46,7 +47,7 @@ p1 <- dat  %>%
   AMOR::theme_blackbox() +
   theme(axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
-        plot.margin = margin(l = 20, r = 20),
+        plot.margin = margin(l = 20, r = 20, t = 10),
         panel.background = element_blank(),
         panel.border = element_rect(fill=NA, colour = "black", size = 3),
         legend.position = "top",

@@ -1,5 +1,5 @@
 library(tidyverse)
-args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
+args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              dias_retraso = 9,
              dir_salida = "../sitio_hugo/static/imagenes/")
 

@@ -74,7 +74,7 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
   p1
 }
 
-args <- list(serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv",
+args <- list(serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv.gz",
              municipios_lut = "../datos/util/municipios_lut_datos_abiertos.csv",
              # entidades_eliminar = c("09", "15"),
              dir_salida = "../sitio_hugo/static/imagenes/",

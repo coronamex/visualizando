@@ -1,7 +1,7 @@
 library(tidyverse)
 
-args <- list(Serie_confirmados = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
-             serie_deteccion = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+args <- list(Serie_confirmados = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
+             serie_deteccion = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
 

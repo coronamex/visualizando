@@ -5,7 +5,7 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              dir_salida = "../sitio_hugo/static/imagenes/",
              max_dias = 10,
              dias_activos = 14,
-             serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv")
+             serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz")
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,

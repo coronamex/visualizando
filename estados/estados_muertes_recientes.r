@@ -1,7 +1,7 @@
 library(tidyverse)
 # library(ggbeeswarm)
 
-args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv",
+args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
              n_dias = 10,
              n_municipios = 100,
              dir_salida = "../sitio_hugo/static/imagenes/")

@@ -19,7 +19,7 @@ source("casos/sir_funciones.r")
 source("util/leer_datos_abiertos.r")
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              # dir_salida = "./",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
              centinela_official = "../datos/centinela/semana_15/estimados_nacionales.csv",

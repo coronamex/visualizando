@@ -1,7 +1,7 @@
 library(tidyverse)
 
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
 
 # Tab <- read_csv(args$tabla_sintomas,
 #                 col_types = cols(estado = col_character(),

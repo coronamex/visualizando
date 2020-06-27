@@ -21,10 +21,10 @@ source("casos/sir_funciones.r")
 # https://gabgoh.github.io/COVID/index.html
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology
 
-args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+args <- list(reportes_diarios = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
              dias_retraso = 15,
              dir_salida = "../sitio_hugo/static/imagenes/",
-             casos_nacionales = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
+             casos_nacionales = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              dir_estimados = "estimados/")
 
 # Leer base de datos

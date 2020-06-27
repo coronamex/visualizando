@@ -3,7 +3,7 @@ library(broom)
 # library(geojsonio)
 source("util/leer_datos_abiertos.r")
 
-args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
+args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              densidad = "../socioeconomicos/cedrus/DENSIDAD-POB-MUNS-MEXICO.csv",
              indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobreza_municipa_2015.csv",
              serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv",
