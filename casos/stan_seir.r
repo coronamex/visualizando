@@ -1,3 +1,18 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 library(tidyverse)
 library(rstan)
 source("casos/sir_funciones.r")
@@ -85,7 +100,8 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    n_int = length(fechas_dias),
                    fechas_dias = fechas_dias,
                    T_inc = 5.1562,
-                   T_inf = 11.01072,
+                   # T_inf = 11.01072,
+                   T_inf = 5,
                    likelihood = 1,
                    f_red = log(1.22))
 # m1.opt <- optimizing(m1.model,
@@ -224,8 +240,10 @@ sims <- simular_ode(modelos = modelos,
 
 # Encontrar mediana posterior casos nuevos (1-4)
 dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-write_csv(dat, "estimados/bayes_seir_nacional.csv")
+dat$fecha_estimacion <- Sys.Date() - 1
 dat
+write_csv(dat, "estimados/bayes_seir_nacional.csv")
+
 
 # Modelo simulando comportamiento antes de sana distancia
 dat <- modelos %>%
@@ -238,6 +256,7 @@ dat <- modelos %>%
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+dat$fecha_estimacion <- Sys.Date() - 1
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 
@@ -252,6 +271,7 @@ dat <- modelos %>%
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+dat$fecha_estimacion <- Sys.Date() - 1
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
 
@@ -278,8 +298,8 @@ p1 <- Dat %>%
   geom_ribbon(aes(ymin = nuevos_obs_10, ymax = nuevos_obs_90), color = "red", alpha = 0.2) +
   geom_line(aes(y = nuevos_obs_50), size = 2, col = "red") +
   
-  geom_vline(xintercept = fecha_inicio + fechas_dias) +
-  ylim(c(0, 1e4)) +
+  # geom_vline(xintercept = fecha_inicio + fechas_dias) +
+  # ylim(c(0, 1e4)) +
   # scale_y_log10() +
   theme(panel.background = element_blank(),
         axis.text = element_text(size = 10),
