@@ -241,7 +241,7 @@ dat <- modelos %>%
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 
-# Modelo simulando comportamiento antes de 3er cambio en beta
+# Modelo simulando comportamiento antes de 2020-04-15
 dat <- modelos %>%
   map(function(l){
     l$tiempos_betas <- l$tiempos_betas[1:3]
@@ -253,7 +253,7 @@ dat <- modelos %>%
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
 dat
-write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-05.csv")
+write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
 
 
 p1 <- Dat %>%
@@ -264,7 +264,7 @@ p1 <- Dat %>%
   full_join(dat %>%
               mutate(dia = as.numeric(fecha - min(fecha))) %>%
               select(dia, nuevos_obs_10, nuevos_obs_50, nuevos_obs_90) %>%
-              filter(dia <= stan_datos$n_obs), by = "dia") %>%
+              filter(dia > stan_datos$n_obs), by = "dia") %>%
   # print(n = 1000)
   mutate(fecha = min(fecha, na.rm = TRUE) + dia) %>%
   filter(fecha <= Sys.Date()) %>%
