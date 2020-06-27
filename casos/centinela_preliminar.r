@@ -19,7 +19,7 @@ source("casos/sir_funciones.r")
 source("util/leer_datos_abiertos.r")
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              # dir_salida = "./",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
              poblacion = "../datos/demograficos/pob_estado.tsv",
              centinela_official = "../datos/centinela/semana_15/estimados_nacionales.csv",
@@ -60,10 +60,10 @@ Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
                            solo_confirmados = FALSE, solo_fallecidos = FALSE)
 # Dat
 
-Cen_oficial %>%
-  mutate(prop_usmer = total_usmer / totales_nacional) %>%
-  ggplot(aes(x = fecha, y = prop_usmer)) +
-  geom_point()
+# Cen_oficial %>%
+#   mutate(prop_usmer = total_usmer / totales_nacional) %>%
+#   ggplot(aes(x = fecha, y = prop_usmer)) +
+#   geom_point()
 
 # Seleccionar USMER
 Dat <- Dat %>%
@@ -242,7 +242,7 @@ R_hat_cen_coronamex <- encontrar_R_0(real = Tab, n_dias_ajuste = n_dias_ajuste,
                                      T_inc = T_inc, T_inf = T_inf, pob = pob)
 save(R_hat_cen_coronamex, file = "R_hat_cen_coronamex.rdat")
 # load("R_hat_cen_coronamex.rdat")
-R_hat_cen_coronamex
+# R_hat_cen_coronamex
 sims_cen_coronames <- simular_multiples_modelos(modelos = R_hat_cen_coronamex,
                                                 FUN = sir, real = Tab, pob = pob,
                                                 n_dias = n_dias)
@@ -290,7 +290,7 @@ p1 <- dat %>%
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
   scale_y_continuous(labels = scales::comma,
-                     breaks = function(lims){seq(from = 0, to = lims[2], by = 1e5)}) +
+                     breaks = function(lims){seq(from = 0, to = lims[2], by = 2e5)}) +
   # scale_y_log10() +
   guides(color = guide_legend(override.aes = list(size = 3))) +
   AMOR::theme_blackbox() +

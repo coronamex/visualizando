@@ -1,7 +1,7 @@
 library(tidyverse)
 library(ggmuller)
 
-args <- list(serie = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv",
+args <- list(serie = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
 

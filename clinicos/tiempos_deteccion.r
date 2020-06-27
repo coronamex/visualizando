@@ -1,14 +1,14 @@
 library(tidyverse)
 
-args <- list(Serie_confirmados = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv",
-             serie_deteccion = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+args <- list(Serie_confirmados = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
+             serie_deteccion = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
 
 Dat_pos <- read_csv(args$Serie_confirmados)
-Dat_pos 
+# Dat_pos 
 Dat_conf <- read_csv(args$serie_deteccion)
-Dat_conf
+# Dat_conf
 
 
 # Unir datos
@@ -23,14 +23,14 @@ Dat <- tibble(fecha = min(Dat$fecha) - 1,
        ingreso_acumulados = 0,
        casos_acumulados = 0) %>%
   bind_rows(Dat)
-Dat
+# Dat
 
 
 Res <- tibble(dias = 0:as.numeric(max(Dat$fecha) - min(Dat$fecha)),
               sintomas_ingreso = 0,
               ingreso_confirmacion = 0,
               tiempo_deteccion = 0)
-Res
+# Res
 for(i in 2:nrow(Dat)){
   ingreso_bandera <- FALSE
   conf_bandera <- FALSE
@@ -63,12 +63,12 @@ for(i in 2:nrow(Dat)){
     }
   }
 }
-Res %>% print(n = 100)
-Dat %>% print(n = 100)
+# Res %>% print(n = 100)
+# Dat %>% print(n = 100)
 
-sum(Res$sintomas_ingreso)
-sum(Res$ingreso_confirmacion)
-sum(Res$tiempo_deteccion)
+# sum(Res$sintomas_ingreso)
+# sum(Res$ingreso_confirmacion)
+# sum(Res$tiempo_deteccion)
 
 p1 <- Dat %>%
   pivot_longer(-fecha, names_to = "tipo", values_to = "casos_acumulados") %>%
@@ -81,6 +81,7 @@ p1 <- Dat %>%
   scale_color_manual(values = c("#7570b3", "#d95f02", "#1b9e77"),
                      name = "",
                      labels = c("Inicio de síntomas", "Ingreso a unidad médica", "Confirmados")) +
+  scale_y_continuous(labels = scales::comma) +
   xlab("Fecha") +
   ylab("Casos totales") +
   guides(color = guide_legend(override.aes = list(size = 3), nrow = 2)) +
@@ -116,7 +117,7 @@ p2 <- Res %>%
   
   scale_y_continuous(labels = scales::percent) +
   # scale_y_log10(labels = scales::percent) +
-  xlab("# de días") +
+  xlab("# de días de retraso") +
   ylab("% confirmados") +
   guides(color = guide_legend(override.aes = list(size = 3), nrow = 2)) +
   AMOR::theme_blackbox() +
@@ -137,5 +138,3 @@ archivo <- file.path(args$dir_salida, "tiempo_deteccion.png")
 ggsave(archivo, pp, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "tiempo_deteccion@2x.png")
 ggsave(archivo, pp, width = 7, height = 6.7, dpi = 150)
-
-    

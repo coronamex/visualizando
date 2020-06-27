@@ -3,7 +3,7 @@ library(tidyverse)
 args <- list(min_casos = 60,
              dias_ventana = 7,
              # tabla_mx = "../datos/ssa_dge_2020-04-19//reportes_diarios.csv",
-             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
              serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
              serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
@@ -105,7 +105,7 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia@2x.png")
@@ -136,7 +136,7 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia@2x.png")
@@ -192,26 +192,11 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "incremento_por_casos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "incremento_por_casos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-# Casos vs muertes.para segunda versión
-# p1 <- Dat %>%
-#   filter(pais != "China") %>%
-#   filter(casos_acumulados >= args$min_casos) %>%
-#   ggplot(aes(x = casos_acumulados, y = muertes_acumuladas)) +
-#   geom_line(aes(col = pais, size = pais)) +
-#   scale_color_brewer(palette = "Paired", name = "País") +
-#   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-#   scale_y_log10(labels = scales::comma) +
-#   scale_x_log10(labels = scales::comma) +
-#   ylab("Total de muertes") +
-#   xlab("Total de casos confirmados") +
-#   AMOR::theme_blackbox()
-# p1
 
 
 
