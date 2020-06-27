@@ -29,7 +29,7 @@ compute_hpdi <- function(xs, prob = .9) {
 args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              modelo_stan = "casos/sir.stan",
              dias_retraso = 15,
-             dias_extra_sim = 30,
+             dias_extra_sim = 60,
              dir_esimados = "estimados/",
              dir_salida = "../sitio_hugo/static/imagenes/")
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
@@ -172,6 +172,8 @@ bayesplot::mcmc_acf(as.array(m1.stan),
 stan_diag(m1.stan)
 ##
 
+bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:7], prob = 0.8)
+
 # R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
@@ -204,96 +206,80 @@ for(i in 1:length(post$phi)){
                        phi = post$phi[i],
                        t_0 = t_0,
                        metodo = "stan")
-  
 }
 
+### Necesito calcular desde día 0 hasta n_dias ajuste + dias extra
+# 1. Intervalo creible de casos nuevos
+# 2. Intervalo creible de casos acumulados
+# 3. Intervalo creible de casos nuevos detectados,
+# 4. Intervalo creible de casos acumulados detectados
+# 5. Intervalo creible de casos nuevos desde antes de sana distancia
+# 6. Intervalo creible de casos acumulados desde antes de sana distancia
 
-
-# Simular modelos posterior
+# Integrar modelos posterior
 sims <- simular_ode(modelos = modelos,
-                    n_dias = stan_datos$n_obs,
+                    n_dias = stan_datos$n_obs + args$dias_extra_sim,
                     odefun = seir2,
-                    otros_par = NULL)
-sims
+                    otros_par = "phi")
 
-# Encontrar mediana posterior casos nuevos
-nuevos_prev <- sims %>%
-  split(.$modelo) %>%
-  map_dfr(function(d){
-    d %>%
-      mutate(acum = I + R) %>%
-      mutate(nuevos = acum - lag(acum, 1, 0)) %>%
-      select(dia, nuevos)
-  }) %>%
-  mutate(nuevos = nuevos * stan_datos$pob) %>%
-  split(.$dia) %>%
-  map_dfr(function(d){
-    ci <- compute_hpdi(d$nuevos,
-                       prob = 0.8)
-    tibble(dia = d$dia[1],
-           nuevos_10 = ci[1],
-           nuevos_50 = median(d$nuevos),
-           nuevos_90 = ci[2])
-  })
-nuevos_prev
+# Encontrar mediana posterior casos nuevos (1-4)
+dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+write_csv(dat, "estimados/bayes_seir_nacional.csv")
+dat
 
-# Calcular post condición inicial
-y_final <- sims %>%
-  filter(dia == n_dias_ajuste - 1)
-modelos_final <- modelos %>%
-  map(function(l, y){
-    t_0 <- y %>% filter(modelo == l$modelo)
-    l$t_0 <- c(S = t_0$S,
-               E = t_0$E,
-               I = t_0$I,
-               R = t_0$R,
-               t = t_0$dia)
+# Modelo simulando comportamiento antes de sana distancia
+dat <- modelos %>%
+  map(function(l){
+    l$tiempos_betas <- l$tiempos_betas[1]
+    l$r_betas <- l$r_betas[1]
     l
-  }, y = y_final)
-# Simular modelos desde situación final
-sims_pronostico <- simular_ode(modelos = modelos_final,
-                               n_dias = 100,
-                               odefun = seir2,
-                               otros_par = "phi")
-sims_pronostico 
-nuevos_prox <- sims_pronostico %>%
-  split(.$modelo) %>%
-  map_dfr(function(d){
-    d %>%
-      mutate(acum = I + R) %>%
-      mutate(nuevos = acum - lag(acum, 1)) %>%
-      select(dia, nuevos, phi)
   }) %>%
-  filter(!is.na(nuevos)) %>%
-  mutate(lambda = nuevos*stan_datos$pob) %>%
-  mutate(pred = MASS::rnegbin(n = length(phi), mu = lambda, theta = phi)) %>%
-  split(.$dia) %>%
-  map_dfr(function(d){
-    ci <- compute_hpdi(d$pred,
-                       prob = 0.8)
-    tibble(dia = d$dia[1],
-           pred_10 = ci[1],
-           pred_50 = median(d$pred),
-           pred_90 = ci[2])
-  })
-nuevos_prox  
+  simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+              odefun = seir2,
+              otros_par = "phi") %>%
+  seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+dat
+write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
+
+# Modelo simulando comportamiento antes de 3er cambio en beta
+dat <- modelos %>%
+  map(function(l){
+    l$tiempos_betas <- l$tiempos_betas[1:3]
+    l$r_betas <- l$r_betas[1:3]
+    l
+  }) %>%
+  simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+              odefun = seir2,
+              otros_par = "phi") %>%
+  seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+dat
+write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-05.csv")
+
 
 p1 <- Dat %>%
-  full_join(nuevos_prev, by = "dia") %>%
-  full_join(nuevos_prox, by = "dia") %>%
+  full_join(dat %>%
+              mutate(dia = as.numeric(fecha - min(fecha))) %>%
+              select(dia, nuevos_mu_10, nuevos_mu_50, nuevos_mu_90) %>%
+              filter(dia <= stan_datos$n_obs), by = "dia") %>%
+  full_join(dat %>%
+              mutate(dia = as.numeric(fecha - min(fecha))) %>%
+              select(dia, nuevos_obs_10, nuevos_obs_50, nuevos_obs_90) %>%
+              filter(dia <= stan_datos$n_obs), by = "dia") %>%
+  # print(n = 1000)
   mutate(fecha = min(fecha, na.rm = TRUE) + dia) %>%
   filter(fecha <= Sys.Date()) %>%
   # print(n = 500)
   ggplot(aes(x = fecha, y = sintomas_nuevos)) +
   geom_bar(stat = "identity", fill = "darkgreen") +
   
-  geom_ribbon(aes(ymin = nuevos_10, ymax = nuevos_90), color = "blue", alpha = 0.2) +
-  geom_line(aes(y = nuevos_50), size = 2, col = "blue") +
+  geom_ribbon(aes(ymin = nuevos_mu_10, ymax = nuevos_mu_90), color = "blue", alpha = 0.2) +
+  geom_line(aes(y = nuevos_mu_50), size = 2, col = "blue") +
   
-  geom_ribbon(aes(ymin = pred_10, ymax = pred_90), color = "red", alpha = 0.2) +
-  geom_line(aes(y = pred_50), size = 2, col = "red") +
+  geom_ribbon(aes(ymin = nuevos_obs_10, ymax = nuevos_obs_90), color = "red", alpha = 0.2) +
+  geom_line(aes(y = nuevos_obs_50), size = 2, col = "red") +
   
   geom_vline(xintercept = fecha_inicio + fechas_dias) +
+  ylim(c(0, 1e4)) +
   # scale_y_log10() +
   theme(panel.background = element_blank(),
         axis.text = element_text(size = 10),

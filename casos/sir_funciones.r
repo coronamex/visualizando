@@ -373,3 +373,57 @@ simular_ode <- function(modelos, n_dias,odefun = seir2, otros_par = NULL){
       sims
     }, n_dias = n_dias, otros_par = otros_par)
 }
+
+
+
+seir_ci <- function(sims, pob, fecha_inicio){
+  dat <- sims %>%
+    # filter(modelo %in% 1:100) %>%
+    split(.$modelo) %>%
+    map_dfr(function(d, pob){
+      d %>%
+        arrange(dia) %>%
+        mutate(acum_mu = I + R) %>%
+        mutate(nuevos_mu = acum_mu - lag(acum_mu, 1, 0)) %>%
+        select(dia, nuevos_mu, acum_mu, phi) %>%
+        mutate(nuevos_mu = nuevos_mu * pob,
+               acum_mu = acum_mu * pob) %>%
+        mutate(nuevos_obs = MASS::rnegbin(n = length(phi),
+                                          mu = nuevos_mu,
+                                          theta = phi)) %>%
+        mutate(acum_obs = cumsum(nuevos_obs)) %>%
+        select(-phi)
+    }, pob = pob) %>%
+    split(.$dia) %>%
+    map_dfr(function(d){
+      ci_nuevos_mu <- compute_hpdi(d$nuevos_mu,
+                                   prob = 0.8)
+      ci_acum_mu <- compute_hpdi(d$acum_mu,
+                                 prob = 0.8)
+      ci_nuevos_obs <- compute_hpdi(d$nuevos_obs,
+                                    prob = 0.8)
+      ci_acum_obs <- compute_hpdi(d$acum_obs,
+                                  prob = 0.8)
+      
+      tibble(dia = d$dia[1],
+             nuevos_mu_10 = ci_nuevos_mu[1],
+             nuevos_mu_50 = median(d$nuevos_mu),
+             nuevos_mu_90 = ci_nuevos_mu[2],
+             
+             acum_mu_10 = ci_acum_mu[1],
+             acum_mu_50 = median(d$acum_mu),
+             acum_mu_90 = ci_acum_mu[2],
+             
+             nuevos_obs_10 = ci_nuevos_obs[1],
+             nuevos_obs_50 = median(d$nuevos_obs),
+             nuevos_obs_90 = ci_nuevos_obs[2],
+             
+             acum_obs_10 = ci_acum_obs[1],
+             acum_obs_50 = median(d$acum_obs),
+             acum_obs_90 = ci_acum_obs[2])
+    }) %>%
+    mutate(fecha = fecha_inicio + dia,
+           fecha_estimacion = Sys.Date()) %>%
+    select(fecha_estimacion, fecha, everything(), -dia)
+  dat
+}
