@@ -7,6 +7,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+Rscript casos/sir.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
 # Clinicos
 Rscript clinicos/riesgos_relativos.r
 if [ $? -ne 0 ]; then

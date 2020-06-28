@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-
-Rscript casos/sir.r
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1
-fi
 Rscript casos/centinela_preliminar.r
 if [ $? -ne 0 ]; then
     echo "Error"
