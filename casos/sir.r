@@ -63,37 +63,65 @@ final_datos
 est_final <- obs_est %>% filter(fecha == final_datos) %>%
   select(nuevos_obs_10, nuevos_obs_90)
 ymax <- max(obs_est$nuevos_obs_90)
+Tab
+
+bind_rows(Tab %>%
+            select(fecha, sintomas_nuevos) %>%
+            mutate(modelo = "real") %>%
+            rename(q_50 = sintomas_nuevos),
+          mu_est %>%
+            mutate(modelo = "final_mu") %>%
+            rename(q_10 = nuevos_mu_10,
+                   q_50 = nuevos_mu_50,
+                   q_90 = nuevos_mu_90),
+          obs_est %>%
+            mutate(modelo = "final_obs") %>%
+            rename(q_10 = nuevos_obs_10,
+                   q_50 = nuevos_obs_50,
+                   q_90 = nuevos_obs_90))
 
 p1 <- Tab %>%
   select(fecha, sintomas_nuevos) %>%
-  full_join(mu_est, by = "fecha") %>%
-  full_join(obs_est, by = "fecha") %>%
+  full_join(bind_rows(mu_est %>%
+                        mutate(modelo = "final_mu") %>%
+                        rename(q_10 = nuevos_mu_10,
+                               q_50 = nuevos_mu_50,
+                               q_90 = nuevos_mu_90),
+                      obs_est %>%
+                        mutate(modelo = "final_obs") %>%
+                        rename(q_10 = nuevos_obs_10,
+                               q_50 = nuevos_obs_50,
+                               q_90 = nuevos_obs_90)),
+            by = "fecha") %>%
   
   ggplot(aes(x = fecha)) +
-  geom_rect(aes(xmin = final_datos - 15, xmax = final_datos,
-                ymin = -Inf, ymax = Inf,
-                fill = "pink")) +
-  scale_fill_identity(guide = "legend", name = "", labels = "Casos en estas fechas pueden aumentar") +
+  geom_rect(aes(linetype = "Casos en estos días pueden aumentar"),
+                xmin = final_datos - 15,
+                xmax = final_datos,
+                ymin = -Inf,
+                ymax = Inf,
+                fill = "pink") +
+  # geom_rect(aes(linetype = "futuro"),
+  #           xmin = final_datos,
+  #           xmax = final_datos + args$dias_extra,
+  #           ymin = -Inf,
+  #           ymax = Inf,
+  #           fill = "lightblue") +
+  scale_linetype_manual(values = c("Casos en estos días pueden aumentar" = 0),
+                        name = "",
+                        guide = guide_legend(override.aes = list(fill = c("pink")))) +
+
   
   geom_bar(aes(y = sintomas_nuevos), width = 1, stat = "identity", color = "darkgrey", fill = "darkgrey") +
   
-  geom_rect(aes(xmin = final_datos, xmax = final_datos + args$dias_extra,
-                ymin = -Inf, ymax = Inf),
-            fill = "lightblue") +
+
   
-  geom_ribbon(aes(ymin = nuevos_mu_10, ymax = nuevos_mu_90), color = "#fb9a99", alpha = 0.2) +
-  geom_line(aes(y = nuevos_mu_50), size = 2, col = "#fb9a99") +
-  
-  geom_ribbon(aes(ymin = nuevos_obs_10, ymax = nuevos_obs_90), color = "#e31a1c", alpha = 0.2) +
-  geom_line(aes(y = nuevos_obs_50), size = 2, col = "#e31a1c") +
-  
-  # annotate("text",
-  #          x = parse_date("2020-03-15"),
-  #          y = 6000,
-  #          label = "Some text\ntest",
-  #          hjust = "middle",
-  #          parse = FALSE) +
-  
+  geom_line(aes(y = q_50, col = modelo)) +
+  geom_ribbon(aes(ymin = q_10, ymax = q_90, fill = modelo, col = modelo), alpha = 0.2) +
+  scale_color_manual(values = c("#fb9a99", "#e31a1c"), guide = FALSE) +
+  scale_fill_manual(values = c("#fb9a99", "#e31a1c"),
+                    guide = FALSE) +
+
   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
            x = fin_ajuste_curva - 3,
@@ -102,7 +130,7 @@ p1 <- Tab %>%
   
   scale_y_continuous(labels = scales::comma,
                      breaks = scales::breaks_extended(n=7)) +
-  
+
   ylab("Número de casos nuevos") +
   xlab("Fecha de inicio de síntomas") +
   AMOR::theme_blackbox() +
