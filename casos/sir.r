@@ -59,27 +59,11 @@ obs_est <- Est %>%
   filter(fecha > fin_ajuste_curva) %>%
   select(fecha, nuevos_obs_10, nuevos_obs_50, nuevos_obs_90)
 
-final_datos
+# final_datos
 est_final <- obs_est %>% filter(fecha == final_datos) %>%
   select(nuevos_obs_10, nuevos_obs_90)
 ymax <- max(obs_est$nuevos_obs_90)
-Tab
-
-bind_rows(Tab %>%
-            select(fecha, sintomas_nuevos) %>%
-            mutate(modelo = "real") %>%
-            rename(q_50 = sintomas_nuevos),
-          mu_est %>%
-            mutate(modelo = "final_mu") %>%
-            rename(q_10 = nuevos_mu_10,
-                   q_50 = nuevos_mu_50,
-                   q_90 = nuevos_mu_90),
-          obs_est %>%
-            mutate(modelo = "final_obs") %>%
-            rename(q_10 = nuevos_obs_10,
-                   q_50 = nuevos_obs_50,
-                   q_90 = nuevos_obs_90))
-
+# Tab
 p1 <- Tab %>%
   select(fecha, sintomas_nuevos) %>%
   full_join(bind_rows(mu_est %>%
@@ -149,11 +133,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-
 #### Preparar datos para SEIR aplanamiento
-# Tab
-# Est
-
 # Modelo final
 mu_est <- Est %>%
   filter(fecha <= fin_ajuste_curva) %>%
@@ -278,9 +258,6 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "aplanamiento@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-
-
-
 #### Graficar modelo centinela
 # Modelo CoronaMex
 archivo <- file.path(args$dir_estimados, "bayes_seir_centinela_coronamex.csv")
@@ -314,7 +291,6 @@ mu_est_pre1 <- Est_pre1 %>%
 obs_est_pre1 <- Est_pre1 %>%
   filter(fecha > "2020-04-18") %>%
   select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
-
 
 p1 <- bind_rows(mu_est %>%
                   mutate(modelo = "final_mu") %>%
@@ -352,7 +328,8 @@ p1 <- bind_rows(mu_est %>%
                                "#b2df8a", "#33a02c"),
                     labels = c("Centinela\n(CoronaMex)", "CoronaMex\n+\nSEIR",
                                "Centinela\n(SSA)", "SSA\n+\nSEIR"),
-                    name = "") +
+                    name = "",
+                    guide = guide_legend(override.aes = list(alpha = 1))) +
   
   
   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
@@ -376,7 +353,7 @@ p1 <- bind_rows(mu_est %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
