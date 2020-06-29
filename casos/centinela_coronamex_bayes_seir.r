@@ -14,86 +14,142 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 library(tidyverse)
+# library(deSolve)
 library(rstan)
 source("casos/sir_funciones.r")
-
-# # https://rpubs.com/tjmahr/hpdi
-# compute_hpdi <- function(xs, prob = .9) {
-#   x_sorted <- sort(xs)
-#   n <- length(xs)
-#   
-#   num_to_keep <- ceiling(prob * n)
-#   num_to_drop <- n - num_to_keep
-#   
-#   possible_starts <- seq(1, num_to_drop + 1, by = 1)
-#   # Just count down from the other end
-#   possible_ends <- rev(seq(from = n, length = num_to_drop + 1, by = -1))
-#   
-#   # Find smallest interval
-#   span <- x_sorted[possible_ends] - x_sorted[possible_starts]
-#   edge <- which.min(span)
-#   edges <- c(possible_starts[edge], possible_ends[edge])
-#   
-#   # My requirement: length of span interval must be same as number to keep.
-#   # Other methods produce intervals that are 1 longer.
-#   stopifnot(length(edges[1]:edges[2]) == num_to_keep)
-#   
-#   x_sorted[edges]
-# }
-
-args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
-             modelo_stan = "casos/sir.stan",
+source("util/leer_datos_abiertos.r")
+args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
+             estados_lut = "../datos/util/estados_lut_datos_abiertos.csv",
+             poblacion = "../datos/demograficos/pob_estado.tsv",
+             fecha_inicio = "2020-03-01" %>% parse_date(format = "%Y-%m-%d"),
+             # dias_suavizado = 7,
              dias_retraso = 15,
-             dias_extra_sim = 60,
-             dir_esimados = "estimados/",
-             dir_salida = "../sitio_hugo/static/imagenes/")
-fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
-pob <- 127792286
+             dias_pronostico_max = 60,
+             dir_estimados = "estimados/")
+poblacion <- 127792286
 
-Dat <- read_csv(args$serie_real,
-                col_types = cols(fecha = col_date("%Y-%m-%d"),
+# Leer poblaciones
+pob <- read_tsv(args$poblacion,
+                col_types = cols(estado = col_character(),
                                  .default = col_number()))
-Dat <- Dat %>% select(fecha, sintomas_acumulados, sintomas_nuevos)
-Dat <- Dat %>%
-  filter(fecha >= fecha_inicio) %>%
-  mutate(dia = as.numeric(fecha - min(fecha)))
-# Dat
+stop_for_problems(pob)
+estados_lut <- read_csv(args$estados_lut,
+                        col_names = FALSE,
+                        col_types = cols(.default = col_character()))
+stop_for_problems(estados_lut)
+estados_lut <- set_names(estados_lut$X2, estados_lut$X1)
 
-# 2.03 * 2.54
-# 2.712 * 4.06
-# rgamma(n = 10000, shape = 2.03, rate = 1/2.54) %>% summary
-# qgamma(p = 0.5, shape = 2.03, rate = 1/2.54)
-# Dat %>%
-#   pmap_dfr(function(fecha, sintomas_acumulados, sintomas_nuevos, dia){
-#     rgamma(n = sintomas_nuevos, shape = )
-#   })
+# Leer base de datos ssa
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
+                           solo_confirmados = FALSE, solo_fallecidos = FALSE)
+
+# Seleccionar USMER
+Dat <- Dat %>%
+  filter(ORIGEN == "1") %>%
+  select(ENTIDAD_UM, ENTIDAD_RES,
+         MUNICIPIO_RES,
+         TIPO_PACIENTE,
+         FECHA_SINTOMAS,
+         EDAD,
+         RESULTADO)
+
+# Estimación rápida por fecha síntomas, estado, (10%/100% de ambulatorio/hospitalizado )
+# Calcular agregados para estratificación.
+# Falta desagregado por edad
+Dat <- Dat %>%
+  split(.$ENTIDAD_UM) %>%
+  map_dfr(function(d){
+    d %>%
+      split(.$FECHA_SINTOMAS)  %>%
+      map_dfr(function(d){
+        tibble(positivos_leves = sum(d$TIPO_PACIENTE == "1" & d$RESULTADO == "1"),
+               positivos_graves = sum(d$TIPO_PACIENTE == "2" & d$RESULTADO == "1"),
+               negativos_leves = sum(d$TIPO_PACIENTE == "1" & d$RESULTADO == "2"),
+               negativos_graves = sum(d$TIPO_PACIENTE == "2" & d$RESULTADO == "2"),
+               sospechosos_leves = sum(d$TIPO_PACIENTE == "1" & d$RESULTADO == "3"),
+               sospechosos_graves = sum(d$TIPO_PACIENTE == "2" & d$RESULTADO == "3"),
+               n_pacientes = nrow(d))
+      }, .id = 'fecha')
+  }, .id = "estado") %>%
+  mutate(fecha = parse_date(fecha, format = "%Y-%m-%d")) %>%
+  arrange(estado, fecha)
+Dat
+
+# Estimados por fecha
+Cen <- Dat %>%
+  mutate(positividad_leves = positivos_leves / (positivos_leves + negativos_leves + 1),
+         positividad_graves = positivos_graves / (positivos_graves + negativos_graves + 1)) %>%
+  mutate(graves_estimados = positivos_graves + (sospechosos_graves * positividad_graves),
+         leves_estimados = (positivos_leves + (sospechosos_leves * positividad_leves))) %>%
+  select(fecha, estado, positividad_leves, positividad_graves, graves_estimados, leves_estimados) %>%
+  mutate(positivos_estimados = graves_estimados + leves_estimados) %>%
+  filter(positivos_estimados > 0)
+
+# Normalizar por población y muestreo
+Cen <- Cen %>%
+  mutate(estado = as.vector(estados_lut[estado])) %>%
+  left_join(pob %>%
+              transmute(estado, pob = conapo_2020 / sum(conapo_2020)),
+            by = "estado") %>%
+  split(.$fecha) %>%
+  map_dfr(function(d){
+    pos_usmer_nac <- sum(d$positivos_estimados * d$pob) * 32
+    # Alrededor de 7.5% casos posibles van a usmer a nivel nacional de manera 
+    # consistente. Bajó como a 7 en últimas 2 semanas. Uso 7.25%
+    # Bajó siginificativamente a 6.25% en semana quince, o sea que estoy
+    # subestimando el número de casos real. Necesito incorporar un factor variable por
+    # semana. Tal vez puedo estimarlo del bietín de influenza que parece llegar a semana
+    # 16.
+    tibble(casos_estimados = floor(pos_usmer_nac / 0.0725))
+  }, .id = "fecha") %>%
+  mutate(fecha = parse_date(fecha, format = "%Y-%m-%d"))
+
+# rellenar fechas
+n_dias <- as.numeric(max(Cen$fecha) - min(Cen$fecha))
+fechas <- tibble(dia = 0:(n_dias - 1)) %>%
+  mutate(fecha = min(Cen$fecha) + dia) %>%
+  select(fecha)
+Cen <- fechas %>%
+  full_join(Cen, by = "fecha") %>%
+  arrange(fecha) %>%
+  mutate(casos_estimados = replace_na(casos_estimados, 0)) %>%
+  mutate(casos_acumulados_estimados = cumsum(casos_estimados),) 
+
+########
+
+# Preparar para bayes SEIR
+Cen <- Cen %>%
+  filter(fecha >= args$fecha_inicio) %>%
+  mutate(dia = as.numeric(fecha - min(fecha)))
+
 
 # Determinando fechas
-fecha_inicio <- min(Dat$fecha)
-fecha_final <- max(Dat$fecha)
+fecha_inicio <- min(Cen$fecha)
+fecha_final <- max(Cen$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
 
-dat_train <- Dat %>%
+dat_train <- Cen %>%
   filter(dia < n_dias_ajuste)
 
-t_0 <- c(pob - 2 * Dat$sintomas_acumulados[1],
-         Dat$sintomas_acumulados[1],
-         Dat$sintomas_acumulados[1],
-         0) / pob
+t_0 <- c(poblacion - 2 * Cen$casos_acumulados_estimados[1],
+         Cen$casos_acumulados_estimados[1],
+         Cen$casos_acumulados_estimados[1],
+         0) / poblacion
 
 dat_train <- dat_train %>%
   filter(dia > 0)
+
 
 m1.model <- stan_model("casos/sir.stan", model_name = "seir")
 
 stan_datos <- list(n_obs = nrow(dat_train),
                    n_difeq = 4,
-                   pob = pob,
-                   y = dat_train$sintomas_nuevos,
+                   pob = poblacion,
+                   y = dat_train$casos_estimados,
                    t0 = 0,
                    ts = dat_train$dia,
                    y0 = t_0,
@@ -104,19 +160,10 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    T_inf = 5,
                    likelihood = 1,
                    f_red = log(1.22))
-# m1.opt <- optimizing(m1.model,
-#                      data = stan_datos,
-#                      verbose = TRUE,
-#                      init = list(r_beta = 0.61,
-#                                  f_int = c(0.5,0.4,0.3,0.3,0.2,0.2),
-#                                  phi = 3),
-#                      hessian = TRUE,
-#                      iter = 2000,
-#                      algorithm = "Newton")
 init <- list(logphi = log(30),
              r_betas = c(0.59, 0.27,
-                       0.22, 0.15,
-                       0.15, 0.13, 0.11))
+                         0.22, 0.15,
+                         0.15, 0.13, 0.11))
 init
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
@@ -141,8 +188,8 @@ m1.stan <- sampling(m1.model,
                     cores = 4,
                     control = list(max_treedepth = 10,
                                    adapt_delta = 0.5))
-# save(m1.stan, file = "m1.stan.rdat")
-# load("m1.stan.rdat")
+# save(m1.stan, file = "m1.cen_coronamex.stan.rdat")
+
 m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
@@ -154,9 +201,9 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
          stan_median = "50%",
          stan_upper = "90%") %>%
   mutate(dia = 1:(n_dias_ajuste - 1 )) %>%
-  left_join(Dat, by = "dia") %>%
+  left_join(Cen, by = "dia") %>%
   ggplot(aes(x = fecha)) +
-  geom_bar(aes(y = sintomas_nuevos), stat = "identity") +
+  geom_bar(aes(y = casos_estimados), stat = "identity") +
   geom_line(aes(y = stan_median)) +
   geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), alpha = 0.2) +
   theme_classic()
@@ -224,17 +271,10 @@ for(i in 1:length(post$phi)){
                        metodo = "stan")
 }
 
-### Necesito calcular desde día 0 hasta n_dias ajuste + dias extra
-# 1. Intervalo creible de casos nuevos
-# 2. Intervalo creible de casos acumulados
-# 3. Intervalo creible de casos nuevos detectados,
-# 4. Intervalo creible de casos acumulados detectados
-# 5. Intervalo creible de casos nuevos desde antes de sana distancia
-# 6. Intervalo creible de casos acumulados desde antes de sana distancia
 
 # Integrar modelos posterior
 sims <- simular_ode(modelos = modelos,
-                    n_dias = stan_datos$n_obs + args$dias_extra_sim,
+                    n_dias = stan_datos$n_obs + args$dias_pronostico_max,
                     odefun = seir2,
                     otros_par = "phi")
 
@@ -242,41 +282,10 @@ sims <- simular_ode(modelos = modelos,
 dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
 dat$fecha_estimacion <- Sys.Date() - 1
 dat
-write_csv(dat, "estimados/bayes_seir_nacional.csv")
+write_csv(dat, "estimados/bayes_seir_centinela_coronamex.csv")
 
 
-# Modelo simulando comportamiento antes de sana distancia
-dat <- modelos %>%
-  map(function(l){
-    l$tiempos_betas <- l$tiempos_betas[1]
-    l$r_betas <- l$r_betas[1]
-    l
-  }) %>%
-  simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
-              odefun = seir2,
-              otros_par = "phi") %>%
-  seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date() - 1
-dat
-write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
-
-# Modelo simulando comportamiento antes de 2020-04-15
-dat <- modelos %>%
-  map(function(l){
-    l$tiempos_betas <- l$tiempos_betas[1:3]
-    l$r_betas <- l$r_betas[1:3]
-    l
-  }) %>%
-  simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
-              odefun = seir2,
-              otros_par = "phi") %>%
-  seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date() - 1
-dat
-write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
-
-
-p1 <- Dat %>%
+p1 <- Cen %>%
   full_join(dat %>%
               mutate(dia = as.numeric(fecha - min(fecha))) %>%
               select(dia, nuevos_mu_10, nuevos_mu_50, nuevos_mu_90) %>%
@@ -289,7 +298,7 @@ p1 <- Dat %>%
   mutate(fecha = min(fecha, na.rm = TRUE) + dia) %>%
   filter(fecha <= Sys.Date()) %>%
   # print(n = 500)
-  ggplot(aes(x = fecha, y = sintomas_nuevos)) +
+  ggplot(aes(x = fecha, y = casos_estimados)) +
   geom_bar(stat = "identity", fill = "darkgreen") +
   
   geom_ribbon(aes(ymin = nuevos_mu_10, ymax = nuevos_mu_90), color = "blue", alpha = 0.2) +
@@ -311,3 +320,7 @@ p1 <- Dat %>%
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
 p1
+
+
+
+
