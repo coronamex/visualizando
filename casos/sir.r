@@ -193,8 +193,6 @@ obs_est_pre2 <- Est_pre2 %>%
   filter(fecha > fin_ajuste_curva) %>%
   select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
 
-
-
 p1 <- bind_rows(Tab %>%
             select(fecha, sintomas_acumulados) %>%
             mutate(modelo = "real") %>%
@@ -237,12 +235,6 @@ p1 <- bind_rows(Tab %>%
                                             "pre2_mu", "pre2_obs"))) %>%
   
   ggplot(aes(x = fecha, group = modelo, col = modelo)) +
-  # geom_rect(aes(xmin = final_datos - 15, xmax = final_datos,
-  #               ymin = -Inf, ymax = Inf,
-  #               fill = "pink", col = NA)) +
-  # scale_fill_identity(guide = "legend", name = "", labels = "Casos en estas fechas pueden aumentar") +
-  # geom_rect(aes(xmin = final_datos, xmax = final_datos + args$dias_extra,
-  #               ymin = -Inf, ymax = Inf, fill = "lightblue", col = NA)) +
   
   geom_line(aes(y = q_50)) +
   geom_ribbon(aes(ymin = q_10, ymax = q_90, fill = modelo), alpha = 0.2) +
@@ -279,7 +271,7 @@ p1 <- bind_rows(Tab %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "aplanamiento.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -289,7 +281,106 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
 
+#### Graficar modelo centinela
+# Modelo CoronaMex
+archivo <- file.path(args$dir_estimados, "bayes_seir_centinela_coronamex.csv")
+Est <- read_csv(archivo,
+                col_types = cols(fecha_estimacion = col_date(format = "%Y-%m-%d"),
+                                 fecha = col_date(format = "%Y-%m-%d"),
+                                 .default = col_number()))
+Est <- Est %>%
+  filter(fecha >= args$fecha_inicio) %>%
+  filter(fecha <= final_datos + args$dias_extra)
+fin_ajuste_curva <- max(Est$fecha_estimacion) - 16
 
+mu_est <- Est %>%
+  filter(fecha <= fin_ajuste_curva) %>%
+  select(fecha, acum_mu_10, acum_mu_50, acum_mu_90)
+obs_est <- Est %>%
+  filter(fecha > fin_ajuste_curva) %>%
+  select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
+ymax <- max(obs_est$acum_obs_90)
+
+# Centinela oficial
+archivo <- file.path(args$dir_estimados, "bayes_seir_centinela_oficial.csv")
+Est_pre1 <- read_csv(archivo,
+                     col_types = cols(fecha_estimacion = col_date(format = "%Y-%m-%d"),
+                                      fecha = col_date(format = "%Y-%m-%d"),
+                                      .default = col_number())) %>%
+  filter(fecha >= args$fecha_inicio)
+mu_est_pre1 <- Est_pre1 %>%
+  filter(fecha <= "2020-04-18") %>%
+  select(fecha, acum_mu_10, acum_mu_50, acum_mu_90)
+obs_est_pre1 <- Est_pre1 %>%
+  filter(fecha > "2020-04-18") %>%
+  select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
+
+
+p1 <- bind_rows(mu_est %>%
+                  mutate(modelo = "final_mu") %>%
+                  rename(q_10 = acum_mu_10,
+                         q_50 = acum_mu_50,
+                         q_90 = acum_mu_90),
+                obs_est %>%
+                  mutate(modelo = "final_obs") %>%
+                  rename(q_10 = acum_obs_10,
+                         q_50 = acum_obs_50,
+                         q_90 = acum_obs_90),
+                
+                mu_est_pre1 %>%
+                  mutate(modelo = "pre1_mu") %>%
+                  rename(q_10 = acum_mu_10,
+                         q_50 = acum_mu_50,
+                         q_90 = acum_mu_90),
+                obs_est_pre1 %>%
+                  mutate(modelo = "pre1_obs") %>%
+                  rename(q_10 = acum_obs_10,
+                         q_50 = acum_obs_50,
+                         q_90 = acum_obs_90)) %>%
+  mutate(modelo = factor(modelo, levels = c("final_mu", "final_obs",
+                                            "pre1_mu", "pre1_obs"))) %>%
+  
+  ggplot(aes(x = fecha, group = modelo, col = modelo)) +
+  
+  geom_line(aes(y = q_50)) +
+  geom_ribbon(aes(ymin = q_10, ymax = q_90, fill = modelo), alpha = 0.2) +
+  
+  scale_color_manual(values = c("#a6cee3", "#1f78b4",
+                                "#b2df8a", "#33a02c"),
+                     guide = FALSE) +
+  scale_fill_manual(values = c("#a6cee3", "#1f78b4",
+                               "#b2df8a", "#33a02c"),
+                    labels = c("Centinela\n(CoronaMex)", "CoronaMex\n+\nSEIR",
+                               "Centinela\n(SSA)", "SSA\n+\nSEIR"),
+                    name = "") +
+  
+  
+  geom_vline(xintercept = fin_ajuste_curva + 0.5) +
+  annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
+           x = fin_ajuste_curva - 3,
+           y = ymax / 3.5, angle = 90,
+           size = 4) +
+  
+  scale_y_continuous(labels = scales::comma,
+                     breaks = scales::breaks_extended(n=7),
+                     limits = c(0, ymax)) +
+  
+  ylab("Número de casos acumulados") +
+  xlab("Fecha de inicio de síntomas") +
+  AMOR::theme_blackbox() +
+  theme(panel.background = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", size = 3),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10, color = "black"),
+        plot.margin = margin(l = 20, r = 20))
+p1
+archivo <- file.path(args$dir_salida, "sir_nacional_centinela.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "sir_nacional_centinela@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
 # ### Viejo SEIR
