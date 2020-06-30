@@ -53,6 +53,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+Rscript muertes/muertes_nacionales_tipomun.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
 Rscript mundo/confirmados_muertes_por_dia.r
 if [ $? -ne 0 ]; then
     echo "Error"
