@@ -14,11 +14,6 @@ if [ $? -ne 0 ]; then
 fi
 
 # Clinicos
-Rscript clinicos/riesgos_relativos.r
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1
-fi
 Rscript clinicos/tiempo_sintomas_muerte.r
 if [ $? -ne 0 ]; then
     echo "Error"
