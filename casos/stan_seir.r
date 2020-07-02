@@ -74,6 +74,7 @@ fecha_final <- max(Dat$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
+# fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
 
@@ -240,7 +241,7 @@ sims <- simular_ode(modelos = modelos,
 
 # Encontrar mediana posterior casos nuevos (1-4)
 dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date() - 1
+dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_nacional.csv")
 
@@ -256,7 +257,7 @@ dat <- modelos %>%
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date() - 1
+dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 
@@ -271,7 +272,7 @@ dat <- modelos %>%
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date() - 1
+dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
 

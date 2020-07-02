@@ -122,13 +122,13 @@ Cen <- Cen %>%
   filter(fecha >= args$fecha_inicio) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
 
-
 # Determinando fechas
 fecha_inicio <- min(Cen$fecha)
 fecha_final <- max(Cen$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
+# fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
 
@@ -142,7 +142,6 @@ t_0 <- c(poblacion - 2 * Cen$casos_acumulados_estimados[1],
 
 dat_train <- dat_train %>%
   filter(dia > 0)
-
 
 m1.model <- stan_model("casos/sir.stan", model_name = "seir")
 
@@ -208,7 +207,6 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), alpha = 0.2) +
   theme_classic()
 p1
-
 
 ### Diagnostics
 par.names <- summary(m1.stan, pars = c("r_betas", "phi"))$summary %>% 
@@ -280,7 +278,7 @@ sims <- simular_ode(modelos = modelos,
 
 # Encontrar mediana posterior casos nuevos (1-4)
 dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date() - 1
+dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_centinela_coronamex.csv")
 
