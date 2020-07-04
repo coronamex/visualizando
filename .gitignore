@@ -9,3 +9,4 @@ R_hat_cen_oficial.rdat
 R_hat_cen_coronamex.rdat
 R_hat_coronamex.rdat
 *.stan.rdat
+mortality_logit.rdat
