@@ -4,9 +4,9 @@ library(lme4)
 library(brms)
 source("util/leer_datos_abiertos.r")
 
-# logistic <- function(x){
-#   1 / (1 + exp(-x))
-# }
+logistic <- function(x){
+  1 / (1 + exp(-x))
+}
 
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
@@ -28,41 +28,41 @@ Dat <- Dat %>%
 
 
 ################## Regresión logística múltiple multinivel ############
-# names(Dat)
-# 
-# # Seleccionar datos y convertir variables a indicadores
-# d <- Dat %>%
-#   mutate(DEF = 1*(!is.na(FECHA_DEF)),
-#          TIPO_PACIENTE = replace(TIPO_PACIENTE, TIPO_PACIENTE == "99", NA)) %>%
-#   # select(TIPO_PACIENTE) %>% table(useNA = "a")
-#   mutate(HOSP = 1*(TIPO_PACIENTE == "2"))  %>%
-#   select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
-#          -ORIGEN, -TIPO_PACIENTE,
-#          -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
-#          -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
-#          -MUNICIPIO_RES, -NACIONALIDAD) %>%
-#   pivot_longer(cols = c(-ENTIDAD_UM, -DEF, -HOSP, -EDAD, -SEXO, -EMBARAZO, -SECTOR, -ID_REGISTRO),
-#                names_to = "factor_riesgo", values_to = "valor") %>%
-#   mutate(SEXO = replace(SEXO, SEXO %in% c("97", "98", "99"), NA),
-#          EMBARAZO = replace(EMBARAZO, EMBARAZO %in% c("98", "99"), NA),
-#          SECTOR = replace(SECTOR, SECTOR %in% c("99"), NA),
-#          valor = replace(valor, valor %in% c("97", "98", "99"), NA),) %>%
-#   mutate(SEXO = 1*(SEXO == "2"),
-#          EMBARAZO = 1*(EMBARAZO == "1"),
-#          valor = 1*(valor == "1")) %>%
-#   pivot_wider(id_cols = c(ENTIDAD_UM, DEF, HOSP, EDAD, SEXO, EMBARAZO, SECTOR, ID_REGISTRO),
-#               names_from = factor_riesgo, values_from = valor) %>%
-#   select(-ID_REGISTRO) %>%
-#   drop_na
-# d
-# edad_mu <- mean(d$EDAD)
-# edad_sd <- sd(d$EDAD)
-# edad_mu
-# edad_sd
-# 
-# d <- d %>%
-#   mutate(EDAD = scale(EDAD) %>% as.numeric())
-# d
+names(Dat)
+
+# Seleccionar datos y convertir variables a indicadores
+d <- Dat %>%
+  mutate(DEF = 1*(!is.na(FECHA_DEF)),
+         TIPO_PACIENTE = replace(TIPO_PACIENTE, TIPO_PACIENTE == "99", NA)) %>%
+  # select(TIPO_PACIENTE) %>% table(useNA = "a")
+  mutate(HOSP = 1*(TIPO_PACIENTE == "2"))  %>%
+  select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
+         -ORIGEN, -TIPO_PACIENTE,
+         -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
+         -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
+         -MUNICIPIO_RES, -NACIONALIDAD) %>%
+  pivot_longer(cols = c(-ENTIDAD_UM, -DEF, -HOSP, -EDAD, -SEXO, -EMBARAZO, -SECTOR, -ID_REGISTRO),
+               names_to = "factor_riesgo", values_to = "valor") %>%
+  mutate(SEXO = replace(SEXO, SEXO %in% c("97", "98", "99"), NA),
+         EMBARAZO = replace(EMBARAZO, EMBARAZO %in% c("98", "99"), NA),
+         SECTOR = replace(SECTOR, SECTOR %in% c("99"), NA),
+         valor = replace(valor, valor %in% c("97", "98", "99"), NA),) %>%
+  mutate(SEXO = 1*(SEXO == "2"),
+         EMBARAZO = 1*(EMBARAZO == "1"),
+         valor = 1*(valor == "1")) %>%
+  pivot_wider(id_cols = c(ENTIDAD_UM, DEF, HOSP, EDAD, SEXO, EMBARAZO, SECTOR, ID_REGISTRO),
+              names_from = factor_riesgo, values_from = valor) %>%
+  select(-ID_REGISTRO) %>%
+  drop_na
+d
+edad_mu <- mean(d$EDAD)
+edad_sd <- sd(d$EDAD)
+edad_mu
+edad_sd
+
+d <- d %>%
+  mutate(EDAD = scale(EDAD) %>% as.numeric())
+d
 # 
 # # Sólo efectos fijos
 # m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
@@ -128,16 +128,22 @@ Dat <- Dat %>%
 #   
 # # save(m1,m2,m3,m4,m5,m6, file = "mortality_logit.rdat")
 # 
-# d_pred_template <- tibble(EDAD.real = rep(seq(from = 20, to = 70, by = 5), each = 2),
-#                           SEXO = rep(0:1, times = 11),
-#                           EMBARAZO = 0,
-#                           HABLA_LENGUA_INDIG = 0, DIABETES = 0,
-#                           EPOC = 0, ASMA = 0,
-#                           INMUSUPR = 0, HIPERTENSION = 0,
-#                           OTRA_COM = 0, CARDIOVASCULAR = 0,
-#                           OBESIDAD = 0, RENAL_CRONICA = 0, TABAQUISMO = 0) %>%
-#   mutate(EDAD = (EDAD.real - edad_mu) / edad_sd )
-# d_pred_template
+d_pred_template <- tibble(EDAD.real = rep(seq(from = 20, to = 70, by = 5), each = 2),
+                          SEXO = rep(0:1, times = 11),
+                          EMBARAZO = 0,
+                          HABLA_LENGUA_INDIG = 0,
+                          DIABETES = 0,
+                          EPOC = 0,
+                          ASMA = 0,
+                          INMUSUPR = 0,
+                          HIPERTENSION = 0,
+                          OTRA_COM = 0,
+                          CARDIOVASCULAR = 0,
+                          OBESIDAD = 0,
+                          RENAL_CRONICA = 0,
+                          TABAQUISMO = 0) %>%
+  mutate(EDAD = (EDAD.real - edad_mu) / edad_sd )
+d_pred_template
 # 
 # predict(m5, newdata = d_pred_template, re_formula = NA, probs = c(0.1, 0.5, 0.9)) %>%
 #   as_tibble() %>%
@@ -149,6 +155,46 @@ Dat <- Dat %>%
 #   geom_line(aes(col = SEXO))
 # 
 # mcmc_plot(m6, type = "trace")
+
+load("mortality_logit.rdat")
+
+summary(m6)
+post <- posterior_samples(m6)[,1:17] %>%
+  as_tibble() %>%
+  mutate(sd_ENTIDAD_UM__Intercept = rnorm(n = length(sd_ENTIDAD_UM__Intercept), mean = 0, sd = sd_ENTIDAD_UM__Intercept),
+         sd_SECTOR__Intercept = rnorm(n = length(sd_SECTOR__Intercept), mean = 0, sd = sd_SECTOR__Intercept)) %>%
+  rename(SECTOR = sd_SECTOR__Intercept,
+         ENTIDAD_UM = sd_ENTIDAD_UM__Intercept)
+apply(post, 1, function(coef, d_pred_template){
+  # coef <- post[1,] %>% as.numeric()
+  X <- model.matrix(~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+                                   DIABETES + EPOC + ASMA + INMUSUPR +
+                                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+                                   OBESIDAD + RENAL_CRONICA + TABAQUISMO,
+               data = d_pred_template)
+  beta <- coef[1:15]
+  
+  y <- X %*% matrix(beta, ncol = 1) + sum(coef[16:17])
+  y
+  }, d_pred_template = d_pred_template) %>%
+  apply(., 1, quantile, probs = c(0.1, 0.5, 0.9)) %>%
+  t %>%
+  as_tibble() %>%
+  rename(p_def_q10 = '10%',
+         p_def_q50 = '50%',
+         p_def_q90 = '90%') %>%
+  bind_cols(d_pred_template %>%
+                            select(EDAD.real, SEXO)) %>%
+                mutate(SEXO = as.character(SEXO)) %>%
+  mutate_at(.vars = c("p_def_q10", "p_def_q50", "p_def_q90"), .funs = logistic) %>%
+  ggplot(aes(x = EDAD.real, group = SEXO, col = SEXO)) +
+  geom_line(aes(y = p_def_q50)) +
+  geom_ribbon(aes(ymin = p_def_q10, ymax = p_def_q90, fill = SEXO), alpha = 0.2)
+  
+  
+
+
+
 
 ####################################
 
