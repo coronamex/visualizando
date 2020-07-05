@@ -1,8 +1,68 @@
 library(tidyverse)
 # library(epitools)
-library(lme4)
+# library(lme4)
 library(brms)
 source("util/leer_datos_abiertos.r")
+
+#' Probabilidades posteriorers regresión logística riesgos
+#'
+#' @param d_pred  
+#' @param model 
+#' @param coef_ii 
+#' @param re_ii 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+pred_brms_logistic <- function(d_pred, model, coef_ii = 1:15, re_ii = 16:17){
+  # d_pred <- d_pred_template
+  # model <- m6
+  # coef_ii <- 1:15
+  # re_ii <- 16:17
+  
+  # Extraer posterior de modelo brms
+  post <- posterior_samples(m6)[,c(coef_ii, re_ii)] %>%
+    as_tibble()
+  # post
+  
+  # Re ajustar indices
+  coef_ii <- 1:length(coef_ii)
+  re_ii <- (length(coef_ii) + 1):(length(coef_ii) + length(re_ii))
+  
+  # Cambiar "efectos aleatorios" por predicción
+  for(i in re_ii){
+    post[,i] <- rnorm(n = nrow(post), mean = 0, sd = post[,i] %>% unlist %>% as.numeric())
+  }
+  
+  # Calcular predictor lineal para cada muestra de la posterior
+  pred_post <- apply(post, 1, function(coef, d_pred){
+    # coef <- post[1,] %>% as.numeric()
+    # Formula sin efectos aleatorios
+    X <- model.matrix(~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+                        DIABETES + EPOC + ASMA + INMUSUPR +
+                        HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+                        OBESIDAD + RENAL_CRONICA + TABAQUISMO,
+                      data = d_pred)
+    # Coeficientes efectos "fijos"
+    beta <- coef[coef_ii]
+    # Ecuación normal más efectos aleatorios
+    y <- X %*% matrix(beta, ncol = 1) + sum(coef[re_ii])
+    
+    y
+  }, d_pred = d_pred) %>%
+    apply(., 1, quantile, probs = c(0.1, 0.5, 0.9)) %>%
+    t %>%
+    as_tibble() %>%
+    rename(p_def_q10 = '10%',
+           p_def_q50 = '50%',
+           p_def_q90 = '90%') %>%
+    mutate_at(.vars = c("p_def_q10", "p_def_q50", "p_def_q90"), .funs = logistic)
+  
+  return(pred_post)
+}
+
+
 
 logistic <- function(x){
   1 / (1 + exp(-x))
@@ -106,15 +166,16 @@ d
 # # }
 # # m.boots <- bootMer(m1, predict.fun, nsim = 10, verbose = TRUE, .progress = "txt")
 # 
-# m5 <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                   DIABETES + EPOC + ASMA + INMUSUPR +
-#                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                   OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#                   (1|ENTIDAD_UM) + (1|SECTOR),
-#                 data = d, family = brms::bernoulli(link = "logit"),
-#                 inits = "0", chains = 1, cores = 1, iter = 500,
-#                 prior = brms::prior(normal(0,1), class = 'b'))
-# summary(m5)
+m5 <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+                  DIABETES + EPOC + ASMA + INMUSUPR +
+                  HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+                  OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+                  (1|ENTIDAD_UM) + (1|SECTOR),
+                data = d, family = brms::bernoulli(link = "logit"),
+                inits = "0", chains = 1, cores = 1, iter = 100,
+                prior = brms::prior(normal(0,1), class = 'b') +
+                  brms::prior(lognormal(-2, 1), class = 'sd'))
+summary(m5)
 # 
 # m6 <- brms::brm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
 #                   DIABETES + EPOC + ASMA + INMUSUPR +
@@ -144,54 +205,51 @@ d_pred_template <- tibble(EDAD.real = rep(seq(from = 20, to = 70, by = 5), each 
                           TABAQUISMO = 0) %>%
   mutate(EDAD = (EDAD.real - edad_mu) / edad_sd )
 d_pred_template
-# 
-# predict(m5, newdata = d_pred_template, re_formula = NA, probs = c(0.1, 0.5, 0.9)) %>%
-#   as_tibble() %>%
-#   select(p_def = Estimate, p_se = Est.Error) %>%
-#   bind_cols(d_pred_template %>%
-#               select(EDAD.real, SEXO)) %>%
-#   mutate(SEXO = as.character(SEXO)) %>%
-#   ggplot(aes(x = EDAD.real, y = p_def, group = SEXO)) +
-#   geom_line(aes(col = SEXO))
-# 
+
 # mcmc_plot(m6, type = "trace")
 
 load("mortality_logit.rdat")
 
-summary(m6)
-post <- posterior_samples(m6)[,1:17] %>%
-  as_tibble() %>%
-  mutate(sd_ENTIDAD_UM__Intercept = rnorm(n = length(sd_ENTIDAD_UM__Intercept), mean = 0, sd = sd_ENTIDAD_UM__Intercept),
-         sd_SECTOR__Intercept = rnorm(n = length(sd_SECTOR__Intercept), mean = 0, sd = sd_SECTOR__Intercept)) %>%
-  rename(SECTOR = sd_SECTOR__Intercept,
-         ENTIDAD_UM = sd_ENTIDAD_UM__Intercept)
-apply(post, 1, function(coef, d_pred_template){
-  # coef <- post[1,] %>% as.numeric()
-  X <- model.matrix(~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-                                   DIABETES + EPOC + ASMA + INMUSUPR +
-                                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-                                   OBESIDAD + RENAL_CRONICA + TABAQUISMO,
-               data = d_pred_template)
-  beta <- coef[1:15]
-  
-  y <- X %*% matrix(beta, ncol = 1) + sum(coef[16:17])
-  y
-  }, d_pred_template = d_pred_template) %>%
-  apply(., 1, quantile, probs = c(0.1, 0.5, 0.9)) %>%
-  t %>%
-  as_tibble() %>%
-  rename(p_def_q10 = '10%',
-         p_def_q50 = '50%',
-         p_def_q90 = '90%') %>%
+f_riesgo <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
+              "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
+              "TABAQUISMO")
+
+Res <- pred_brms_logistic(d_pred = d_pred_template, model = m5, coef_ii = 1:15, re_ii = 16:17) %>%
   bind_cols(d_pred_template %>%
-                            select(EDAD.real, SEXO)) %>%
-                mutate(SEXO = as.character(SEXO)) %>%
-  mutate_at(.vars = c("p_def_q10", "p_def_q50", "p_def_q90"), .funs = logistic) %>%
-  ggplot(aes(x = EDAD.real, group = SEXO, col = SEXO)) +
+              select(EDAD.real, SEXO)) %>%
+  mutate(SEXO = as.character(SEXO),
+         f_riesgo = "Sin factores de riesgo")
+
+for(fr in f_riesgo){
+  d_pred <- d_pred_template
+  d_pred[fr] <- 1
+  
+  res <- pred_brms_logistic(d_pred = d_pred, model = m5, coef_ii = 1:15, re_ii = 16:17) %>%
+    bind_cols(d_pred %>%
+                select(EDAD.real, SEXO)) %>%
+    mutate(SEXO = as.character(SEXO),
+           f_riesgo = fr)
+  
+  Res <- Res %>%
+    bind_rows(res)
+}
+
+Res
+Res %>%
+  ggplot(aes(x = EDAD.real, group = SEXO, col = SEXO, fill = SEXO)) +
+  facet_wrap(. ~ f_riesgo, ncol = 3) +
   geom_line(aes(y = p_def_q50)) +
-  geom_ribbon(aes(ymin = p_def_q10, ymax = p_def_q90, fill = SEXO), alpha = 0.2)
+  geom_ribbon(aes(ymin = p_def_q10, ymax = p_def_q90), alpha = 0.2) +
+  geom_hline(yintercept = 0.5) +
+  geom_vline(xintercept = 50) +
+  theme_classic()
   
-  
+
+summary(m5)
+
+
+ggsave("test.png", mcmc_plot(m5, type = "pairs"), width = 25, height = 25)
+
 
 
 
