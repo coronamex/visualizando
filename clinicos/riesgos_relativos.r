@@ -172,9 +172,9 @@ m5 <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
                   OBESIDAD + RENAL_CRONICA + TABAQUISMO +
                   (1|ENTIDAD_UM) + (1|SECTOR),
                 data = d, family = brms::bernoulli(link = "logit"),
-                inits = "0", chains = 1, cores = 1, iter = 100,
+                inits = "0", chains = 1, cores = 1, iter = 500,
                 prior = brms::prior(normal(0,1), class = 'b') +
-                  brms::prior(lognormal(-2, 1), class = 'sd'))
+                  brms::prior(exponential(2), class = 'sd'))
 summary(m5)
 # 
 # m6 <- brms::brm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
