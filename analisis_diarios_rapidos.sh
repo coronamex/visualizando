@@ -7,12 +7,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Clinicos
-Rscript clinicos/riesgos_relativos.r
+Rscript casos/sir.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+
+# Clinicos
 Rscript clinicos/tiempo_sintomas_muerte.r
 if [ $? -ne 0 ]; then
     echo "Error"
@@ -41,6 +42,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+Rscript muertes/muertes_fecha.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
+Rscript muertes/muertes_nacionales_tipomun.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
 Rscript mundo/confirmados_muertes_por_dia.r
 if [ $? -ne 0 ]; then
     echo "Error"
@@ -58,6 +71,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 Rscript municipios/curva_sintomas_zm.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+Rscript municipios/incidencia_mortalidad_letalidad_municipio.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
+Rscript socioeconomicos/coneval_ind.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+Rscript socioeconomicos/pob_indigena.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1

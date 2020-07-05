@@ -1,7 +1,7 @@
 library(tidyverse)
 # library(ggbeeswarm)
 
-args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv",
+args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv.gz",
              n_dias = 10,
              n_municipios = 20,
              dir_salida = "../sitio_hugo/static/imagenes/")
@@ -16,25 +16,23 @@ stop_for_problems(Dat)
 
 # Números recientes
 Dat <- Dat %>%
-  filter(fecha > max(fecha) - args$n_dias) %>%
-  print(n = 100)
+  filter(fecha > max(fecha) - args$n_dias)
 
 muertes_recientes <- Dat %>%
   group_by(clave) %>%
   summarise(muertes_recientes = sum(muertes_nuevas)) %>%
   arrange(desc(muertes_recientes)) %>%
   head(args$n_municipios) %>%
-  print(n = 100) %>%
+  # print(n = 100) %>%
   select(clave) %>%
   unlist
-muertes_recientes
+# muertes_recientes
 
 
 dat <- Dat %>%
   filter(clave %in% muertes_recientes) %>%
   select(fecha, muertes_nuevas, clave, municipio) %>%
-  filter(muertes_nuevas > 0) %>%
-  print(n = 100)
+  filter(muertes_nuevas > 0)
   
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = clave)) +
@@ -54,7 +52,7 @@ p1 <- dat %>%
         axis.title.y = element_blank(),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)  
 archivo <- file.path(args$dir_salida, "top_municipios_muertes.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
