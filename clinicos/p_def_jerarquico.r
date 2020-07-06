@@ -55,19 +55,9 @@ m.def <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
                      (1|ENTIDAD_UM) + (1|SECTOR),
                    data = d, family = brms::bernoulli(link = "logit"),
                    inits = "0", chains = 4, cores = 4,
-                   iter = 2000,
-                   warmup = 1500,
+                   iter = 3000,
+                   warmup = 2000,
                    prior = brms::prior(normal(0,1), class = 'b') +
-                     brms::prior(exponential(2), class = 'sd'))
-save(m.def, file = "m.def.rdat")
-
-
-# m6 <- brms::brm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                   DIABETES + EPOC + ASMA + INMUSUPR +
-#                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                   OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#                   (1|ENTIDAD_UM) + (1|SECTOR),
-#                 data = d, family = brms::bernoulli(link = "logit"),
-#                 inits = "0", chains = 1, cores = 1, iter = 500,
-#                 prior = brms::prior(normal(0,1), class = 'b'))
-# summary(m6)
+                     brms::prior(exponential(2), class = 'sd') +
+                     brms::prior(normal(-1, 2), class = "Intercept"))
+save(m.def, edad_mu, edad_sd, file = "m.def.rdat")
