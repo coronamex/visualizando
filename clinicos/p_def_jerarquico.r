@@ -61,3 +61,17 @@ m.def <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
                      brms::prior(exponential(2), class = 'sd') +
                      brms::prior(normal(-1, 2), class = "Intercept"))
 save(m.def, edad_mu, edad_sd, file = "m.def.rdat")
+
+# mcmc_plot(m.def, type = "intervals", transformations = exp, pars = c("EDAD", "SEXO", "EMBARAZO",
+#                                                                  "HABLA_LENGUA_INDIG", "DIABETES",
+#                                                                  "EPOC", "ASMA", "INMUSUPR",
+#                                                                  "HIPERTENSION",
+#                                                                  "OTRA_COM",
+#                                                                  "CARDIOVASCULAR",
+#                                                                  "OBESIDAD",
+#                                                                  "RENAL_CRONICA",
+#                                                                  "TABAQUISMO"),
+#           prob = 0.5,
+#           prob_outer = 0.89,
+#           point_est = "median")
+# mcmc_plot(m.def, type = "trace")
