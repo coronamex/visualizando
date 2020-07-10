@@ -159,11 +159,11 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    T_inf = 5,
                    likelihood = 1,
                    f_red = log(1.22))
-init <- list(logphi = log(30),
-             r_betas = c(0.59, 0.27,
-                         0.22, 0.15,
-                         0.15, 0.13, 0.11))
-init
+# init <- list(logphi = log(30),
+#              r_betas = c(0.59, 0.27,
+#                          0.22, 0.15,
+#                          0.15, 0.13, 0.11))
+# init
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
                     pars = c("r_betas",

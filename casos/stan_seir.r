@@ -114,11 +114,11 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                      hessian = TRUE,
 #                      iter = 2000,
 #                      algorithm = "Newton")
-init <- list(logphi = log(30),
-             r_betas = c(0.59, 0.27,
-                       0.22, 0.15,
-                       0.15, 0.13, 0.11))
-init
+# init <- list(logphi = log(30),
+#              r_betas = c(0.59, 0.27,
+#                        0.22, 0.15,
+#                        0.15, 0.13, 0.11))
+# init
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
                     pars = c("r_betas",
