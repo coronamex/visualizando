@@ -56,6 +56,7 @@ args <- list(indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobre
              mapa_topojson = "../socioeconomicos/mapas/mx_tj.json",
              datos_municipios = "estimados/municipios_obs_esp.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Coneval...\n")
 
 # Leer mapa
 # mun_sp <- geojson_read(args$mapa_shp, what = "sp")
@@ -92,7 +93,11 @@ Ind <- Ind %>%
   select(clave, everything(), -clave_entidad, -clave_municipio, -mun)
 
 # Leer datos
-Casos <- read_csv(args$datos_municipios)
+Casos <- read_csv(args$datos_municipios,
+                  col_types = cols(clave = col_character(),
+                                   dia_1 = col_date(format = "%Y-%m-%d"),
+                                   dia_10 = col_date(format = "%Y-%m-%d"),
+                                   .default = col_double()))
 
 # Unir datos e indicadores
 Dat <- Casos %>%
@@ -156,7 +161,7 @@ p1 <- Dat %>%
   theme_classic() +
   theme(legend.position = "top")
 # axis.text.x = element_text(angle = 90))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "coneval_exceso_incidencia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

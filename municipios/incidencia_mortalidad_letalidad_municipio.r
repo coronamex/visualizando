@@ -1,3 +1,17 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 library(broom)
 # library(geojsonio)
@@ -10,6 +24,7 @@ args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              min_casos = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              dir_estimados = "estimados/")
+cat("Incidencia, mortalidad y letalidad por municipios...\n")
 
 # Número de pruebas por municipio
 n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)

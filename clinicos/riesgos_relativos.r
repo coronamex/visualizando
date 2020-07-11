@@ -13,14 +13,7 @@
 # You should have received a copy of the GNU General Public License
 
 library(tidyverse)
-# library(epitools)
-# library(lme4)
-# library(brms)
 source("util/leer_datos_abiertos.r")
-
-logistic <- function(x){
-  1 / (1 + exp(-x))
-}
 
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
@@ -40,10 +33,6 @@ Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
 # Eliminar casos recientes
 Dat <- Dat %>%
   filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
-
-
-################## Regresión logística múltiple multinivel ############
-# names(Dat)
 
 # Seleccionar datos y convertir variables a indicadores
 d <- Dat %>%
@@ -80,7 +69,7 @@ d <- Dat %>%
 # d
 d <- d %>%
   mutate(EDAD = EDAD / 10)
-# 
+
 # Sólo efectos fijos
 m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
             DIABETES + EPOC + ASMA + INMUSUPR +
@@ -160,225 +149,3 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 #   # filter(SEXO == 1) %>% select(EDAD) %>% summary
 #   # select(EDAD) %>% summary
 #   # select(SEXO) %>% table
-
-# 
-# # Efectos aleatorios para entidad y sectrp
-# m3 <- lme4::glmer(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                     DIABETES + EPOC + ASMA + INMUSUPR +
-#                     HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                     OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#                     (1|ENTIDAD_UM) + (1|SECTOR),
-#                   data = d, family = binomial(link = "logit"),
-#                   verbose = TRUE)
-# summary(m3)
-# 
-# m4 <- lme4::glmer(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                     DIABETES + EPOC + ASMA + INMUSUPR +
-#                     HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                     OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#                     (1|ENTIDAD_UM) + (1|SECTOR),
-#                   data = d, family = binomial(link = "logit"),
-#                   verbose = TRUE)
-# summary(m4)
-# 
-# 
-# # predict.fun <- function(m4) {
-# #   predict(m4, newdata = d[1,], re.form = NA)   # This is predict.merMod
-# #   # fixef(m4)
-# # }
-# # m.boots <- bootMer(m1, predict.fun, nsim = 10, verbose = TRUE, .progress = "txt")
-# 
-# m5 <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                   DIABETES + EPOC + ASMA + INMUSUPR +
-#                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                   OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#                   (1|ENTIDAD_UM) + (1|SECTOR),
-#                 data = d, family = brms::bernoulli(link = "logit"),
-#                 inits = "0", chains = 1, cores = 1, iter = 500,
-#                 prior = brms::prior(normal(0,1), class = 'b'))
-# summary(m5)
-# 
-# m6 <- brms::brm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                   DIABETES + EPOC + ASMA + INMUSUPR +
-#                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                   OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#                   (1|ENTIDAD_UM) + (1|SECTOR),
-#                 data = d, family = brms::bernoulli(link = "logit"),
-#                 inits = "0", chains = 1, cores = 1, iter = 500,
-#                 prior = brms::prior(normal(0,1), class = 'b'))
-# summary(m6)
-#   
-# # save(m1,m2,m3,m4,m5,m6, file = "mortality_logit.rdat")
-# 
-# d_pred_template <- tibble(EDAD.real = rep(seq(from = 20, to = 70, by = 5), each = 2),
-#                           SEXO = rep(0:1, times = 11),
-#                           EMBARAZO = 0,
-#                           HABLA_LENGUA_INDIG = 0,
-#                           DIABETES = 0,
-#                           EPOC = 0,
-#                           ASMA = 0,
-#                           INMUSUPR = 0,
-#                           HIPERTENSION = 0,
-#                           OTRA_COM = 0,
-#                           CARDIOVASCULAR = 0,
-#                           OBESIDAD = 0,
-#                           RENAL_CRONICA = 0,
-#                           TABAQUISMO = 0) %>%
-#   mutate(EDAD = (EDAD.real - edad_mu) / edad_sd )
-# d_pred_template
-# # 
-# # predict(m5, newdata = d_pred_template, re_formula = NA, probs = c(0.1, 0.5, 0.9)) %>%
-# #   as_tibble() %>%
-# #   select(p_def = Estimate, p_se = Est.Error) %>%
-# #   bind_cols(d_pred_template %>%
-# #               select(EDAD.real, SEXO)) %>%
-# #   mutate(SEXO = as.character(SEXO)) %>%
-# #   ggplot(aes(x = EDAD.real, y = p_def, group = SEXO)) +
-# #   geom_line(aes(col = SEXO))
-# # 
-# # mcmc_plot(m6, type = "trace")
-# 
-# load("mortality_logit.rdat")
-# 
-# summary(m6)
-# post <- posterior_samples(m6)[,1:17] %>%
-#   as_tibble() %>%
-#   mutate(sd_ENTIDAD_UM__Intercept = rnorm(n = length(sd_ENTIDAD_UM__Intercept), mean = 0, sd = sd_ENTIDAD_UM__Intercept),
-#          sd_SECTOR__Intercept = rnorm(n = length(sd_SECTOR__Intercept), mean = 0, sd = sd_SECTOR__Intercept)) %>%
-#   rename(SECTOR = sd_SECTOR__Intercept,
-#          ENTIDAD_UM = sd_ENTIDAD_UM__Intercept)
-# apply(post, 1, function(coef, d_pred_template){
-#   # coef <- post[1,] %>% as.numeric()
-#   X <- model.matrix(~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#                                    DIABETES + EPOC + ASMA + INMUSUPR +
-#                                    HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#                                    OBESIDAD + RENAL_CRONICA + TABAQUISMO,
-#                data = d_pred_template)
-#   beta <- coef[1:15]
-#   
-#   y <- X %*% matrix(beta, ncol = 1) + sum(coef[16:17])
-#   y
-#   }, d_pred_template = d_pred_template) %>%
-#   apply(., 1, quantile, probs = c(0.1, 0.5, 0.9)) %>%
-#   t %>%
-#   as_tibble() %>%
-#   rename(p_def_q10 = '10%',
-#          p_def_q50 = '50%',
-#          p_def_q90 = '90%') %>%
-#   bind_cols(d_pred_template %>%
-#                             select(EDAD.real, SEXO)) %>%
-#                 mutate(SEXO = as.character(SEXO)) %>%
-#   mutate_at(.vars = c("p_def_q10", "p_def_q50", "p_def_q90"), .funs = logistic) %>%
-#   ggplot(aes(x = EDAD.real, group = SEXO, col = SEXO)) +
-#   geom_line(aes(y = p_def_q50)) +
-#   geom_ribbon(aes(ymin = p_def_q10, ymax = p_def_q90, fill = SEXO), alpha = 0.2)
-
-####################################
-
-### Viejo para cuando no había suficientes datos para un solo modelo
-# # Elegir comorbilidades a estudiar
-# comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
-#             "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
-#             "TABAQUISMO", "EMBARAZO", "SEXO")
-# comorb <- set_names(comorb, comorb)
-# 
-# # Seleccionar columnas y recodificar columna SEXO para que
-# # hombre = 1 (conveniente para graficar)
-# Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI", "FECHA_DEF", "EDAD")] %>%
-#   mutate(SEXO = replace(SEXO, SEXO == "1", "f")) %>%
-#   mutate(SEXO = replace(SEXO, SEXO == "2", "h")) %>%
-#   mutate(SEXO = replace(SEXO, SEXO == "h", "1")) %>%
-#   mutate(SEXO = replace(SEXO, SEXO == "f", "2"))
-# 
-# Dat
-# 
-# Res <- Dat %>%
-#   pivot_longer(cols = c(-TIPO_PACIENTE, -UCI, -FECHA_DEF, -EDAD),
-#                names_to = "factor_riesgo", values_to = "valor") %>%
-#   split(.$factor_riesgo) %>%
-#   map_dfr(function(d){
-#     # d <- d$TABAQUISMO
-#     # d
-#     d <- d %>%
-#       mutate(TIPO_PACIENTE = 1 * (TIPO_PACIENTE == "2"),
-#              FECHA_DEF = 1 * !is.na(FECHA_DEF),
-#              UCI = replace(UCI, UCI %in% c("97", "98", "99"), NA),
-#              valor = replace(valor, valor %in% c("97", "98", "99"), NA)) %>%
-#       mutate(UCI = 1 * (UCI == "1"),
-#              valor = 1 * (valor == "1"))
-#     # d
-#      
-#     m1 <- glm(TIPO_PACIENTE ~ valor + EDAD, family = binomial(link = "logit"), data = d)
-#     m2 <- glm(UCI ~ valor + EDAD, family = binomial(link = "logit"), data = d)
-#     m3 <- glm(FECHA_DEF ~ valor + EDAD, family = binomial(link = "logit"), data = d)
-# 
-#     broom::tidy(m1) %>%
-#       bind_cols(broom::confint_tidy(m1, conf.level = 0.95)) %>%
-#       mutate(resultado = "Hospitalización") %>%
-#       bind_rows(broom::tidy(m2) %>%
-#                   bind_cols(broom::confint_tidy(m2, conf.level = 0.95)) %>%
-#                   mutate(resultado = "Cuidados Intensivos")) %>%
-#       bind_rows(broom::tidy(m3) %>%
-#                   bind_cols(broom::confint_tidy(m3, conf.level = 0.95)) %>%
-#                   mutate(resultado = "Muerte"))
-#     
-#   }, .id = "factor_riesgo")
-# 
-# # Graficar
-# p1 <- Res %>%
-#   filter(resultado != "Cuidados Intensivos") %>%
-#   
-#   filter(term == "valor") %>%
-#   select(-term) %>%
-#   # arrange(p.value) %>%
-#   # print(n) %>%
-#   transmute(factor_riesgo, resultado,
-#             riesgo_relativo = exp(estimate),
-#             riesgo_inferior = exp(conf.low),
-#             riesgo_mayor = exp(conf.high)) %>%
-#   arrange(riesgo_inferior) %>%
-#   # print(n = 100)
-#   mutate(factor_riesgo = as.vector(rr_lut[factor_riesgo])) %>%
-#   # mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo)),
-#   #        resultado = factor(resultado, levels = c("Hospitalización", "Cuidados Intensivos", "Muerte"))) %>%
-#   mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo)),
-#          resultado = factor(resultado, levels = c("Hospitalización", "Muerte"))) %>%
-#   
-#   
-#   ggplot(aes(y = riesgo_relativo, x = factor_riesgo, col = resultado)) +
-#   geom_hline(yintercept = 1, color = "darkgrey") +
-#   geom_errorbar(aes(ymin = riesgo_inferior, ymax = riesgo_mayor), position = position_dodge(width = 1)) +
-#   geom_point(position = position_dodge(width = 1)) +
-#   # scale_color_manual(values = c("#b35806", "#542788", "#1b9e77"), name = "") +
-#   scale_color_manual(values = c("#b35806", "#1b9e77"), name = "") +
-#   annotate("text",
-#            label = "Sin diferencia de riesgo",
-#            x = "Hipertensión",
-#            y = 0.9,
-#            col = "darkgrey",
-#            angle = 90,
-#            size = 6) +
-#   coord_flip() +
-#   xlab("Factores de riesgo") +
-#   ylab("Riesgo relativo") +
-#   guides(color = guide_legend(nrow = 2)) +
-#   AMOR::theme_blackbox() +
-#   theme(axis.text.x = element_text(angle = 90),
-#         panel.background = element_blank(),
-#         panel.border = element_rect(fill = NA, color = "black", size = 3),
-#         legend.position = "top",
-#         legend.text = element_text(size = 14),
-#         legend.background = element_blank(),
-#         legend.box.background = element_blank(),
-#         legend.key = element_blank(),
-#         axis.title = element_text(size = 20),
-#         axis.text = element_text(size = 10, color = "black"),
-#         plot.margin = margin(l = 20, r = 20))
-# # p1
-# # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-# archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-# archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
-# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-

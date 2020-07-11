@@ -1,3 +1,17 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 
 args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
@@ -6,6 +20,7 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              max_dias = 10,
              dias_activos = 14,
              serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz")
+cat("Incidencia por estado...\n")
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,

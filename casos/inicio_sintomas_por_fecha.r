@@ -1,30 +1,36 @@
-library(tidyverse)
+# (C) Copyright 2020 Sur Herrera Paredes
 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+library(tidyverse)
+source("util/leer_datos_abiertos.r")
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
+cat("Inicio síntomas por fecha...\n")
 
-# Tab <- read_csv(args$tabla_sintomas,
-#                 col_types = cols(estado = col_character(),
-#                                  sexo = col_character(),
-#                                  edad = col_number(),
-#                                  fecha_sintomas = col_date(format = "%Y-%m-%d"),
-#                                  procedencia = col_character(),
-#                                  fecha_llegada = col_date(format = "%Y-%m-%d")))
-# stop_for_problems(Tab)
-
-Dat <- read_csv(args$base_de_datos,
-                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-                                 FECHA_DEF = col_character(),
-                                 EDAD = col_number(),
-                                 .default = col_character())) 
-stop_for_problems(Dat)
-Dat <- Dat %>%
-  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA"))) %>%
-  filter(RESULTADO == "1")
+Dat <- leer_datos_abiertos(args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
+# Dat <- read_csv(args$base_de_datos,
+#                 col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
+#                                  FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
+#                                  FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
+#                                  FECHA_DEF = col_character(),
+#                                  EDAD = col_number(),
+#                                  .default = col_character())) 
+# stop_for_problems(Dat)
+# Dat <- Dat %>%
+#   mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
+#          PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
+#          PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA"))) %>%
+#   filter(RESULTADO == "1")
 # Dat
 
 # Dat <- Dat %>%
@@ -66,7 +72,7 @@ p1 <- Dat %>%
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.background = element_blank())
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "inicio_sintomas_por_fecha_nacional.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

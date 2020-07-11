@@ -1,11 +1,28 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 library(ggmuller)
 
 args <- list(serie = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Muertes por fecha...\n")
 
-
-Dat <- read_csv(args$serie)
+Dat <- read_csv(args$serie,
+                col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
+                                 estado = col_character(),
+                                 .default = col_number()))
 
 Dat <- Dat %>%
   select(fecha, muertes = muertes_nuevas, estado) %>%
@@ -88,8 +105,8 @@ max_muertes_diarias <- dat %>%
   select(muertes) %>%
   max()
 
-y_top <- (max_muertes_diarias / 2) + 25
-y_bottom <- (max_muertes_diarias / 2) - 25
+y_top <- (max_muertes_diarias / 2) + 50
+y_bottom <- (max_muertes_diarias / 2) - 50
 
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = muertes, group = grupo)) +
@@ -114,7 +131,7 @@ p1 <- dat %>%
            y = max_muertes_diarias / 2,
            size = 6,
            angle = 90,
-           label = 'italic("50 fallecimientos")',
+           label = 'italic("100 fallecimientos")',
            hjust = "middle",
            parse = TRUE) +
   
