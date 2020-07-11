@@ -1,3 +1,17 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 # library(epitools)
 # library(lme4)
@@ -134,6 +148,18 @@ archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
   
   
+# Encontrar casos "sin" factores de riesgo
+# d %>%
+#   filter(EMBARAZO == 0 & HABLA_LENGUA_INDIG == 0 &
+#            DIABETES == 0 & EPOC == 0 & ASMA == 0 &
+#            INMUSUPR == 0 & HIPERTENSION == 0 &
+#            OTRA_COM == 0 & CARDIOVASCULAR == 0 &
+#            OBESIDAD == 0 & RENAL_CRONICA == 0 &
+#            TABAQUISMO == 0) %>%
+#   filter(DEF == 1) 
+#   # filter(SEXO == 1) %>% select(EDAD) %>% summary
+#   # select(EDAD) %>% summary
+#   # select(SEXO) %>% table
 
 # 
 # # Efectos aleatorios para entidad y sectrp
