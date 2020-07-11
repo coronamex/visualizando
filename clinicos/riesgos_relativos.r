@@ -1,7 +1,7 @@
 library(tidyverse)
 # library(epitools)
-library(lme4)
-library(brms)
+# library(lme4)
+# library(brms)
 source("util/leer_datos_abiertos.r")
 
 logistic <- function(x){
@@ -10,14 +10,15 @@ logistic <- function(x){
 
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
+cat("Calculando riesgos relativos...\n")
 
 rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inmnosupresión",
                       "Hipertensión", "Otro", "Enfermedad cardiovascular", "Obesidad",
                       "Insuficiencia renal crónica",
-                      "Tabaquismo", "Embarazo", "Hombre"),
+                      "Tabaquismo", "Embarazo", "Hombre", "10 años más"),
                     c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
                       "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
-                      "TABAQUISMO", "EMBARAZO", "SEXO"))
+                      "TABAQUISMO", "EMBARAZO", "SEXO", "EDAD"))
 
 # Leer casos confirmados
 Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
@@ -29,31 +30,31 @@ Dat <- Dat %>%
 
 ################## Regresión logística múltiple multinivel ############
 # names(Dat)
-# 
-# # Seleccionar datos y convertir variables a indicadores
-# d <- Dat %>%
-#   mutate(DEF = 1*(!is.na(FECHA_DEF)),
-#          TIPO_PACIENTE = replace(TIPO_PACIENTE, TIPO_PACIENTE == "99", NA)) %>%
-#   # select(TIPO_PACIENTE) %>% table(useNA = "a")
-#   mutate(HOSP = 1*(TIPO_PACIENTE == "2"))  %>%
-#   select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
-#          -ORIGEN, -TIPO_PACIENTE,
-#          -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
-#          -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
-#          -MUNICIPIO_RES, -NACIONALIDAD) %>%
-#   pivot_longer(cols = c(-ENTIDAD_UM, -DEF, -HOSP, -EDAD, -SEXO, -EMBARAZO, -SECTOR, -ID_REGISTRO),
-#                names_to = "factor_riesgo", values_to = "valor") %>%
-#   mutate(SEXO = replace(SEXO, SEXO %in% c("97", "98", "99"), NA),
-#          EMBARAZO = replace(EMBARAZO, EMBARAZO %in% c("98", "99"), NA),
-#          SECTOR = replace(SECTOR, SECTOR %in% c("99"), NA),
-#          valor = replace(valor, valor %in% c("97", "98", "99"), NA),) %>%
-#   mutate(SEXO = 1*(SEXO == "2"),
-#          EMBARAZO = 1*(EMBARAZO == "1"),
-#          valor = 1*(valor == "1")) %>%
-#   pivot_wider(id_cols = c(ENTIDAD_UM, DEF, HOSP, EDAD, SEXO, EMBARAZO, SECTOR, ID_REGISTRO),
-#               names_from = factor_riesgo, values_from = valor) %>%
-#   select(-ID_REGISTRO) %>%
-#   drop_na
+
+# Seleccionar datos y convertir variables a indicadores
+d <- Dat %>%
+  mutate(DEF = 1*(!is.na(FECHA_DEF)),
+         TIPO_PACIENTE = replace(TIPO_PACIENTE, TIPO_PACIENTE == "99", NA)) %>%
+  # select(TIPO_PACIENTE) %>% table(useNA = "a")
+  mutate(HOSP = 1*(TIPO_PACIENTE == "2"))  %>%
+  select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
+         -ORIGEN, -TIPO_PACIENTE,
+         -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
+         -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
+         -MUNICIPIO_RES, -NACIONALIDAD) %>%
+  pivot_longer(cols = c(-ENTIDAD_UM, -DEF, -HOSP, -EDAD, -SEXO, -EMBARAZO, -SECTOR, -ID_REGISTRO),
+               names_to = "factor_riesgo", values_to = "valor") %>%
+  mutate(SEXO = replace(SEXO, SEXO %in% c("97", "98", "99"), NA),
+         EMBARAZO = replace(EMBARAZO, EMBARAZO %in% c("98", "99"), NA),
+         SECTOR = replace(SECTOR, SECTOR %in% c("99"), NA),
+         valor = replace(valor, valor %in% c("97", "98", "99"), NA),) %>%
+  mutate(SEXO = 1*(SEXO == "2"),
+         EMBARAZO = 1*(EMBARAZO == "1"),
+         valor = 1*(valor == "1")) %>%
+  pivot_wider(id_cols = c(ENTIDAD_UM, DEF, HOSP, EDAD, SEXO, EMBARAZO, SECTOR, ID_REGISTRO),
+              names_from = factor_riesgo, values_from = valor) %>%
+  select(-ID_REGISTRO) %>%
+  drop_na
 # d
 # edad_mu <- mean(d$EDAD)
 # edad_sd <- sd(d$EDAD)
@@ -63,22 +64,77 @@ Dat <- Dat %>%
 # d <- d %>%
 #   mutate(EDAD = scale(EDAD) %>% as.numeric())
 # d
+d <- d %>%
+  mutate(EDAD = EDAD / 10)
 # 
-# # Sólo efectos fijos
-# m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#             DIABETES + EPOC + ASMA + INMUSUPR +
-#             HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#             OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#             ENTIDAD_UM + SECTOR,
-#           data = d, family = binomial(link = "logit"))
+# Sólo efectos fijos
+m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+            DIABETES + EPOC + ASMA + INMUSUPR +
+            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+            ENTIDAD_UM + SECTOR,
+          data = d, family = binomial(link = "logit"))
 # summary(m1)
-# m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
-#             DIABETES + EPOC + ASMA + INMUSUPR +
-#             HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-#             OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-#             ENTIDAD_UM + SECTOR,
-#           data = d, family = binomial(link = "logit"))
+m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+            DIABETES + EPOC + ASMA + INMUSUPR +
+            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+            ENTIDAD_UM + SECTOR,
+          data = d, family = binomial(link = "logit"))
 # summary(m2)
+
+p1 <- list(Muerte = m1,
+     `Hospitalización` = m2) %>%
+  map_dfr(broom::tidy, .id = "resultado") %>%
+  filter(term %in% names(rr_lut)) %>%
+  mutate(riesgo_inferior = estimate + qnorm(p = 0.025) * std.error,
+         riesgo_superior = estimate + qnorm(p = 0.975) * std.error) %>%
+  transmute(resultado,
+            factor_riesgo = as.character(rr_lut[term]),
+            riesgo_relativo = exp(estimate),
+            riesgo_inferior = exp(riesgo_inferior),
+            riesgo_superior = exp(riesgo_superior)) %>%
+  arrange(riesgo_inferior) %>%
+  mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo))) %>%
+
+  # print(n = 100) %>%
+  
+  ggplot(aes(x = riesgo_relativo, y = factor_riesgo, col = resultado)) +
+  geom_vline(xintercept = 1, color = "darkgrey") +
+  geom_errorbarh(aes(xmin = riesgo_inferior, xmax = riesgo_superior), position = position_dodge(width = 1)) +
+  geom_point(position = position_dodge(width = 1)) +
+  scale_color_manual(values = c("#b35806", "#1b9e77"), name = "") +
+  annotate("text",
+           label = "Sin diferencia de riesgo",
+           x = 0.85,
+           y = 11,
+           col = "darkgrey",
+           angle = 90,
+           size = 6) +
+  ylab("Factores de riesgo") +
+  xlab("Riesgo relativo") +
+  guides(color = guide_legend(nrow = 2)) +
+  AMOR::theme_blackbox() +
+  theme(axis.text.x = element_text(angle = 90),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", size = 3),
+        legend.position = "top",
+        legend.text = element_text(size = 14),
+        legend.background = element_blank(),
+        legend.box.background = element_blank(),
+        legend.key = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10, color = "black"),
+        plot.margin = margin(l = 20, r = 20))
+# p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+  
+  
+
 # 
 # # Efectos aleatorios para entidad y sectrp
 # m3 <- lme4::glmer(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
@@ -190,117 +246,113 @@ Dat <- Dat %>%
 #   ggplot(aes(x = EDAD.real, group = SEXO, col = SEXO)) +
 #   geom_line(aes(y = p_def_q50)) +
 #   geom_ribbon(aes(ymin = p_def_q10, ymax = p_def_q90, fill = SEXO), alpha = 0.2)
-  
-  
-
-
-
 
 ####################################
 
-# Elegir comorbilidades a estudiar
-comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
-            "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
-            "TABAQUISMO", "EMBARAZO", "SEXO")
-comorb <- set_names(comorb, comorb)
-
-# Seleccionar columnas y recodificar columna SEXO para que
-# hombre = 1 (conveniente para graficar)
-Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI", "FECHA_DEF", "EDAD")] %>%
-  mutate(SEXO = replace(SEXO, SEXO == "1", "f")) %>%
-  mutate(SEXO = replace(SEXO, SEXO == "2", "h")) %>%
-  mutate(SEXO = replace(SEXO, SEXO == "h", "1")) %>%
-  mutate(SEXO = replace(SEXO, SEXO == "f", "2"))
-
-Dat
-
-Res <- Dat %>%
-  pivot_longer(cols = c(-TIPO_PACIENTE, -UCI, -FECHA_DEF, -EDAD),
-               names_to = "factor_riesgo", values_to = "valor") %>%
-  split(.$factor_riesgo) %>%
-  map_dfr(function(d){
-    # d <- d$TABAQUISMO
-    # d
-    d <- d %>%
-      mutate(TIPO_PACIENTE = 1 * (TIPO_PACIENTE == "2"),
-             FECHA_DEF = 1 * !is.na(FECHA_DEF),
-             UCI = replace(UCI, UCI %in% c("97", "98", "99"), NA),
-             valor = replace(valor, valor %in% c("97", "98", "99"), NA)) %>%
-      mutate(UCI = 1 * (UCI == "1"),
-             valor = 1 * (valor == "1"))
-    # d
-     
-    m1 <- glm(TIPO_PACIENTE ~ valor + EDAD, family = binomial(link = "logit"), data = d)
-    m2 <- glm(UCI ~ valor + EDAD, family = binomial(link = "logit"), data = d)
-    m3 <- glm(FECHA_DEF ~ valor + EDAD, family = binomial(link = "logit"), data = d)
-
-    broom::tidy(m1) %>%
-      bind_cols(broom::confint_tidy(m1, conf.level = 0.95)) %>%
-      mutate(resultado = "Hospitalización") %>%
-      bind_rows(broom::tidy(m2) %>%
-                  bind_cols(broom::confint_tidy(m2, conf.level = 0.95)) %>%
-                  mutate(resultado = "Cuidados Intensivos")) %>%
-      bind_rows(broom::tidy(m3) %>%
-                  bind_cols(broom::confint_tidy(m3, conf.level = 0.95)) %>%
-                  mutate(resultado = "Muerte"))
-    
-  }, .id = "factor_riesgo")
-
-# Graficar
-p1 <- Res %>%
-  filter(resultado != "Cuidados Intensivos") %>%
-  
-  filter(term == "valor") %>%
-  select(-term) %>%
-  # arrange(p.value) %>%
-  # print(n) %>%
-  transmute(factor_riesgo, resultado,
-            riesgo_relativo = exp(estimate),
-            riesgo_inferior = exp(conf.low),
-            riesgo_mayor = exp(conf.high)) %>%
-  arrange(riesgo_inferior) %>%
-  # print(n = 100)
-  mutate(factor_riesgo = as.vector(rr_lut[factor_riesgo])) %>%
-  # mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo)),
-  #        resultado = factor(resultado, levels = c("Hospitalización", "Cuidados Intensivos", "Muerte"))) %>%
-  mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo)),
-         resultado = factor(resultado, levels = c("Hospitalización", "Muerte"))) %>%
-  
-  
-  ggplot(aes(y = riesgo_relativo, x = factor_riesgo, col = resultado)) +
-  geom_hline(yintercept = 1, color = "darkgrey") +
-  geom_errorbar(aes(ymin = riesgo_inferior, ymax = riesgo_mayor), position = position_dodge(width = 1)) +
-  geom_point(position = position_dodge(width = 1)) +
-  # scale_color_manual(values = c("#b35806", "#542788", "#1b9e77"), name = "") +
-  scale_color_manual(values = c("#b35806", "#1b9e77"), name = "") +
-  annotate("text",
-           label = "Sin diferencia de riesgo",
-           x = "Hipertensión",
-           y = 0.9,
-           col = "darkgrey",
-           angle = 90,
-           size = 6) +
-  coord_flip() +
-  xlab("Factores de riesgo") +
-  ylab("Riesgo relativo") +
-  guides(color = guide_legend(nrow = 2)) +
-  AMOR::theme_blackbox() +
-  theme(axis.text.x = element_text(angle = 90),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill = NA, color = "black", size = 3),
-        legend.position = "top",
-        legend.text = element_text(size = 14),
-        legend.background = element_blank(),
-        legend.box.background = element_blank(),
-        legend.key = element_blank(),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10, color = "black"),
-        plot.margin = margin(l = 20, r = 20))
-# p1
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+### Viejo para cuando no había suficientes datos para un solo modelo
+# # Elegir comorbilidades a estudiar
+# comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
+#             "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
+#             "TABAQUISMO", "EMBARAZO", "SEXO")
+# comorb <- set_names(comorb, comorb)
+# 
+# # Seleccionar columnas y recodificar columna SEXO para que
+# # hombre = 1 (conveniente para graficar)
+# Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI", "FECHA_DEF", "EDAD")] %>%
+#   mutate(SEXO = replace(SEXO, SEXO == "1", "f")) %>%
+#   mutate(SEXO = replace(SEXO, SEXO == "2", "h")) %>%
+#   mutate(SEXO = replace(SEXO, SEXO == "h", "1")) %>%
+#   mutate(SEXO = replace(SEXO, SEXO == "f", "2"))
+# 
+# Dat
+# 
+# Res <- Dat %>%
+#   pivot_longer(cols = c(-TIPO_PACIENTE, -UCI, -FECHA_DEF, -EDAD),
+#                names_to = "factor_riesgo", values_to = "valor") %>%
+#   split(.$factor_riesgo) %>%
+#   map_dfr(function(d){
+#     # d <- d$TABAQUISMO
+#     # d
+#     d <- d %>%
+#       mutate(TIPO_PACIENTE = 1 * (TIPO_PACIENTE == "2"),
+#              FECHA_DEF = 1 * !is.na(FECHA_DEF),
+#              UCI = replace(UCI, UCI %in% c("97", "98", "99"), NA),
+#              valor = replace(valor, valor %in% c("97", "98", "99"), NA)) %>%
+#       mutate(UCI = 1 * (UCI == "1"),
+#              valor = 1 * (valor == "1"))
+#     # d
+#      
+#     m1 <- glm(TIPO_PACIENTE ~ valor + EDAD, family = binomial(link = "logit"), data = d)
+#     m2 <- glm(UCI ~ valor + EDAD, family = binomial(link = "logit"), data = d)
+#     m3 <- glm(FECHA_DEF ~ valor + EDAD, family = binomial(link = "logit"), data = d)
+# 
+#     broom::tidy(m1) %>%
+#       bind_cols(broom::confint_tidy(m1, conf.level = 0.95)) %>%
+#       mutate(resultado = "Hospitalización") %>%
+#       bind_rows(broom::tidy(m2) %>%
+#                   bind_cols(broom::confint_tidy(m2, conf.level = 0.95)) %>%
+#                   mutate(resultado = "Cuidados Intensivos")) %>%
+#       bind_rows(broom::tidy(m3) %>%
+#                   bind_cols(broom::confint_tidy(m3, conf.level = 0.95)) %>%
+#                   mutate(resultado = "Muerte"))
+#     
+#   }, .id = "factor_riesgo")
+# 
+# # Graficar
+# p1 <- Res %>%
+#   filter(resultado != "Cuidados Intensivos") %>%
+#   
+#   filter(term == "valor") %>%
+#   select(-term) %>%
+#   # arrange(p.value) %>%
+#   # print(n) %>%
+#   transmute(factor_riesgo, resultado,
+#             riesgo_relativo = exp(estimate),
+#             riesgo_inferior = exp(conf.low),
+#             riesgo_mayor = exp(conf.high)) %>%
+#   arrange(riesgo_inferior) %>%
+#   # print(n = 100)
+#   mutate(factor_riesgo = as.vector(rr_lut[factor_riesgo])) %>%
+#   # mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo)),
+#   #        resultado = factor(resultado, levels = c("Hospitalización", "Cuidados Intensivos", "Muerte"))) %>%
+#   mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo)),
+#          resultado = factor(resultado, levels = c("Hospitalización", "Muerte"))) %>%
+#   
+#   
+#   ggplot(aes(y = riesgo_relativo, x = factor_riesgo, col = resultado)) +
+#   geom_hline(yintercept = 1, color = "darkgrey") +
+#   geom_errorbar(aes(ymin = riesgo_inferior, ymax = riesgo_mayor), position = position_dodge(width = 1)) +
+#   geom_point(position = position_dodge(width = 1)) +
+#   # scale_color_manual(values = c("#b35806", "#542788", "#1b9e77"), name = "") +
+#   scale_color_manual(values = c("#b35806", "#1b9e77"), name = "") +
+#   annotate("text",
+#            label = "Sin diferencia de riesgo",
+#            x = "Hipertensión",
+#            y = 0.9,
+#            col = "darkgrey",
+#            angle = 90,
+#            size = 6) +
+#   coord_flip() +
+#   xlab("Factores de riesgo") +
+#   ylab("Riesgo relativo") +
+#   guides(color = guide_legend(nrow = 2)) +
+#   AMOR::theme_blackbox() +
+#   theme(axis.text.x = element_text(angle = 90),
+#         panel.background = element_blank(),
+#         panel.border = element_rect(fill = NA, color = "black", size = 3),
+#         legend.position = "top",
+#         legend.text = element_text(size = 14),
+#         legend.background = element_blank(),
+#         legend.box.background = element_blank(),
+#         legend.key = element_blank(),
+#         axis.title = element_text(size = 20),
+#         axis.text = element_text(size = 10, color = "black"),
+#         plot.margin = margin(l = 20, r = 20))
+# # p1
+# # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+# archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+# archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
+# ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 

@@ -25,6 +25,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+Rscript clinicos/riesgos_relativos.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
+# Estados
 Rscript estados/estados_casos100mil.r
 if [ $? -ne 0 ]; then
     echo "Error"
