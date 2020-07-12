@@ -24,11 +24,19 @@ Dat <- read_csv(args$tabla_estimados,
                                  fecha_estimado = col_date(format = "%Y-%m-%d"),
                                  .default = col_number()))
 
-p1 <- Dat %>%
+p1 <- list.files("../covid-model/R_efectiva/entidades/", full.names = TRUE) %>%
+  map_dfr(~read_csv(.x,
+                    col_types = cols(date = col_date(),
+                                     fecha_estimado = col_date(),
+                                     estado = col_character(),
+                                     .default = col_number()))) %>%
+  filter(date >= "2020-03-01") %>%
+  filter(date < min(fecha_estimado) - 14) %>%
+  
   ggplot(aes(x = date, y = median)) +
-
+  
   facet_wrap(~ estado, ncol = 5) +
-  geom_ribbon(aes(ymin = lower_90, ymax = upper_90), color = "blue", alpha = 0.2) +
+  geom_ribbon(aes(ymin = lower_80, ymax = upper_80), color = "blue", alpha = 0.2) +
   geom_line(size = 2, col = "blue") +
   geom_hline(yintercept = 1) +
   ylab("Promedio de contagios por enfermo de COVID-19 (R_t)") +
@@ -48,4 +56,7 @@ archivo <- file.path(args$dir_salida, "r_efectiva.png")
 ggsave(archivo, p1, width = 7, height = 9.5, dpi = 75)
 archivo <- file.path(args$dir_salida, "r_efectiva@2x.png")
 ggsave(archivo, p1, width = 7, height = 9.5, dpi = 150)
+
+
+
 
