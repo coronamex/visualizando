@@ -24,30 +24,39 @@ Dat <- read_csv(args$tabla_estimados,
                                  fecha_estimado = col_date(format = "%Y-%m-%d"),
                                  .default = col_number()))
 
-p1 <- list.files("../covid-model/R_efectiva/entidades/", full.names = TRUE) %>%
+dat <- list.files("../covid-model/R_efectiva/entidades/", full.names = TRUE) %>%
   map_dfr(~read_csv(.x,
                     col_types = cols(date = col_date(),
                                      fecha_estimado = col_date(),
                                      estado = col_character(),
                                      .default = col_number()))) %>%
   filter(date >= "2020-03-01") %>%
-  filter(date < min(fecha_estimado) - 14) %>%
+  filter(date < min(fecha_estimado) - 14)
+
+p1 <- dat %>%
   
   ggplot(aes(x = date, y = median)) +
   
   facet_wrap(~ estado, ncol = 5) +
   geom_ribbon(aes(ymin = lower_80, ymax = upper_80), color = "blue", alpha = 0.2) +
-  geom_line(size = 2, col = "blue") +
+  geom_line(aes(col="blue"), size = 2,) +
   geom_hline(yintercept = 1) +
   ylab("Promedio de contagios por enfermo de COVID-19 (R_t)") +
-  # xlab("Fecha") +
-  # AMOR::theme_blackbox() +
+  scale_color_identity(guide = "legend", name = "",
+                       labels = paste0("Última actualización: ", min(dat$fecha_estimado))) +
+  guides(color=guide_legend(override.aes = list(color = NA))) +
   theme(panel.background = element_blank(),
         axis.text = element_text(size = 10),
         axis.text.x = element_text(angle = 90),
-        axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
-        legend.position = "top",
+        axis.ticks.x = element_blank(),
+        # legend.position = "bottom",
+        legend.position = c(0.9, 0),
+        legend.justification = c(1, 0),
+        legend.text = element_text(size = 12),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        
         axis.title = element_text(face = "bold", size = 12),
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
