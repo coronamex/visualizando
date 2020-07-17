@@ -92,7 +92,8 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
     # geom_line(aes(y = casos), size = 2, col = "#b8e186") +
     # scale_fill_manual(values = c())
     geom_line(data = Dat %>%
-                filter(fecha <= fecha_final - 15),
+                filter(fecha <= fecha_final - 15) %>%
+                filter(fecha >= fecha_inicio),
               aes(y = casos),
               size = 2, col = "black") +
     geom_text(data = zm_tots, aes(label = paste(casos_totales, "casos"),
