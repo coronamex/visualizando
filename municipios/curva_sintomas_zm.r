@@ -40,7 +40,8 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
                muertes = rolling_mean(muertes_nuevas))
     }) 
   
-  hoy <- Sys.Date()
+  # hoy <- Sys.Date()
+  hoy <- fecha_final
   zm_tots <- Dat %>%
     group_by(NOM_ZM) %>%
     summarise(casos_totales = sum(sintomas_nuevos),
@@ -90,7 +91,10 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
     #                                "Sin aumento")) +
     # geom_line(aes(y = casos), size = 2, col = "#b8e186") +
     # scale_fill_manual(values = c())
-    geom_line(aes(y = casos), size = 2, col = "black") +
+    geom_line(data = Dat %>%
+                filter(fecha <= fecha_final - 15),
+              aes(y = casos),
+              size = 2, col = "black") +
     geom_text(data = zm_tots, aes(label = paste(casos_totales, "casos"),
                                   y = 0.9 * max_casos), x = fecha_inicio + offset_totales) +
     guides(color = FALSE) + 
