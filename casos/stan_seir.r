@@ -276,7 +276,7 @@ dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
 
-
+dat <- read_csv("estimados/bayes_seir_nacional.csv")
 p1 <- Dat %>%
   full_join(dat %>%
               mutate(dia = as.numeric(fecha - min(fecha))) %>%
