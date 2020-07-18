@@ -343,7 +343,7 @@ p1 <- bind_rows(mu_est %>%
                      breaks = scales::breaks_extended(n=7),
                      limits = c(0, ymax)) +
   
-  ylab("Número de casos acumulados") +
+  ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
