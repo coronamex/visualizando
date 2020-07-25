@@ -43,12 +43,20 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+
 Rscript estados/estados_muertes_recientes.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
 
+Rscript estados/curvas_casos_estados.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
+
+# Muertes
 Rscript muertes/letalidad_mexico.r
 if [ $? -ne 0 ]; then
     echo "Error"
