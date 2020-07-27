@@ -12,3 +12,5 @@ R_hat_coronamex.rdat
 mortality_logit.rdat
 m.def.rdat
 m.hosp.rdat
+.Rproj.user
+*.Rproj
