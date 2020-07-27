@@ -15,7 +15,8 @@
 library(tidyverse)
 
 args <- list(tabla_estimados = "estimados/rt_live_estimados.csv",
-             dir_salida = "../sitio_hugo/static/imagenes/")
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             n_dias = 60)
 cat("Graficando R efectiva...\n")
 
 Dat <- read_csv(args$tabla_estimados,
@@ -31,7 +32,8 @@ dat <- list.files("../covid-model/R_efectiva/entidades/", full.names = TRUE) %>%
                                      estado = col_character(),
                                      .default = col_number()))) %>%
   filter(date >= "2020-03-01") %>%
-  filter(date < min(fecha_estimado) - 14)
+  filter(date < min(fecha_estimado) - 14) %>%
+  filter(date >= max(date) - args$n_dias)
 
 p1 <- dat %>%
   
