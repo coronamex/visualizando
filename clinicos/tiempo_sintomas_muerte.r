@@ -25,7 +25,9 @@ dat <- Dat %>%
   select(FECHA_DEF, FECHA_SINTOMAS) %>%
   mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS))
 
-p1 <- ggplot(dat, aes(x = numero_dias)) +
+p1 <- dat %>%
+  filter(numero_dias <= 50) %>%
+  ggplot(aes(x = numero_dias)) +
   # facet_wrap(~ RENAL_CRONICA, ncol = 1) + 
   # facet_grid(ASMA ~ ., scales = "free_y") +
   geom_histogram(bins = 15) +

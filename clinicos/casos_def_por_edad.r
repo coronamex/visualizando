@@ -73,7 +73,17 @@ archivo <- file.path(args$dir_salida, "casos_def_por_edad@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
-
-
-
+# p1$data %>%
+#   filter(grupo == "Casos") %>%
+#   filter(FECHA_SINTOMAS >= "2020-04-15" & FECHA_SINTOMAS < "2020-05-01") %>%
+#   group_by(EDAD) %>%
+#   summarize(casos = sum(sintomas_nuevos)) %>%
+#   mutate(perc = casos / sum(casos))
+# 
+# p1$data %>%
+#   filter(grupo == "Casos") %>%
+#   filter(FECHA_SINTOMAS >= "2020-07-01") %>%
+#   group_by(EDAD) %>%
+#   summarize(casos = sum(sintomas_nuevos)) %>%
+#   mutate(perc = casos / sum(casos))
 
