@@ -119,22 +119,34 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                        0.22, 0.15,
 #                        0.15, 0.13, 0.11))
 # init
+# load("m1.stan.rdat")
+# log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,1:4])
+# summary(m1.stan, pars = c("r_betas"))$c_summary[,1,1:4]
+# init <- list(chain_1 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,1])),
+#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,1])),
+#      
+#      chain_2 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,2])),
+#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,2])),
+#      
+#      chain_3 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,3])),
+#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,3])),
+#      
+#      chain_4 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,4])),
+#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,4])))
+
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    # init = list(chain_1 = init,
-                    #             chain_2 = init,
-                    #             chain_3 = init,
-                    #             chain_4 = init),
-                    init = function(){
-                      list(logphi = rnorm(n=1, mean = 3, sd = 0.5),
-                           r_betas = runif(length(stan_datos$fechas_dias),
-                                           min = 0,
-                                           max = 1) %>%
-                             sort(decreasing = TRUE))
-                    },
+                    init = init,
+                    # init = function(){
+                    #   list(logphi = rnorm(n=1, mean = 3, sd = 0.5),
+                    #        r_betas = runif(length(stan_datos$fechas_dias),
+                    #                        min = 0,
+                    #                        max = 1) %>%
+                    #          sort(decreasing = TRUE))
+                    # },
                     chains = 4,
                     iter = 4000,
                     warmup = 3000,
