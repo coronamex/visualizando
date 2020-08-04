@@ -75,7 +75,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-Rscript mundo/confirmados_muertes_por_dia.r
+Rscript mundo/confirmados_muertes_por_dia_por_pob.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
