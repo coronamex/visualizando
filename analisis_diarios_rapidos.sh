@@ -112,3 +112,8 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+Rscript socioeconomicos/casos_marginacion_municipal.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
