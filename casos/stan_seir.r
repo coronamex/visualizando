@@ -139,14 +139,14 @@ m1.stan <- sampling(m1.model,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    init = init,
-                    # init = function(){
-                    #   list(logphi = rnorm(n=1, mean = 3, sd = 0.5),
-                    #        r_betas = runif(length(stan_datos$fechas_dias),
-                    #                        min = 0,
-                    #                        max = 1) %>%
-                    #          sort(decreasing = TRUE))
-                    # },
+                    # init = init,
+                    init = function(){
+                      list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
+                           r_betas = runif(length(stan_datos$fechas_dias),
+                                           min = 0,
+                                           max = 1) %>%
+                             sort(decreasing = TRUE))
+                    },
                     chains = 4,
                     iter = 4000,
                     warmup = 3000,
@@ -201,7 +201,7 @@ bayesplot::mcmc_acf(as.array(m1.stan),
 stan_diag(m1.stan)
 ##
 
-bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:7], prob = 0.8)
+bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:10], prob = 0.8)
 
 # R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%

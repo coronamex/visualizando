@@ -128,7 +128,11 @@ fecha_final <- max(Cen$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
+# Prácticamente no hubo cambio estos díás, uniendo periodos
+fechas_dias <- fechas_dias[-8]
+
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
+
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
 
@@ -233,7 +237,7 @@ bayesplot::mcmc_acf(as.array(m1.stan),
 stan_diag(m1.stan)
 ##
 
-bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:7], prob = 0.8)
+bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:8], prob = 0.8)
 
 # R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
