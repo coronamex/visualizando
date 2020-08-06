@@ -36,9 +36,9 @@ dat_zms <- list.files(args$dir_estimados_zms, full.names = TRUE) %>%
   map_dfr(~read_csv(.x,
                     col_types = cols(date = col_date(),
                                      fecha_estimado = col_date(),
-                                     zona_metropolitada = col_character(),
+                                     zona_metropolitana = col_character(),
                                      .default = col_number()))) %>%
-  rename(zona_metropolitana = zona_metropolitada) %>%
+  # rename(zona_metropolitana = zona_metropolitada) %>%
   filter(date >= "2020-03-01") %>%
   filter(date < min(fecha_estimado) - args$dias_retraso) %>%
   filter(date >= max(date) - args$n_dias)
