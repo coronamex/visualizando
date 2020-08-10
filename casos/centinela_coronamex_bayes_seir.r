@@ -237,7 +237,7 @@ bayesplot::mcmc_acf(as.array(m1.stan),
 stan_diag(m1.stan)
 ##
 
-bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:8], prob = 0.8)
+bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8)
 
 # R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
