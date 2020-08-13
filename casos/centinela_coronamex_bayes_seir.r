@@ -129,7 +129,7 @@ n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 # Prácticamente no hubo cambio estos díás, uniendo periodos
-fechas_dias <- fechas_dias[-8]
+fechas_dias <- fechas_dias[-(8:9)]
 
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 

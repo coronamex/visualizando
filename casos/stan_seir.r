@@ -124,13 +124,13 @@ stan_datos <- list(n_obs = nrow(dat_train),
 # summary(m1.stan, pars = c("r_betas"))$c_summary[,1,1:4]
 # init <- list(chain_1 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,1])),
 #                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,1])),
-#      
+# 
 #      chain_2 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,2])),
 #                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,2])),
-#      
+# 
 #      chain_3 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,3])),
 #                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,3])),
-#      
+# 
 #      chain_4 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,4])),
 #                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,4])))
 
@@ -139,14 +139,14 @@ m1.stan <- sampling(m1.model,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    # init = init,
-                    init = function(){
-                      list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
-                           r_betas = runif(length(stan_datos$fechas_dias),
-                                           min = 0,
-                                           max = 1) %>%
-                             sort(decreasing = TRUE))
-                    },
+                    init = init,
+                    # init = function(){
+                    #   list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
+                    #        r_betas = runif(length(stan_datos$fechas_dias),
+                    #                        min = 0,
+                    #                        max = 1) %>%
+                    #          sort(decreasing = TRUE))
+                    # },
                     chains = 4,
                     iter = 4000,
                     warmup = 3000,
@@ -201,7 +201,7 @@ bayesplot::mcmc_acf(as.array(m1.stan),
 stan_diag(m1.stan)
 ##
 
-bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:10], prob = 0.8)
+bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8)
 
 # R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
