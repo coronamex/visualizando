@@ -14,9 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 library(tidyverse)
-# library(deSolve)
-# source("casos/sir_funciones.r")
-# source("util/leer_datos_abiertos.r")
 # https://rstudio-pubs-static.s3.amazonaws.com/6852_c59c5a2e8ea3456abbeb017185de603e.html
 # https://gabgoh.github.io/COVID/index.html
 # https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology

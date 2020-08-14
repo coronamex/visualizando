@@ -58,15 +58,7 @@ d <- Dat %>%
               names_from = factor_riesgo, values_from = valor) %>%
   select(-ID_REGISTRO) %>%
   drop_na
-# d
-# edad_mu <- mean(d$EDAD)
-# edad_sd <- sd(d$EDAD)
-# edad_mu
-# edad_sd
-# 
-# d <- d %>%
-#   mutate(EDAD = scale(EDAD) %>% as.numeric())
-# d
+
 d <- d %>%
   mutate(EDAD = EDAD / 10)
 

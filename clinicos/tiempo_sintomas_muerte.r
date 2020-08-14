@@ -33,6 +33,7 @@ p1 <- dat %>%
   geom_histogram(bins = 15) +
   geom_vline(aes(xintercept = median(numero_dias))) +
   scale_x_continuous(breaks = function(lims){seq(from = 0, to = lims[2], by = 5)}) +
+  scale_y_continuous(labels = scales::comma) +
   ylab("Número de defunciones") +
   xlab("Días entre inicio de síntomas y defunción") +
   AMOR::theme_blackbox() +

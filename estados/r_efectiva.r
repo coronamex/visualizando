@@ -48,8 +48,9 @@ zm_ents <- read_csv(args$lut_zm_ent,
 zm_ents <- zm_ents %>%
   group_by(CVE_ZM) %>% 
   summarise(NOM_ZM = unique(NOM_ZM),
-            estado = unique(NOM_ENT)) %>%
-  ungroup() %>%
+            estado = unique(NOM_ENT),
+            .groups = "drop") %>%
+  # ungroup() %>%
   rename(zona_metropolitana = CVE_ZM) %>%
   mutate(estado = replace(estado,
                           estado == "Coahuila de Zaragoza",

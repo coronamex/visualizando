@@ -36,8 +36,9 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
     summarise(casos_totales = sum(sintomas_nuevos),
               max_casos = max(sintomas_nuevos),
               casos_previos = sum(sintomas_nuevos[fecha < hoy - 14 & fecha >= hoy - 28]),
-              casos_previos2 = sum(sintomas_nuevos[fecha < hoy - 21 & fecha >= hoy - 35])) %>%
-    ungroup() %>%
+              casos_previos2 = sum(sintomas_nuevos[fecha < hoy - 21 & fecha >= hoy - 35]),
+              .groups = "drop") %>%
+    # ungroup() %>%
     mutate(cambio = casos_previos / casos_previos2)
   ent_tots <- ent_tots %>%
     mutate(cambio = cambio > 1) %>%
@@ -98,7 +99,10 @@ args <- list(serie_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_co
              dir_salida = "../sitio_hugo/static/imagenes/")
 cat("Curvas por estados...\n")
 
-Dat <- read_csv(args$serie_estados)
+Dat <- read_csv(args$serie_estados,
+                col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
+                                 estado = col_character(),
+                                 .default = col_number()))
 fecha_final <- max(Dat$fecha)
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
 
@@ -142,9 +146,4 @@ archivo <- file.path(args$dir_salida, "estados_casos4.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_casos4@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-
-
-
-
 
