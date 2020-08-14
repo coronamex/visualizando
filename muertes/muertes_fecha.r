@@ -74,8 +74,9 @@ Dat <- Dat %>%
                                         "Guerrero"),
                           "Suroeste")) %>%
   group_by(fecha, region) %>%
-  summarise(muertes = sum(muertes)) %>%
-  ungroup() %>%
+  summarise(muertes = sum(muertes),
+            .groups = "drop") %>%
+  # ungroup() %>%
 
   # filter(muertes > 0) %>%
   filter(fecha >= "2020-03-18")
@@ -101,7 +102,8 @@ dat <- dat %>%
 
 max_muertes_diarias <- dat %>%
   group_by(fecha) %>%
-  summarize(muertes = sum(muertes)) %>%
+  summarize(muertes = sum(muertes),
+            .groups = "drop") %>%
   select(muertes) %>%
   max()
 

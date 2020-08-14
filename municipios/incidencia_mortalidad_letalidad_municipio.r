@@ -31,8 +31,9 @@ n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados 
 n_pruebas <- n_pruebas %>%
   filter(RESULTADO %in% c("1", "2")) %>%
   group_by(ENTIDAD_RES, MUNICIPIO_RES) %>%
-  summarise(n_pruebas = length(ID_REGISTRO)) %>%
-  ungroup() %>%
+  summarise(n_pruebas = length(ID_REGISTRO),
+            .groups = "drop") %>%
+  # ungroup() %>%
   mutate(clave_municipio = paste(ENTIDAD_RES, MUNICIPIO_RES, sep = "")) %>%
   select(clave_municipio, n_pruebas) %>%
   mutate(clave_municipio = str_remove(clave_municipio, "^0"))
@@ -66,7 +67,8 @@ Casos <- Casos %>%
   summarise(casos_totales = sum(sintomas_nuevos),
             muertes_totales = sum(muertes_nuevas),
             dia_1 = min(fecha[ sintomas_acumulados >= 1]),
-            dia_10 = min(fecha[ sintomas_acumulados >= 10])) %>%
+            dia_10 = min(fecha[ sintomas_acumulados >= 10]),
+            .groups = "drop") %>%
   filter(casos_totales >= args$min_casos) %>%
   mutate(brote_dias = as.numeric(dia_10 - dia_1))
 

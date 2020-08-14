@@ -34,7 +34,8 @@ Dat <- Dat %>%
 
 muertes_recientes <- Dat %>%
   group_by(clave) %>%
-  summarise(muertes_recientes = sum(muertes_nuevas)) %>%
+  summarise(muertes_recientes = sum(muertes_nuevas),
+            .groups = "drop") %>%
   arrange(desc(muertes_recientes)) %>%
   head(args$n_municipios) %>%
   # print(n = 100) %>%

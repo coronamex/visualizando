@@ -60,8 +60,9 @@ Dat <- Dat %>%
   select(fecha, sintomas_nuevos, muertes_nuevas, grupo) %>%
   group_by(fecha, grupo) %>%
   summarise(sintomas_nuevos = sum(sintomas_nuevos),
-            muertes_nuevas = sum(muertes_nuevas)) %>%
-  ungroup() %>%
+            muertes_nuevas = sum(muertes_nuevas),
+            .groups = "drop") %>%
+  # ungroup() %>%
   mutate(grupo = factor(grupo, levels = c("Otras zonas metropolitanas", "Zonas no metropolitanas",
                                           "Valle de México"))) %>%
   filter(fecha >= "2020-03-01")
@@ -69,7 +70,8 @@ Dat <- Dat %>%
 max_y <- Dat %>%
   group_by(fecha) %>%
   summarise(sintomas_nuevos = sum(sintomas_nuevos),
-            muertes_nuevas = sum(muertes_nuevas))
+            muertes_nuevas = sum(muertes_nuevas),
+            .groups = "drop")
 
 p1 <- Dat %>%
   filter(fecha >= "2020-03-25") %>%

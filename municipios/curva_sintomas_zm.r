@@ -50,8 +50,9 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
               # casos_recientes = sum(sintomas_nuevos[fecha >= hoy - 14]),
               # muertes_recientes = sum(muertes_nuevas[fecha >= hoy - 14]),
               casos_previos = sum(sintomas_nuevos[fecha < hoy - 14 & fecha >= hoy - 28]),
-              casos_previos2 = sum(sintomas_nuevos[fecha < hoy - 21 & fecha >= hoy - 35])) %>%
-    ungroup() %>%
+              casos_previos2 = sum(sintomas_nuevos[fecha < hoy - 21 & fecha >= hoy - 35]),
+              .groups = "drop") %>%
+    # ungroup() %>%
     mutate(cambio = casos_previos / casos_previos2)
   zm_tots <- zm_tots %>%
     mutate(cambio = cambio > 1) %>%
@@ -164,9 +165,9 @@ Dat <- Dat %>%
   left_join(lut, by = c("clave")) %>%
   filter(!is.na(CVE_ZM)) %>%
   group_by(fecha, CVE_ZM, NOM_ZM) %>%
-  summarise(sintomas_nuevos = sum(sintomas_nuevos), muertes_nuevas = sum(muertes_nuevas)) %>%
-  arrange(CVE_ZM, fecha) %>%
-  ungroup()
+  summarise(sintomas_nuevos = sum(sintomas_nuevos), muertes_nuevas = sum(muertes_nuevas),
+            .groups = "drop") %>%
+  arrange(CVE_ZM, fecha)
 
 # Ordenar por día que llegaron a n casos
 # Dat %>%
@@ -188,8 +189,9 @@ tab_zm <- Dat %>%
   summarise(casos_acumulados = sum(sintomas_nuevos),
             muertes_acumuladas = sum(muertes_nuevas),
             casos_recientes = sum(sintomas_nuevos[fecha >= hoy - 14]),
-            muertes_recientes = sum(muertes_nuevas[fecha >= hoy - 14])) %>%
-  ungroup() %>%
+            muertes_recientes = sum(muertes_nuevas[fecha >= hoy - 14]),
+            .groups = "drop") %>%
+  # ungroup() %>%
   arrange(desc(casos_recientes)) 
 # tab_zm %>%
 #   print(n = 30)

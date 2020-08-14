@@ -231,7 +231,8 @@ muertes_mundo <- muertes_mundo %>%
 mortalidad_mundo <- muertes_mundo %>%
   group_by(pais) %>%
   summarise(mortalidad_acumulada = max(mortalidad_acumulada),
-            muertes_acumuladas = max(muertes_acumuladas)) %>%
+            muertes_acumuladas = max(muertes_acumuladas),
+            .groups = "drop") %>%
   arrange(desc(mortalidad_acumulada)) %>%
   filter(muertes_acumuladas >= 1e3)
 
