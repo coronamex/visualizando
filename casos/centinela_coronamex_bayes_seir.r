@@ -192,6 +192,7 @@ m1.stan <- sampling(m1.model,
                     control = list(max_treedepth = 10,
                                    adapt_delta = 0.5))
 # save(m1.stan, file = "m1.cen_coronamex.stan.rdat")
+# load("m1.cen_coronamex.stan.rdat")
 
 m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
@@ -286,6 +287,7 @@ dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_centinela_coronamex.csv")
 
+dat <- read_csv("estimados/bayes_seir_centinela_coronamex.csv")
 
 p1 <- Cen %>%
   full_join(dat %>%

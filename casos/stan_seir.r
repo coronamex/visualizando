@@ -139,14 +139,14 @@ m1.stan <- sampling(m1.model,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    init = init,
-                    # init = function(){
-                    #   list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
-                    #        r_betas = runif(length(stan_datos$fechas_dias),
-                    #                        min = 0,
-                    #                        max = 1) %>%
-                    #          sort(decreasing = TRUE))
-                    # },
+                    # init = init,
+                    init = function(){
+                      list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
+                           r_betas = runif(length(stan_datos$fechas_dias),
+                                           min = 0,
+                                           max = 1) %>%
+                             sort(decreasing = TRUE))
+                    },
                     chains = 4,
                     iter = 4000,
                     warmup = 3000,
