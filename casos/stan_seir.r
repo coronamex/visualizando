@@ -114,10 +114,18 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                      hessian = TRUE,
 #                      iter = 2000,
 #                      algorithm = "Newton")
-# init <- list(logphi = log(30),
-#              r_betas = c(0.59, 0.27,
-#                        0.22, 0.15,
-#                        0.15, 0.13, 0.11))
+init <- list(logphi = 3.5,
+             r_betas = c(0.80, 0.39,
+                       0.37, 0.30,
+                       0.28, 0.24,
+                       0.23, 0.22,
+                       0.21, 0.18,
+                       0.16))
+
+init <- list(chain_1 = init,
+             chain_2 = init,
+             chain_3 = init,
+             chain_4 = init)
 # init
 # load("m1.stan.rdat")
 # log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,1:4])
@@ -139,14 +147,14 @@ m1.stan <- sampling(m1.model,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    # init = init,
-                    init = function(){
-                      list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
-                           r_betas = runif(length(stan_datos$fechas_dias),
-                                           min = 0,
-                                           max = 1) %>%
-                             sort(decreasing = TRUE))
-                    },
+                    init = init,
+                    # init = function(){
+                    #   list(logphi = rnorm(n=1, mean = 3.5, sd = 0.5),
+                    #        r_betas = runif(length(stan_datos$fechas_dias),
+                    #                        min = 0,
+                    #                        max = 1) %>%
+                    #          sort(decreasing = TRUE))
+                    # },
                     chains = 4,
                     iter = 4000,
                     warmup = 3000,
