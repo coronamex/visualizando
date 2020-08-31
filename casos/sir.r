@@ -98,7 +98,7 @@ p1 <- Tab %>%
   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
            x = fin_ajuste_curva - 3,
-           y = ymax / 3.5, angle = 90,
+           y = ymax / 2, angle = 90,
            size = 4) +
   
   scale_y_continuous(labels = scales::comma,
