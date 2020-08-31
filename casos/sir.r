@@ -337,7 +337,7 @@ p1 <- bind_rows(mu_est %>%
   
   scale_y_continuous(labels = scales::comma,
                      breaks = scales::breaks_extended(n=7),
-                     limits = c(0, ymax)) +
+                    limits = c(0, ymax)) +
   
   ylab("Casos acumulados estimados") +
   xlab("Fecha de inicio de síntomas") +
