@@ -83,20 +83,11 @@ p1 <- Tab %>%
                 ymin = -Inf,
                 ymax = Inf,
                 fill = "pink") +
-  # geom_rect(aes(linetype = "futuro"),
-  #           xmin = final_datos,
-  #           xmax = final_datos + args$dias_extra,
-  #           ymin = -Inf,
-  #           ymax = Inf,
-  #           fill = "lightblue") +
   scale_linetype_manual(values = c("Casos en estos días pueden aumentar" = 0),
                         name = "",
                         guide = guide_legend(override.aes = list(fill = c("pink")))) +
 
-  
   geom_bar(aes(y = sintomas_nuevos), width = 1, stat = "identity", color = "darkgrey", fill = "darkgrey") +
-  
-
   
   geom_line(aes(y = q_50, col = modelo)) +
   geom_ribbon(aes(ymin = q_10, ymax = q_90, fill = modelo, col = modelo), alpha = 0.2) +
@@ -136,12 +127,6 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 casos_acum_pre_ajuste <- Tab %>%
   filter(fecha == fin_ajuste_curva) %>%
   select(sintomas_acumulados) %>% max
-mu_est <- Est %>%
-  filter(fecha <= fin_ajuste_curva) %>%
-  select(fecha, acum_mu_10, acum_mu_50, acum_mu_90)
-# obs_est <- Est %>%
-#   filter(fecha > fin_ajuste_curva) %>%
-#   select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
 obs_est <- Est %>%
   filter(fecha > fin_ajuste_curva) %>%
   select(fecha, nuevos_obs_10, nuevos_obs_50, nuevos_obs_90) %>%
@@ -155,18 +140,6 @@ obs_est <- Est %>%
 ymax <- max(obs_est$acum_obs_90)
 casos_acum_maximos <- max(obs_est$acum_obs_90)
 
-# Tab %>%
-#   mutate(modelo = "real") %>%
-#   rename(q50 = sintomas_acumulados) %>%
-#   bind_rows(obs_est %>%
-#               rename(q50 = acum_obs_50) %>%
-#               mutate(modelo = "seir")) %>%
-#   # print(n = 10000) %>%
-#   print() %>%
-#   ggplot(aes(x = fecha, group = modelo, col = modelo)) +
-#   geom_line(aes(y = q50)) +
-#   geom_ribbon(aes(ymin = acum_obs_10, ymax = acum_obs_90, fill = modelo))
-
 # Pre-sana distancia
 casos_acum_pre_ajuste <- Tab %>%
   filter(fecha == "2020-03-16") %>%
@@ -178,12 +151,7 @@ Est_pre1 <- read_csv(archivo,
                                  .default = col_number())) %>%
   filter(fecha >= args$fecha_inicio) %>%
   filter(fecha <= final_datos + args$dias_extra)
-mu_est_pre1 <- Est_pre1 %>%
-  filter(fecha <= fin_ajuste_curva) %>%
-  select(fecha, acum_mu_10, acum_mu_50, acum_mu_90)
-# obs_est_pre1 <- Est_pre1 %>%
-#   filter(fecha > fin_ajuste_curva) %>%
-#   select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
+
 obs_est_pre1 <-  Est_pre1 %>%
   filter(fecha > "2020-03-16") %>%
   select(fecha, nuevos_obs_10, nuevos_obs_50, nuevos_obs_90) %>%
@@ -207,12 +175,7 @@ Est_pre2 <- read_csv(archivo,
                                       .default = col_number())) %>%
   filter(fecha >= args$fecha_inicio) %>%
   filter(fecha <= final_datos + args$dias_extra)
-mu_est_pre2 <- Est_pre2 %>%
-  filter(fecha <= fin_ajuste_curva) %>%
-  select(fecha, acum_mu_10, acum_mu_50, acum_mu_90)
-# obs_est_pre2 <- Est_pre2 %>%
-#   filter(fecha > fin_ajuste_curva) %>%
-#   select(fecha, acum_obs_10, acum_obs_50, acum_obs_90)
+
 obs_est_pre2 <-  Est_pre2 %>%
   filter(fecha > "2020-04-15") %>%
   select(fecha, nuevos_obs_10, nuevos_obs_50, nuevos_obs_90) %>%
@@ -286,90 +249,6 @@ p1 <- bind_rows(Tab %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-
-
-
-# 
-# 
-# p1 <- bind_rows(Tab %>%
-#             select(fecha, sintomas_acumulados) %>%
-#             mutate(modelo = "real") %>%
-#             rename(q_50 = sintomas_acumulados),
-#           mu_est %>%
-#             mutate(modelo = "final_mu") %>%
-#             rename(q_10 = acum_mu_10,
-#                    q_50 = acum_mu_50,
-#                    q_90 = acum_mu_90),
-#           obs_est %>%
-#             mutate(modelo = "final_obs") %>%
-#             rename(q_10 = acum_obs_10,
-#                    q_50 = acum_obs_50,
-#                    q_90 = acum_obs_90),
-#           
-#           mu_est_pre1 %>%
-#             mutate(modelo = "pre1_mu") %>%
-#             rename(q_10 = acum_mu_10,
-#                    q_50 = acum_mu_50,
-#                    q_90 = acum_mu_90),
-#           obs_est_pre1 %>%
-#             mutate(modelo = "pre1_obs") %>%
-#             rename(q_10 = acum_obs_10,
-#                    q_50 = acum_obs_50,
-#                    q_90 = acum_obs_90),
-#           
-#           mu_est_pre2 %>%
-#             mutate(modelo = "pre2_mu") %>%
-#             rename(q_10 = acum_mu_10,
-#                    q_50 = acum_mu_50,
-#                    q_90 = acum_mu_90),
-#           obs_est_pre2 %>%
-#             mutate(modelo = "pre2_obs") %>%
-#             rename(q_10 = acum_obs_10,
-#                    q_50 = acum_obs_50,
-#                    q_90 = acum_obs_90)
-#           ) %>%
-#   mutate(modelo = factor(modelo, levels = c("real", "final_mu", "final_obs",
-#                                             "pre1_mu", "pre1_obs",
-#                                             "pre2_mu", "pre2_obs"))) %>%
-#   
-#   ggplot(aes(x = fecha, group = modelo, col = modelo)) +
-#   
-#   geom_line(aes(y = q_50)) +
-#   geom_ribbon(aes(ymin = q_10, ymax = q_90, fill = modelo), alpha = 0.2) +
-#   
-#   scale_color_manual(values = c("black",
-#                                 "#fb9a99", "#e31a1c",
-#                                 "#a6cee3", "#1f78b4",
-#                                 "#b2df8a", "#33a02c"), ) +
-#   scale_fill_manual(values = c("black",
-#                                 "#fb9a99", "#e31a1c",
-#                                 "#a6cee3", "#1f78b4",
-#                                 "#b2df8a", "#33a02c")) +
-#   
-#   
-#   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
-#   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
-#            x = fin_ajuste_curva - 3,
-#            y = ymax / 3.5, angle = 90,
-#            size = 4) +
-# 
-#   scale_y_continuous(labels = scales::comma,
-#                      breaks = scales::breaks_extended(n=7),
-#                      limits = c(0, ymax)) +
-#   # ylim(c(0, ymax)) +
-#    
-#   ylab("Número de casos acumulados") +
-#   xlab("Fecha de inicio de síntomas") +
-#   AMOR::theme_blackbox() +
-#   theme(panel.background = element_blank(),
-#         panel.border = element_rect(fill = NA, color = "black", size = 3),
-#         legend.position = "none",
-#         legend.text = element_text(size = 12),
-#         legend.background = element_blank(),
-#         axis.title = element_text(size = 20),
-#         axis.text = element_text(size = 10, color = "black"),
-#         plot.margin = margin(l = 20, r = 20))
-# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "aplanamiento.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
