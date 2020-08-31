@@ -59,6 +59,12 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
     mutate(cambio = replace(cambio, cambio, "q En aumento")) %>%
     mutate(cambio = replace(cambio, cambio == "FALSE", "Sin aumento")) 
   
+  cambio_etiquetas <- zm_tots$cambio %>% unique %>% sort
+  cambio_cols <- set_names(c("#fc8d62", "#66c2a5"),
+                           nm = c("q En aumento", "Sin aumento"))[cambio_etiquetas] %>%
+    as.character()
+  cambio_etiquetas[ str_detect(cambio_etiquetas, "q En aumento") ] <- "En aumento"
+  
   p1 <- Dat %>%
     left_join(zm_tots %>%
                 select(NOM_ZM, cambio),
@@ -80,10 +86,10 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
                  fill = cambio),
              width = 1,
              stat = "identity") +
-    scale_fill_manual(values = c("pink", "#fc8d62", "#66c2a5"),
+    scale_fill_manual(values = c("pink", cambio_cols),
                       name = "",
-                      labels = c("Casos en estas fechas pueden aumentar", "En aumento", "Sin aumento")) +
-    scale_color_manual(values = c("#fc8d62", "#66c2a5")) +
+                      labels = c("Casos en estas fechas pueden aumentar", cambio_etiquetas)) +
+    scale_color_manual(values = c(cambio_cols)) +
     
     # scale_fill_identity(guide = "legend",
     #                     name = "",

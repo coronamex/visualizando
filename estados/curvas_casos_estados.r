@@ -17,6 +17,8 @@ rolling_mean <- tibbletime::rollify(mean, window = 7, na_value = 0)
 
 graficar_entidades <- function(Dat, entidades, fecha_inicio,
                                fecha_final, offset_totales = 20){
+  # entidades <- unique(Dat$estado)[25:32]
+  # entidades <- unique(Dat$estado)[1:8]
   # fecha_final <- max(Dat$fecha)
   # fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
   # offset_totales <- 45
@@ -29,6 +31,11 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
         mutate(casos = rolling_mean(sintomas_nuevos),
                muertes = rolling_mean(muertes_nuevas))
     }) 
+  
+  
+  # Dat %>%
+  #   select(estado, fecha, sintomas_nuevos, casos) %>%
+  #   print(n = 200)
   
   hoy <- fecha_final
   ent_tots <- Dat %>%
@@ -43,14 +50,20 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
   ent_tots <- ent_tots %>%
     mutate(cambio = cambio > 1) %>%
     mutate(cambio = replace(cambio, cambio, "q En aumento")) %>%
-    mutate(cambio = replace(cambio, cambio == "FALSE", "Sin aumento")) 
+    mutate(cambio = replace(cambio, cambio == "FALSE", "Sin aumento"))
   
+  cambio_etiquetas <- ent_tots$cambio %>% unique %>% sort
+  cambio_cols <- set_names(c("#fc8d62", "#66c2a5"),
+                           nm = c("q En aumento", "Sin aumento"))[cambio_etiquetas] %>%
+    as.character()
+  cambio_etiquetas[ str_detect(cambio_etiquetas, "q En aumento") ] <- "En aumento"
   
   p1 <- Dat %>%
     left_join(ent_tots %>%
                 select(estado, cambio),
               by = "estado") %>%
     filter(fecha >= fecha_inicio) %>%
+    select(fecha, casos, sintomas_nuevos, cambio, estado) %>%
     
     ggplot(aes(x = fecha)) +
     geom_rect(aes(xmin = fecha_final - 15,
@@ -62,10 +75,10 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
                  fill = cambio),
              width = 1,
              stat = "identity") +
-    scale_fill_manual(values = c("pink", "#fc8d62", "#66c2a5"),
+    scale_fill_manual(values = c("pink", cambio_cols),
                       name = "",
-                      labels = c("Casos en estas fechas pueden aumentar", "En aumento", "Sin aumento")) +
-    scale_color_manual(values = c("#fc8d62", "#66c2a5")) +
+                      labels = c("Casos en estas fechas pueden aumentar", cambio_etiquetas)) +
+    scale_color_manual(values = cambio_cols) +
     geom_line(data = Dat %>%
                 filter(fecha <= fecha_final - 15) %>%
                 filter(fecha >= fecha_inicio),
