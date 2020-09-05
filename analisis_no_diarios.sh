@@ -6,3 +6,8 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+Rscript estados/exceso_mortalidad.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
