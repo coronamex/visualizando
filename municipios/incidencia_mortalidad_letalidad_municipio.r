@@ -1,3 +1,17 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 library(broom)
 # library(geojsonio)
@@ -10,14 +24,16 @@ args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              min_casos = 0,
              dir_salida = "../sitio_hugo/static/imagenes/",
              dir_estimados = "estimados/")
+cat("Incidencia, mortalidad y letalidad por municipios...\n")
 
 # Número de pruebas por municipio
 n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)
 n_pruebas <- n_pruebas %>%
   filter(RESULTADO %in% c("1", "2")) %>%
   group_by(ENTIDAD_RES, MUNICIPIO_RES) %>%
-  summarise(n_pruebas = length(ID_REGISTRO)) %>%
-  ungroup() %>%
+  summarise(n_pruebas = length(ID_REGISTRO),
+            .groups = "drop") %>%
+  # ungroup() %>%
   mutate(clave_municipio = paste(ENTIDAD_RES, MUNICIPIO_RES, sep = "")) %>%
   select(clave_municipio, n_pruebas) %>%
   mutate(clave_municipio = str_remove(clave_municipio, "^0"))
@@ -51,7 +67,8 @@ Casos <- Casos %>%
   summarise(casos_totales = sum(sintomas_nuevos),
             muertes_totales = sum(muertes_nuevas),
             dia_1 = min(fecha[ sintomas_acumulados >= 1]),
-            dia_10 = min(fecha[ sintomas_acumulados >= 10])) %>%
+            dia_10 = min(fecha[ sintomas_acumulados >= 10]),
+            .groups = "drop") %>%
   filter(casos_totales >= args$min_casos) %>%
   mutate(brote_dias = as.numeric(dia_10 - dia_1))
 

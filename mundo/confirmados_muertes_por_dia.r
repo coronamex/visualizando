@@ -1,3 +1,17 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 
 args <- list(min_casos = 60,
@@ -7,6 +21,7 @@ args <- list(min_casos = 60,
              serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
              serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Comparaciones mundiales...\n")
 
 lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Irán", "China", "Francia",
@@ -22,7 +37,6 @@ datos_mx <- read_csv(args$tabla_mx,
                      col_types = cols(fecha = col_date(format = "%Y-%m-%d")))
 stop_for_problems(datos_mx)
 datos_mx$pais <- "México"
-datos_mx
 
 # Leer casos mundo
 casos_mundo <- read_csv(args$serie_tiempo_casos_mundo,
@@ -69,7 +83,6 @@ datos_mundo <- datos_mundo %>%
     
     d
   })
-datos_mundo
 
 # Combinar datos
 Dat <- datos_mundo %>%
@@ -77,7 +90,6 @@ Dat <- datos_mundo %>%
               select(pais, fecha,
                      casos_acumulados, muertes_acumuladas,
                      casos_nuevos, muertes_nuevas))
-Dat
 
 # Casos acumukados
 p1 <- Dat %>%

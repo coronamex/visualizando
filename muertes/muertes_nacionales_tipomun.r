@@ -1,9 +1,24 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 
 args <- list(serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv.gz",
              municipios_lut = "../datos/util/municipios_lut_datos_abiertos.csv",
              dir_salida = "../sitio_hugo/static/imagenes/",
              zonas_metropolitanas = "../datos/util/zonas_metropolitanas_2015.csv")
+cat("Muertes por tipo municipio...\n")
 
 # Leer zm definiciones
 lut_municipios <- read_csv(args$municipios_lut, col_names = FALSE,
@@ -45,8 +60,9 @@ Dat <- Dat %>%
   select(fecha, sintomas_nuevos, muertes_nuevas, grupo) %>%
   group_by(fecha, grupo) %>%
   summarise(sintomas_nuevos = sum(sintomas_nuevos),
-            muertes_nuevas = sum(muertes_nuevas)) %>%
-  ungroup() %>%
+            muertes_nuevas = sum(muertes_nuevas),
+            .groups = "drop") %>%
+  # ungroup() %>%
   mutate(grupo = factor(grupo, levels = c("Otras zonas metropolitanas", "Zonas no metropolitanas",
                                           "Valle de México"))) %>%
   filter(fecha >= "2020-03-01")
@@ -54,7 +70,8 @@ Dat <- Dat %>%
 max_y <- Dat %>%
   group_by(fecha) %>%
   summarise(sintomas_nuevos = sum(sintomas_nuevos),
-            muertes_nuevas = sum(muertes_nuevas))
+            muertes_nuevas = sum(muertes_nuevas),
+            .groups = "drop")
 
 p1 <- Dat %>%
   filter(fecha >= "2020-03-25") %>%

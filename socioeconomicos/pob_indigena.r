@@ -18,9 +18,17 @@ library(tidyverse)
 args <- list(cdi_base = "../socioeconomicos/cdi/cdi-base-indicadores-2015.csv",
              datos_municipios = "estimados/municipios_obs_esp.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Comunidades indígenas...\n")
 
 # Leer CDI
-Cdi <- read_csv(args$cdi_base)
+Cdi <- read_csv(args$cdi_base,
+                col_types = cols(INEGI = col_character(),
+                                 ENT = col_character(),
+                                 NOMENT = col_character(),
+                                 MPO = col_character(),
+                                 NOMMUN = col_character(),
+                                 TIPO2015 = col_character(),
+                                 NOMTIPO = col_character()))
 stop_for_problems(Cdi)
 Cdi <- Cdi %>%
   select(INEGI, ENT, NOMENT, MPO, NOMMUN, `GRADOMARGI 2015`, TPOBTOT, IPOB_INDI, NOMTIPO) %>%
@@ -32,8 +40,11 @@ Cdi <- Cdi %>%
          -TPOBTOT, -IPOB_INDI,
          gradomargi_2015=`GRADOMARGI 2015`)
 # Casos
-Casos <- read_csv(args$datos_municipios)
-
+Casos <- read_csv(args$datos_municipios,
+                  col_types = cols(clave = col_character(),
+                                   dia_1 = col_date(format = "%Y-%m-%d"),
+                                   dia_10 = col_date(format = "%Y-%m-%d"),
+                                   .default = col_double()))
 # Unir
 Dat <- Casos %>%
   left_join(Cdi, by = "clave")
