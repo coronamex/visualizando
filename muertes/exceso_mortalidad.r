@@ -95,7 +95,7 @@ graficar_exceso_mortalidad <- function(d, m){
                        }, limits = c(0, y_max)) +
     scale_x_date(breaks = sort(unique(d$fecha_dummy))[-3],
                  labels = scales::date_format("%b")) +
-    ylab("Defunciones mensuales por todas las causas") +
+    ylab("Defunciones por todas las causas") +
     xlab("Mes de defunción") +
     AMOR::theme_blackbox() +
     theme(axis.title = element_text(size = 20),
@@ -198,7 +198,7 @@ exceso_mortalidad_region <- function(d, m, estados, nrow = 3){
                        }) +
     scale_x_date(breaks = sort(unique(d$fecha_dummy))[-3],
                  labels = scales::date_format("%b")) +
-    ylab("Defunciones mensuales por todas las causas") +
+    ylab("Defunciones por todas las causas") +
     xlab("Mes de defunción") +
     AMOR::theme_blackbox() +
     theme(axis.title = element_text(size = 20),
