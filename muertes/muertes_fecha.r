@@ -1,11 +1,28 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 library(ggmuller)
 
-args <- list(serie = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv",
+args <- list(serie = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Muertes por fecha...\n")
 
-
-Dat <- read_csv(args$serie)
+Dat <- read_csv(args$serie,
+                col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
+                                 estado = col_character(),
+                                 .default = col_number()))
 
 Dat <- Dat %>%
   select(fecha, muertes = muertes_nuevas, estado) %>%
@@ -57,12 +74,15 @@ Dat <- Dat %>%
                                         "Guerrero"),
                           "Suroeste")) %>%
   group_by(fecha, region) %>%
-  summarise(muertes = sum(muertes)) %>%
-  ungroup() %>%
+  summarise(muertes = sum(muertes),
+            .groups = "drop") %>%
+  # ungroup() %>%
 
   # filter(muertes > 0) %>%
   filter(fecha >= "2020-03-18")
-Dat
+# Dat
+
+# max_muertes <- Dat %>% group_by(fecha) %>% summarise(muertes = sum(muertes)) %>% select(muertes) %>% max
 
 adj <- tibble(Parent = "0", Identity = unique(Dat$region))
 dat <- Dat %>%
@@ -82,9 +102,13 @@ dat <- dat %>%
 
 max_muertes_diarias <- dat %>%
   group_by(fecha) %>%
-  summarize(muertes = sum(muertes)) %>%
+  summarize(muertes = sum(muertes),
+            .groups = "drop") %>%
   select(muertes) %>%
   max()
+
+y_top <- (max_muertes_diarias / 2) + 50
+y_bottom <- (max_muertes_diarias / 2) - 50
 
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = muertes, group = grupo)) +
@@ -103,13 +127,13 @@ p1 <- dat %>%
   scale_fill_brewer(type = "qual", breaks = unique(Dat$region), name = "") +
   guides(fill = guide_legend(nrow = 2)) +
   
-  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = 120, yend = 170, size =2) +
+  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = y_top, yend = y_bottom, size =2) +
   annotate("text",
-           x = parse_date("2020-03-20") - 1.5,
-           y = 145,
+           x = parse_date("2020-03-20") - 3,
+           y = max_muertes_diarias / 2,
            size = 6,
            angle = 90,
-           label = 'italic("50 fallecimientos")',
+           label = 'italic("100 fallecimientos")',
            hjust = "middle",
            parse = TRUE) +
   
@@ -131,7 +155,7 @@ p1 <- dat %>%
         axis.text.y = element_blank(),
 
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_region.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

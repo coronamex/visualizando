@@ -1,10 +1,25 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 # library(ggbeeswarm)
 
-args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv",
+args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
              n_dias = 10,
              n_municipios = 100,
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Fallecimiento recientes por estado...\n")
 
 Dat <- read_csv(args$serie_tiempo,
                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
@@ -14,14 +29,12 @@ stop_for_problems(Dat)
 
 # Números recientes
 Dat <- Dat %>%
-  filter(fecha > max(fecha) - args$n_dias) %>%
-  print(n = 100)
+  filter(fecha > max(fecha) - args$n_dias)
 
 dat <- Dat %>%
   select(fecha, muertes_nuevas, estado) %>%
   filter(muertes_nuevas > 0) %>%
-  mutate(estado = factor(estado, levels = sort(unique(estado), decreasing = TRUE))) %>%
-  print(n = 100)
+  mutate(estado = factor(estado, levels = sort(unique(estado), decreasing = TRUE))) 
 
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = estado)) +
@@ -40,7 +53,7 @@ p1 <- dat %>%
         axis.title.y = element_blank(),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_muertes_recientes.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)

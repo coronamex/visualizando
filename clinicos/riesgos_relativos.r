@@ -1,162 +1,113 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
-library(epitools)
+source("util/leer_datos_abiertos.r")
 
 args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv")
-
-# Leer casos confirmados
-Dat <- read_csv(args$base_de_datos,
-                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-                                 FECHA_DEF = col_character(),
-                                 EDAD = col_number(),
-                                 .default = col_character())) 
-stop_for_problems(Dat)
-Dat <- Dat %>%
-  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA"))) %>%
-  filter(RESULTADO == "1")
-Dat <- Dat %>%
-  filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
-
-comorb <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
-            "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
-            "TABAQUISMO", "EMBARAZO", "SEXO")
-comorb <- set_names(comorb, comorb)
-
-Dat <- Dat[,c(comorb, "TIPO_PACIENTE", "UCI", "FECHA_DEF")] %>%
-  mutate(SEXO = replace(SEXO, SEXO == "1", "f")) %>%
-  mutate(SEXO = replace(SEXO, SEXO == "2", "h"))
-
-# Dat %>%
-#   filter(!is.na(FECHA_DEF)) %>%
-#   select(SEXO) %>%
-#   table
-# 
-# Dat %>%
-#   filter(!is.na(FECHA_DEF)) %>%
-#   # print %>%
-#   filter(DIABETES == "2") %>%
-#   filter(EPOC == "2") %>%
-#   filter(ASMA == "2") %>%
-#   filter(INMUSUPR == "2") %>%
-#   filter(HIPERTENSION == "2") %>% 
-#   filter(OTRA_COM == "2") %>%
-#   filter(CARDIOVASCULAR == "2") %>%
-#   filter(OBESIDAD == "2") %>%
-#   filter(RENAL_CRONICA == "2") %>%
-#   filter(TABAQUISMO == "2") %>%
-#   filter(HABLA_LENGUA_INDIG == "2")  %>%
-#   select(SEXO) %>%
-#   table
-
-# 123/857
-# 456/1847
-# (123 + 456)/(857 + 1847)
-
-RR_hosp <- comorb %>%
-  map_dfr(function(variable, Dat, respuesta = "TIPO_PACIENTE"){
-    dat <- tibble(exposicion = Dat[[variable]],
-                  respuesta = Dat[[respuesta]])
-    dat <- dat %>%
-      mutate(exposicion = replace(exposicion, exposicion %in% c("98", "99", "97"), NA),
-             respuesta = replace(respuesta, respuesta %in% c("99", "98"), NA)) %>%
-      mutate(exposicion = replace(exposicion, exposicion == "2", "0"),
-             respuesta = replace(respuesta, respuesta %in% c("1", "97"), "0")) %>%
-      mutate(respuesta = replace(respuesta, respuesta %in% c("2"), "1")) %>%
-      ftable
-    if(any(dim(dat) != c(2,2))){
-      stop("ERROR")
-    }
-    res <- riskratio(dat)
-    tibble(parametro = colnames(res$measure),
-           valor = res$measure[2,])
-    
-  }, Dat = Dat, .id = "comorb") %>%
-  pivot_wider(names_from = "parametro", values_from = "valor")
-# RR_hosp %>%
-#   arrange(lower)
-
-RR_uci <- comorb %>%
-  map_dfr(function(variable, Dat, respuesta = "TIPO_PACIENTE"){
-    dat <- tibble(exposicion = Dat[[variable]],
-                  respuesta = Dat[[respuesta]])
-    dat <- dat %>%
-      mutate(exposicion = replace(exposicion, exposicion %in% c("98", "99", "97"), NA),
-             respuesta = replace(respuesta, respuesta %in% c("99", "98"), NA)) %>%
-      mutate(exposicion = replace(exposicion, exposicion == "2", "0"),
-             respuesta = replace(respuesta, respuesta %in% c("1", "97"), "0")) %>%
-      mutate(respuesta = replace(respuesta, respuesta %in% c("2"), "1")) %>%
-      ftable
-    if(any(dim(dat) != c(2,2))){
-      stop("ERROR")
-    }
-    res <- riskratio(dat)
-    tibble(parametro = colnames(res$measure),
-           valor = res$measure[2,])
-    
-  }, Dat = Dat, respuesta = "UCI", .id = "comorb") %>%
-  pivot_wider(names_from = "parametro", values_from = "valor")
-# RR_uci %>%
-#   arrange(lower)
-
-
-RR_def <- comorb %>%
-  map_dfr(function(variable, Dat, respuesta){
-    dat <- tibble(exposicion = Dat[[variable]],
-                  respuesta = Dat[[respuesta]])
-    dat <- dat %>%
-      mutate(exposicion = replace(exposicion, exposicion %in% c("98", "99", "97"), NA)) %>%
-      mutate(exposicion = replace(exposicion, exposicion == "2", "0"),
-             respuesta = !is.na(respuesta)) %>%
-      ftable
-    if(any(dim(dat) != c(2,2))){
-      stop("ERROR")
-    }
-    res <- riskratio(dat)
-    tibble(parametro = colnames(res$measure),
-           valor = res$measure[2,])
-    
-  }, Dat = Dat, respuesta = "FECHA_DEF", .id = "comorb") %>%
-  pivot_wider(names_from = "parametro", values_from = "valor")
-# RR_def %>%
-#   arrange(lower)
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
+cat("Calculando riesgos relativos...\n")
 
 rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inmnosupresión",
                       "Hipertensión", "Otro", "Enfermedad cardiovascular", "Obesidad",
                       "Insuficiencia renal crónica",
-                      "Tabaquismo", "Embarazo", "Hombre"),
+                      "Tabaquismo", "Embarazo", "Hombre", "10 años más"),
                     c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
                       "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
-                      "TABAQUISMO", "EMBARAZO", "SEXO"))
-RR_hosp
-RR_hosp$Riesgo <- "Hospitalización"
-RR_uci$Riesgo <- "Cuidados Intensivos"
-RR_def$Riesgo <- "Muerte"
-p1 <- RR_hosp %>%
-  bind_rows(RR_uci) %>%
-  bind_rows(RR_def) %>%
-  arrange(lower) %>%
-  mutate(comorb = as.vector(rr_lut[comorb])) %>%
-  mutate(comorb = factor(comorb, levels = unique(comorb)),
-         Riesgo = factor(Riesgo, levels = c("Hospitalización", "Cuidados Intensivos", "Muerte"))) %>%
-  ggplot(aes(y = estimate, x = comorb, col = Riesgo)) +
-  geom_hline(yintercept = 1, color = "darkgrey") +
-  geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width = 1)) +
+                      "TABAQUISMO", "EMBARAZO", "SEXO", "EDAD"))
+
+# Leer casos confirmados
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
+                           solo_confirmados = TRUE, solo_fallecidos = FALSE)
+# Eliminar casos recientes
+Dat <- Dat %>%
+  filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
+
+# Seleccionar datos y convertir variables a indicadores
+d <- Dat %>%
+  mutate(DEF = 1*(!is.na(FECHA_DEF)),
+         TIPO_PACIENTE = replace(TIPO_PACIENTE, TIPO_PACIENTE == "99", NA)) %>%
+  # select(TIPO_PACIENTE) %>% table(useNA = "a")
+  mutate(HOSP = 1*(TIPO_PACIENTE == "2"))  %>%
+  select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
+         -ORIGEN, -TIPO_PACIENTE,
+         -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
+         -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
+         -MUNICIPIO_RES, -NACIONALIDAD) %>%
+  pivot_longer(cols = c(-ENTIDAD_UM, -DEF, -HOSP, -EDAD, -SEXO, -EMBARAZO, -SECTOR, -ID_REGISTRO),
+               names_to = "factor_riesgo", values_to = "valor") %>%
+  mutate(SEXO = replace(SEXO, SEXO %in% c("97", "98", "99"), NA),
+         EMBARAZO = replace(EMBARAZO, EMBARAZO %in% c("98", "99"), NA),
+         SECTOR = replace(SECTOR, SECTOR %in% c("99"), NA),
+         valor = replace(valor, valor %in% c("97", "98", "99"), NA),) %>%
+  mutate(SEXO = 1*(SEXO == "2"),
+         EMBARAZO = 1*(EMBARAZO == "1"),
+         valor = 1*(valor == "1")) %>%
+  pivot_wider(id_cols = c(ENTIDAD_UM, DEF, HOSP, EDAD, SEXO, EMBARAZO, SECTOR, ID_REGISTRO),
+              names_from = factor_riesgo, values_from = valor) %>%
+  select(-ID_REGISTRO) %>%
+  drop_na
+
+d <- d %>%
+  mutate(EDAD = EDAD / 10)
+
+# Sólo efectos fijos
+m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+            DIABETES + EPOC + ASMA + INMUSUPR +
+            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+            ENTIDAD_UM + SECTOR,
+          data = d, family = binomial(link = "logit"))
+# summary(m1)
+m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+            DIABETES + EPOC + ASMA + INMUSUPR +
+            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+            ENTIDAD_UM + SECTOR,
+          data = d, family = binomial(link = "logit"))
+# summary(m2)
+
+p1 <- list(Muerte = m1,
+     `Hospitalización` = m2) %>%
+  map_dfr(broom::tidy, .id = "resultado") %>%
+  filter(term %in% names(rr_lut)) %>%
+  mutate(riesgo_inferior = estimate + qnorm(p = 0.025) * std.error,
+         riesgo_superior = estimate + qnorm(p = 0.975) * std.error) %>%
+  transmute(resultado,
+            factor_riesgo = as.character(rr_lut[term]),
+            riesgo_relativo = exp(estimate),
+            riesgo_inferior = exp(riesgo_inferior),
+            riesgo_superior = exp(riesgo_superior)) %>%
+  arrange(riesgo_inferior) %>%
+  mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo))) %>%
+
+  # print(n = 100) %>%
+  
+  ggplot(aes(x = riesgo_relativo, y = factor_riesgo, col = resultado)) +
+  geom_vline(xintercept = 1, color = "darkgrey") +
+  geom_errorbarh(aes(xmin = riesgo_inferior, xmax = riesgo_superior), position = position_dodge(width = 1)) +
   geom_point(position = position_dodge(width = 1)) +
-  scale_color_manual(values = c("#b35806", "#542788", "#1b9e77"), name = "") +
+  scale_color_manual(values = c("#b35806", "#1b9e77"), name = "") +
   annotate("text",
            label = "Sin diferencia de riesgo",
-           x = "Hipertensión",
-           y = 0.935,
+           x = 0.85,
+           y = 11,
            col = "darkgrey",
            angle = 90,
            size = 6) +
-  coord_flip() +
-  xlab("Factores de riesgo") +
-  ylab("Riesgo relativo") +
+  ylab("Factores de riesgo") +
+  xlab("Riesgo relativo") +
   guides(color = guide_legend(nrow = 2)) +
   AMOR::theme_blackbox() +
   theme(axis.text.x = element_text(angle = 90),
@@ -170,12 +121,23 @@ p1 <- RR_hosp %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
-ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
+# p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-
-
+  
+  
+# Encontrar casos "sin" factores de riesgo
+# d %>%
+#   filter(EMBARAZO == 0 & HABLA_LENGUA_INDIG == 0 &
+#            DIABETES == 0 & EPOC == 0 & ASMA == 0 &
+#            INMUSUPR == 0 & HIPERTENSION == 0 &
+#            OTRA_COM == 0 & CARDIOVASCULAR == 0 &
+#            OBESIDAD == 0 & RENAL_CRONICA == 0 &
+#            TABAQUISMO == 0) %>%
+#   filter(DEF == 1) 
+#   # filter(SEXO == 1) %>% select(EDAD) %>% summary
+#   # select(EDAD) %>% summary
+#   # select(SEXO) %>% table

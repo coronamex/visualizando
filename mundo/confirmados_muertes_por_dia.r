@@ -1,12 +1,27 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
 library(tidyverse)
 
 args <- list(min_casos = 60,
              dias_ventana = 7,
              # tabla_mx = "../datos/ssa_dge_2020-04-19//reportes_diarios.csv",
-             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv",
+             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
              serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
              serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Comparaciones mundiales...\n")
 
 lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Irán", "China", "Francia",
@@ -22,7 +37,6 @@ datos_mx <- read_csv(args$tabla_mx,
                      col_types = cols(fecha = col_date(format = "%Y-%m-%d")))
 stop_for_problems(datos_mx)
 datos_mx$pais <- "México"
-datos_mx
 
 # Leer casos mundo
 casos_mundo <- read_csv(args$serie_tiempo_casos_mundo,
@@ -69,7 +83,6 @@ datos_mundo <- datos_mundo %>%
     
     d
   })
-datos_mundo
 
 # Combinar datos
 Dat <- datos_mundo %>%
@@ -77,7 +90,6 @@ Dat <- datos_mundo %>%
               select(pais, fecha,
                      casos_acumulados, muertes_acumuladas,
                      casos_nuevos, muertes_nuevas))
-Dat
 
 # Casos acumukados
 p1 <- Dat %>%
@@ -105,7 +117,7 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_acumulados_por_dia@2x.png")
@@ -136,7 +148,7 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_acumuladas_por_dia@2x.png")
@@ -192,26 +204,11 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "incremento_por_casos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "incremento_por_casos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-# Casos vs muertes.para segunda versión
-# p1 <- Dat %>%
-#   filter(pais != "China") %>%
-#   filter(casos_acumulados >= args$min_casos) %>%
-#   ggplot(aes(x = casos_acumulados, y = muertes_acumuladas)) +
-#   geom_line(aes(col = pais, size = pais)) +
-#   scale_color_brewer(palette = "Paired", name = "País") +
-#   scale_size_manual(values = c(1,1,1,1,1,1,1,1,3), name = "País") +
-#   scale_y_log10(labels = scales::comma) +
-#   scale_x_log10(labels = scales::comma) +
-#   ylab("Total de muertes") +
-#   xlab("Total de casos confirmados") +
-#   AMOR::theme_blackbox()
-# p1
 
 
 

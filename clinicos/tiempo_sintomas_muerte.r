@@ -1,62 +1,39 @@
-library(tidyverse)
+# (C) Copyright 2020 Sur Herrera Paredes
 
-args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv",
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+
+library(tidyverse)
+source("util/leer_datos_abiertos.r")
+
+args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Tiempo entre síntomas y defunción...\n")
 
 # Lee base de datos
-Dat <- read_csv(args$base_de_datos,
-                col_types = cols(FECHA_ACTUALIZACION = col_date(format = "%Y-%m-%d"),
-                                 FECHA_INGRESO = col_date(format = "%Y-%m-%d"),
-                                 FECHA_SINTOMAS = col_date(format = "%Y-%m-%d"),
-                                 FECHA_DEF = col_character(),
-                                 EDAD = col_number(),
-                                 .default = col_character())) 
-stop_for_problems(Dat)
-Dat <- Dat %>%
-  mutate(FECHA_DEF = parse_date(x = FECHA_DEF, format = "%Y-%m-%d", na = c("9999-99-99", "", "NA")),
-         PAIS_NACIONALIDAD = parse_character(PAIS_NACIONALIDAD, na = c("99", "", "NA")),
-         PAIS_ORIGEN = parse_character(PAIS_ORIGEN, na = c("97", "", "NA")))
-# Dat
-
-# Seleccionar defunciones confirmadas
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = TRUE)
 dat <- Dat %>%
-  filter(!is.na(FECHA_DEF)) %>%
-  filter(RESULTADO == "1") %>%
-  select(SECTOR, SEXO, FECHA_SINTOMAS, FECHA_DEF, HABLA_LENGUA_INDIG, EDAD) %>%
-  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS),
-         sector = "Público",
-         sexo = "Hombre") %>%
-  mutate(sector = replace(sector, SECTOR == "99", NA)) %>%
-  mutate(sector = replace(sector, SECTOR == "9", "Privado")) %>%
-  mutate(sexo = replace(sexo, SEXO == "1", "Mujer")) %>%
-  mutate(sexo = replace(sexo, SEXO == "99", NA)) %>%
-  mutate(sesenta_o_mas = EDAD >= 60) %>%
-  select(-SECTOR, -SEXO, -EDAD) %>%
-  filter(numero_dias >= 0)
-  # arrange(numero_dias) %>%
-  # filter(HABLA_LENGUA_INDI == "1")
-  # print(n = 500)
-# dat
+  select(FECHA_DEF, FECHA_SINTOMAS) %>%
+  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS))
 
-
-dat <- Dat %>%
-  filter(!is.na(FECHA_DEF)) %>%
-  filter(RESULTADO == "1") %>%
-  # select(SECTOR, SEXO, FECHA_SINTOMAS, FECHA_DEF, HABLA_LENGUA_INDI, EDAD) %>%
-  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS),
-         tiempo_sintomas = as.numeric(Sys.Date() - FECHA_SINTOMAS)) %>%
-  filter(numero_dias >= 0) %>%
-  select(-FECHA_ACTUALIZACION, -ENTIDAD_NAC, -OTRO_CASO, -RESULTADO, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN, -FECHA_DEF,
-         -FECHA_INGRESO, -FECHA_SINTOMAS, -MUNICIPIO_RES , -ENTIDAD_RES, -UCI, -INTUBADO, -ORIGEN, -TIPO_PACIENTE,
-         -ENTIDAD_UM, -NACIONALIDAD) 
-# dat
-
-p1 <- ggplot(dat, aes(x = numero_dias)) +
+p1 <- dat %>%
+  filter(numero_dias <= 50) %>%
+  ggplot(aes(x = numero_dias)) +
   # facet_wrap(~ RENAL_CRONICA, ncol = 1) + 
   # facet_grid(ASMA ~ ., scales = "free_y") +
   geom_histogram(bins = 15) +
   geom_vline(aes(xintercept = median(numero_dias))) +
   scale_x_continuous(breaks = function(lims){seq(from = 0, to = lims[2], by = 5)}) +
+  scale_y_continuous(labels = scales::comma) +
   ylab("Número de defunciones") +
   xlab("Días entre inicio de síntomas y defunción") +
   AMOR::theme_blackbox() +
@@ -67,7 +44,7 @@ p1 <- ggplot(dat, aes(x = numero_dias)) +
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 archivo <- file.path(args$dir_salida, "tiempo_defuncion.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "tiempo_defuncion@2x.png")
