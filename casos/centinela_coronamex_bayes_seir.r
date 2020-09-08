@@ -172,8 +172,8 @@ init <- list(logphi = 3.03,
              r_betas = c(0.81, 0.40,
                          0.37, 0.28,
                          0.27, 0.25,
-                         0.21, 0.19,
-                         0.17))
+                         0.21, 0.18,
+                         0.19, 0.20))
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
