@@ -115,12 +115,13 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                      iter = 2000,
 #                      algorithm = "Newton")
 init <- list(logphi = 3.5,
-             r_betas = c(0.80, 0.39,
+             r_betas = c(0.77, 0.40,
                        0.37, 0.30,
-                       0.28, 0.24,
+                       0.28, 0.25,
                        0.23, 0.22,
                        0.21, 0.18,
-                       0.18, 0.19))
+                       0.18, 0.20,
+                       0.17))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -252,6 +253,7 @@ for(i in 1:length(post$phi)){
 # 4. Intervalo creible de casos acumulados detectados
 # 5. Intervalo creible de casos nuevos desde antes de sana distancia
 # 6. Intervalo creible de casos acumulados desde antes de sana distancia
+fecha_estimacion <- Sys.Date()
 
 # Integrar modelos posterior
 sims <- simular_ode(modelos = modelos,
@@ -261,7 +263,7 @@ sims <- simular_ode(modelos = modelos,
 
 # Encontrar mediana posterior casos nuevos (1-4)
 dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date()
+dat$fecha_estimacion <- fecha_estimacion
 dat
 write_csv(dat, "estimados/bayes_seir_nacional.csv")
 
@@ -277,7 +279,7 @@ dat <- modelos %>%
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date()
+dat$fecha_estimacion <- fecha_estimacion
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 
@@ -292,7 +294,7 @@ dat <- modelos %>%
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- Sys.Date()
+dat$fecha_estimacion <- fecha_estimacion
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
 
