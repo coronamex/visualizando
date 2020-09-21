@@ -169,11 +169,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.15, 0.13, 0.11))
 # init
 init <- list(logphi = 3.03,
-             r_betas = c(0.81, 0.40,
+             r_betas = c(0.81, 0.39,
                          0.37, 0.28,
                          0.27, 0.25,
                          0.21, 0.18,
-                         0.19, 0.20))
+                         0.19, 0.20,
+                         0.18))
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
