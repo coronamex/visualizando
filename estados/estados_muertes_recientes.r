@@ -33,13 +33,16 @@ Dat <- Dat %>%
 
 dat <- Dat %>%
   select(fecha, muertes_nuevas, estado) %>%
-  filter(muertes_nuevas > 0) %>%
-  mutate(estado = factor(estado, levels = sort(unique(estado), decreasing = TRUE))) 
+  # filter(muertes_nuevas > 0) %>%
+  mutate(estado = factor(estado, levels = sort(unique(Dat$estado), decreasing = TRUE))) 
 
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = estado)) +
-  geom_point(aes(size = muertes_nuevas)) +
-  scale_size_continuous(name = "Muertes") +
+  geom_point(aes(size = muertes_nuevas),
+             shape = 21, fill = "black", col = "white") +
+  # scale_size_continuous(name = "Muertes") +
+  scale_size_area(name = "Fallecimientos") +
+  # scale_size(name = "Fallecimientos", range = c(-0.5,6)) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
         # panel.border = element_rect(fill = NA, color = "black", size = 3),
@@ -53,9 +56,10 @@ p1 <- dat %>%
         axis.title.y = element_blank(),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-# p1
+# p1 
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_muertes_recientes.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_muertes_recientes@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
