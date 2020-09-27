@@ -123,7 +123,7 @@ fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
 p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[1:8],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 45)
+                         offset_totales = 65)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos1.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -133,7 +133,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[9:16],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 45)
+                         offset_totales = 65)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos2.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -143,7 +143,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[17:24],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 45)
+                         offset_totales = 65)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos3.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -153,7 +153,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[25:32],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 45)
+                         offset_totales = 65)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos4.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
