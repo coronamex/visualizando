@@ -295,6 +295,7 @@ sims <- simular_ode(modelos = modelos,
 
 # Encontrar mediana posterior casos nuevos (1-4)
 dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+# dat$fecha_estimacion <- Sys.Date() - 1
 dat$fecha_estimacion <- Sys.Date()
 dat
 write_csv(dat, "estimados/bayes_seir_centinela_coronamex.csv")

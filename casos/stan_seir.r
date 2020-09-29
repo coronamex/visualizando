@@ -74,6 +74,7 @@ fecha_final <- max(Dat$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
+fechas_dias <- fechas_dias[-(11)]
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
@@ -114,14 +115,21 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                      hessian = TRUE,
 #                      iter = 2000,
 #                      algorithm = "Newton")
-init <- list(logphi = 3.5,
+# init <- list(logphi = 3.5,
+#              r_betas = c(0.77, 0.40,
+#                        0.37, 0.30,
+#                        0.28, 0.25,
+#                        0.23, 0.22,
+#                        0.21, 0.18,
+#                        0.18, 0.20,
+#                        0.17))
+init <- list(logphi = 3.7,
              r_betas = c(0.77, 0.40,
-                       0.37, 0.30,
-                       0.28, 0.25,
-                       0.23, 0.22,
-                       0.21, 0.18,
-                       0.18, 0.20,
-                       0.17))
+                         0.37, 0.30,
+                         0.28, 0.24,
+                         0.23, 0.22,
+                         0.21, 0.18,
+                         0.20,0.17))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -253,6 +261,7 @@ for(i in 1:length(post$phi)){
 # 4. Intervalo creible de casos acumulados detectados
 # 5. Intervalo creible de casos nuevos desde antes de sana distancia
 # 6. Intervalo creible de casos acumulados desde antes de sana distancia
+# fecha_estimacion <- Sys.Date() - 1
 fecha_estimacion <- Sys.Date()
 
 # Integrar modelos posterior
