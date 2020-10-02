@@ -1,3 +1,16 @@
+# (C) Copyright 2020 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
 library(tidyverse)
 
 incremento <- function(x){
@@ -64,12 +77,12 @@ graficar_incremento <- function(casos_mundo, paises_elegidos, paises_lut,
   p1
 }
 
-
 suma_ventana <- tibbletime::rollify(sum, window = args$dias_ventana, na_value = 0)
 
 
 args <- list(min_casos = 1e3,
              min_incidencia = 50,
+             min_pob = 1e5,
              dias_ventana = 7,
              serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
              serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
@@ -85,7 +98,8 @@ lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Luxemburgo", "Singapur", "Sudáfrica",
                           "Kirguistán", "Kazajistán", "República Dominicana",
                           "Suiza", "Arabia Saudita", "Bélgica",
-                          "Reino Unido", "Suecia"),
+                          "Reino Unido", "Suecia",
+                          "Catar", "Israel", "Kuwait", "Chile"),
                         c("US", "Spain", "Italy", 
                           "Iran", "China", "France",
                           "Brazil", "Korea, South",
@@ -94,7 +108,8 @@ lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Luxembourg", "Singapore", "South Africa",
                           "Kyrgyzstan", "Kazakhstan", "Dominican Republic",
                           "Switzerland", "Saudi Arabia", "Belgium",
-                          "United Kingdom", "Sweden"))
+                          "United Kingdom", "Sweden",
+                          "Qatar", "Israel", "Kuwait", "Chile"))
 
 
 lut_csse <- read_csv(args$lut_csse,
@@ -120,6 +135,7 @@ casos_mundo <- casos_mundo %>%
   mutate(fecha = parse_date(fecha, format = "%m/%d/%y")) %>%
   left_join(lut_csse, by = "pais") %>%
   mutate(incidencia_acumulada = 1e5 * casos_acumulados / pob) %>%
+  filter(pob >= args$min_pob) %>%
   select(pais, fecha, casos_acumulados, incidencia_acumulada)
 
 incidencia_mundo <- casos_mundo %>%
