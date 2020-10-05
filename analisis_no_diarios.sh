@@ -11,3 +11,8 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+Rscript clinicos/ocupacion_hospitalaria.r
+if [ $? -ne 0 ]; then
+    echo "Error"
+    exit 1
+fi
