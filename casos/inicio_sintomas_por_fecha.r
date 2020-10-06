@@ -18,6 +18,19 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
 cat("Inicio síntomas por fecha...\n")
 
 Dat <- leer_datos_abiertos(args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
+# Dat <- leer_datos_abiertos(args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)
+# 
+# table(Dat$OTRO_CASO)
+# Dat %>%
+#   mutate(OTRO_CASO = replace(OTRO_CASO, OTRO_CASO == "99", NA)) %>%
+#   mutate(OTRO_CASO = OTRO_CASO == "1") %>%
+#   # filter(OTRO_CASO) %>%
+#   filter((RESULTADO == "1") | (OTRO_CASO & RESULTADO == "3")) %>%
+#   filter(FECHA_INGRESO < "2020-10-03")
+#   # filter(RESULTADO != "1") %>%
+#   select(OTRO_CASO, RESULTADO) %>% table
+
+
 
 # Todo el país
 fecha_inicio <- min(Dat$FECHA_SINTOMAS) - 0.5
