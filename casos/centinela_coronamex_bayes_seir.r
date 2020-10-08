@@ -41,7 +41,10 @@ estados_lut <- set_names(estados_lut$X2, estados_lut$X1)
 
 # Leer base de datos ssa
 Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
-                           solo_confirmados = FALSE, solo_fallecidos = FALSE)
+                           solo_confirmados = FALSE,
+                           solo_fallecidos = FALSE,
+                           solo_laboratorio = FALSE,
+                           version = "adivinar")
 
 # Seleccionar USMER
 Dat <- Dat %>%
@@ -51,7 +54,21 @@ Dat <- Dat %>%
          TIPO_PACIENTE,
          FECHA_SINTOMAS,
          EDAD,
-         RESULTADO)
+         CLASIFICACION_FINAL)
+
+# Convertir CLASIFICACION_FINAL a resultado, con
+# definición 1 = positivo por cualquier, 2 = negativo por
+# laboratorio, 3 = sospechoso
+# Solo necesario para versión octubre2020 de los datos
+Dat <- Dat %>%
+  mutate(RESULTADO = replace(CLASIFICACION_FINAL,
+                             CLASIFICACION_FINAL %in% c("1", "2", "3"),
+                             "1")) %>%
+  mutate(RESULTADO = replace(RESULTADO, RESULTADO %in% c("7"), "2")) %>%
+  mutate(RESULTADO = replace(RESULTADO, RESULTADO %in% c("4", "5", "6"), "3")) %>%
+  # select(RESULTADO, CLASIFICACION_FINAL) %>% table
+  select(-CLASIFICACION_FINAL)
+
 
 # Estimación rápida por fecha síntomas, estado, (10%/100% de ambulatorio/hospitalizado )
 # Calcular agregados para estratificación.
@@ -104,7 +121,7 @@ Cen <- Cen %>%
   }, .id = "fecha") %>%
   mutate(fecha = parse_date(fecha, format = "%Y-%m-%d"))
 
-# rellenar fechas
+# Añadir ceros en fechas sin casos
 n_dias <- as.numeric(max(Cen$fecha) - min(Cen$fecha))
 fechas <- tibble(dia = 0:(n_dias - 1)) %>%
   mutate(fecha = min(Cen$fecha) + dia) %>%
@@ -113,7 +130,7 @@ Cen <- fechas %>%
   full_join(Cen, by = "fecha") %>%
   arrange(fecha) %>%
   mutate(casos_estimados = replace_na(casos_estimados, 0)) %>%
-  mutate(casos_acumulados_estimados = cumsum(casos_estimados),) 
+  mutate(casos_acumulados_estimados = cumsum(casos_estimados)) 
 
 ########
 
@@ -174,7 +191,7 @@ init <- list(logphi = 3.1,
                          0.27, 0.24,
                          0.21, 0.18,
                          0.19, 0.20,
-                         0.19))
+                         0.19, 0.19))
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
