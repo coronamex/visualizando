@@ -25,10 +25,11 @@ Dat <- leer_datos_abiertos(args$base_de_datos, solo_confirmados = TRUE, solo_fal
 #   mutate(OTRO_CASO = replace(OTRO_CASO, OTRO_CASO == "99", NA)) %>%
 #   mutate(OTRO_CASO = OTRO_CASO == "1") %>%
 #   # filter(OTRO_CASO) %>%
-#   filter((RESULTADO == "1") | (OTRO_CASO & RESULTADO == "3")) %>%
-#   filter(FECHA_INGRESO < "2020-10-03")
+#   filter(!is.na(FECHA_DEF)) %>%
+#   filter((RESULTADO == "1") | (OTRO_CASO & RESULTADO == "3"))
+#   # filter(FECHA_INGRESO < "2020-10-03") %>%
 #   # filter(RESULTADO != "1") %>%
-#   select(OTRO_CASO, RESULTADO) %>% table
+#   # select(OTRO_CASO, RESULTADO) %>% table
 
 
 
