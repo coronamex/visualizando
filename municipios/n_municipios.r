@@ -39,20 +39,22 @@ dat <- Tab %>%
   group_by(fecha) %>%
   summarise(n_municipios = sum(casos_recientes > 0)) %>%
   filter(fecha >= "2020-02-01")
+final_datos <- max(dat$fecha)
 p1 <- dat  %>%
   filter(fecha >= "2020-03-01") %>%
   ggplot(aes(x = fecha, y = n_municipios)) +
-  geom_rect(aes(xmin = max(fecha) - 15, xmax = max(fecha),
-                ymin = -Inf, ymax = Inf),
+  geom_rect(aes(linetype = "Casos en estos días pueden aumentar"),
+            xmin = final_datos - 15,
+            xmax = final_datos,
+            ymin = -Inf,
+            ymax = Inf,
             fill = "pink") +
-  geom_line(size = 3) +
-  annotate("text",
-           x = Sys.Date() - 8,
-           y = 100,
-           label = 'italic("Faltan casos\npor reportar\nen estos días")',
-           hjust = "middle",
-           parse = TRUE) +
+  scale_linetype_manual(values = c("Casos en estos días pueden aumentar" = 0),
+                        name = "",
+                        guide = guide_legend(override.aes = list(fill = c("pink")))) +
   
+  geom_line(size = 3) +
+
   ylab("# muncipios con casos en semana previa") +
   xlab("Fecha de inicio de síntomas") +
   scale_y_continuous(labels = scales::comma,
@@ -65,7 +67,7 @@ p1 <- dat  %>%
         plot.margin = margin(l = 20, r = 20, t = 10),
         panel.background = element_blank(),
         panel.border = element_rect(fill=NA, colour = "black", size = 3),
-        legend.position = "top",
+        legend.position = "bottom",
         legend.text = element_text(size = 12),
         legend.background = element_blank())
 # p1

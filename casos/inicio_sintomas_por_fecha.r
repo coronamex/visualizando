@@ -17,22 +17,11 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
 cat("Inicio síntomas por fecha...\n")
 
-Dat <- leer_datos_abiertos(args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = FALSE)
-# Dat <- leer_datos_abiertos(args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)
-# 
-# table(Dat$OTRO_CASO)
-# Dat %>%
-#   mutate(OTRO_CASO = replace(OTRO_CASO, OTRO_CASO == "99", NA)) %>%
-#   mutate(OTRO_CASO = OTRO_CASO == "1") %>%
-#   # filter(OTRO_CASO) %>%
-#   filter(!is.na(FECHA_DEF)) %>%
-#   filter((RESULTADO == "1") | (OTRO_CASO & RESULTADO == "3"))
-#   # filter(FECHA_INGRESO < "2020-10-03") %>%
-#   # filter(RESULTADO != "1") %>%
-#   # select(OTRO_CASO, RESULTADO) %>% table
-
-
-
+Dat <- leer_datos_abiertos(args$base_de_datos,
+                           solo_confirmados = TRUE,
+                           solo_fallecidos = FALSE,
+                           solo_laboratorio = FALSE,
+                           version = "adivinar")
 # Todo el país
 fecha_inicio <- min(Dat$FECHA_SINTOMAS) - 0.5
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d") - 0.5
@@ -40,19 +29,20 @@ fecha_final <- max(Dat$FECHA_SINTOMAS) + 0.5
 p1 <- Dat %>%
   filter(FECHA_SINTOMAS >= fecha_inicio) %>%
   ggplot(aes(x = FECHA_SINTOMAS)) +
-  geom_rect(aes(xmin = fecha_final - 15, xmax = fecha_final,
-                ymin = -Inf, ymax = Inf),
+  geom_rect(aes(linetype = "Casos en estos días pueden aumentar",
+                xmin = fecha_final - 15,
+                xmax = fecha_final,
+                ymin = -Inf,
+                ymax = Inf),
             fill = "pink") +
   geom_bar(aes(y=..count.., fill=TIPO_PACIENTE), width = 1) +
-  scale_fill_manual(values = c("#66c2a5", "#8da0cb"),
-                    labels = c("Ambulatorio", "Hospitalizado"),
+  scale_linetype_manual(values = c("Casos en estos días pueden aumentar" = 0),
+                        name = "",
+                        guide = guide_legend(override.aes = list(fill = c("pink")))) +
+  scale_fill_manual(values = c("#66c2a5", "#8da0cb", "pink"),
+                    labels = c("Ambulatorio", "Hospitalizado", ""),
                     name = "") +
-  annotate("text",
-           x = fecha_final - 6,
-           y = 0.88 * max(table(Dat$FECHA_SINTOMAS)),
-           label = 'italic("Estos\nnúmeros\npueden\naumentar")',
-           hjust = "middle",
-           parse = TRUE) +
+  geom_vline(xintercept = fecha_final - 15) +
   xlim(c(fecha_inicio, fecha_final)) +
   scale_y_continuous(labels = scales::comma,
                      breaks = function(lims){

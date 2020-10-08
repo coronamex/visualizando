@@ -20,7 +20,11 @@ args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
 cat("Tiempo entre síntomas y defunción...\n")
 
 # Lee base de datos
-Dat <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = TRUE, solo_fallecidos = TRUE)
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
+                           solo_confirmados = TRUE,
+                           solo_fallecidos = TRUE,
+                           solo_laboratorio = FALSE,
+                           version = "adivinar")
 dat <- Dat %>%
   select(FECHA_DEF, FECHA_SINTOMAS) %>%
   mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS))

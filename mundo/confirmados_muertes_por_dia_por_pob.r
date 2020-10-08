@@ -99,7 +99,9 @@ lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Kirguistán", "Kazajistán", "República Dominicana",
                           "Suiza", "Arabia Saudita", "Bélgica",
                           "Reino Unido", "Suecia",
-                          "Catar", "Israel", "Kuwait", "Chile"),
+                          "Catar", "Israel", "Kuwait", "Chile",
+                          "Argentina", "República Checa",
+                          "Bolivia", "Ecuador"),
                         c("US", "Spain", "Italy", 
                           "Iran", "China", "France",
                           "Brazil", "Korea, South",
@@ -109,7 +111,9 @@ lut_paises <- set_names(c("EEUU", "España", "Italia",
                           "Kyrgyzstan", "Kazakhstan", "Dominican Republic",
                           "Switzerland", "Saudi Arabia", "Belgium",
                           "United Kingdom", "Sweden",
-                          "Qatar", "Israel", "Kuwait", "Chile"))
+                          "Qatar", "Israel", "Kuwait", "Chile",
+                          "Argentina", "Czechia",
+                          "Bolivia", "Ecuador"))
 
 
 lut_csse <- read_csv(args$lut_csse,

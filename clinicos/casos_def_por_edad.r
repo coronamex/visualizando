@@ -21,7 +21,9 @@ cat("Casos y defunciones por edad...\n")
 
 Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
                            solo_confirmados = TRUE,
-                           solo_fallecidos = FALSE)
+                           solo_fallecidos = FALSE,
+                           solo_laboratorio = FALSE,
+                           version = "adivinar")
 
 # Seleccionar fechas y redondear edades
 Dat <- Dat %>%

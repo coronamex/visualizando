@@ -132,6 +132,7 @@ p2 <- Res %>%
                                   "Tiempo de detección")) +
   
   scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(breaks = function(lims){ seq(from = 0, to = lims[2], by = 2) }) +
   # scale_y_log10(labels = scales::percent) +
   xlab("# de días de retraso") +
   ylab("% confirmados") +

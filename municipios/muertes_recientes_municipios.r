@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 
 library(tidyverse)
-# library(ggbeeswarm)
 
 args <- list(serie_tiempo = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv.gz",
              n_dias = 10,

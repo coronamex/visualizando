@@ -22,14 +22,19 @@ cat("Calculando riesgos relativos...\n")
 rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inmnosupresión",
                       "Hipertensión", "Otro", "Enfermedad cardiovascular", "Obesidad",
                       "Insuficiencia renal crónica",
-                      "Tabaquismo", "Embarazo", "Hombre", "10 años más"),
+                      "Tabaquismo", "Embarazo", "Hombre", "10 años más", "Indígena"),
                     c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
                       "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
-                      "TABAQUISMO", "EMBARAZO", "SEXO", "EDAD"))
+                      "TABAQUISMO", "EMBARAZO", "SEXO", "EDAD", "INDIGENA"))
 
 # Leer casos confirmados
 Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
-                           solo_confirmados = TRUE, solo_fallecidos = FALSE)
+                           solo_confirmados = TRUE,
+                           solo_fallecidos = FALSE,
+                           solo_laboratorio = FALSE,
+                           version = "adivinar")
+# Dat <- Dat[1:1e5, ]
+
 # Eliminar casos recientes
 Dat <- Dat %>%
   filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
@@ -39,18 +44,20 @@ d <- Dat %>%
   mutate(DEF = 1*(!is.na(FECHA_DEF)),
          TIPO_PACIENTE = replace(TIPO_PACIENTE, TIPO_PACIENTE == "99", NA)) %>%
   # select(TIPO_PACIENTE) %>% table(useNA = "a")
-  mutate(HOSP = 1*(TIPO_PACIENTE == "2"))  %>%
-  select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
-         -ORIGEN, -TIPO_PACIENTE,
-         -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
-         -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
-         -MUNICIPIO_RES, -NACIONALIDAD) %>%
+  mutate(HOSP = 1*(TIPO_PACIENTE == "2")) %>%
+  select(names(rr_lut), DEF, TIPO_PACIENTE, HOSP, ENTIDAD_UM, SECTOR, ID_REGISTRO) %>%
+  
+  # select(-FECHA_ACTUALIZACION, -FECHA_INGRESO, -FECHA_SINTOMAS, -FECHA_DEF,
+  #        -ORIGEN, -TIPO_PACIENTE,
+  #        -ENTIDAD_NAC, -ENTIDAD_RES, -MIGRANTE, -PAIS_NACIONALIDAD, -PAIS_ORIGEN,
+  #        -INTUBADO, -NEUMONIA, -UCI, -OTRO_CASO, -RESULTADO,
+  #        -MUNICIPIO_RES, -NACIONALIDAD) 
   pivot_longer(cols = c(-ENTIDAD_UM, -DEF, -HOSP, -EDAD, -SEXO, -EMBARAZO, -SECTOR, -ID_REGISTRO),
                names_to = "factor_riesgo", values_to = "valor") %>%
   mutate(SEXO = replace(SEXO, SEXO %in% c("97", "98", "99"), NA),
          EMBARAZO = replace(EMBARAZO, EMBARAZO %in% c("98", "99"), NA),
          SECTOR = replace(SECTOR, SECTOR %in% c("99"), NA),
-         valor = replace(valor, valor %in% c("97", "98", "99"), NA),) %>%
+         valor = replace(valor, valor %in% c("97", "98", "99"), NA)) %>%
   mutate(SEXO = 1*(SEXO == "2"),
          EMBARAZO = 1*(EMBARAZO == "1"),
          valor = 1*(valor == "1")) %>%
@@ -63,14 +70,14 @@ d <- d %>%
   mutate(EDAD = EDAD / 10)
 
 # Sólo efectos fijos
-m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG + INDIGENA +
             DIABETES + EPOC + ASMA + INMUSUPR +
             HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
             OBESIDAD + RENAL_CRONICA + TABAQUISMO +
             ENTIDAD_UM + SECTOR,
           data = d, family = binomial(link = "logit"))
 # summary(m1)
-m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +  INDIGENA +
             DIABETES + EPOC + ASMA + INMUSUPR +
             HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
             OBESIDAD + RENAL_CRONICA + TABAQUISMO +

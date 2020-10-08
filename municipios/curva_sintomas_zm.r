@@ -90,6 +90,7 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
                       name = "",
                       labels = c("Casos en estas fechas pueden aumentar", cambio_etiquetas)) +
     scale_color_manual(values = c(cambio_cols)) +
+    geom_vline(xintercept = fecha_final - 15) +
     
     # scale_fill_identity(guide = "legend",
     #                     name = "",

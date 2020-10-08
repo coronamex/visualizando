@@ -77,12 +77,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Mundo
 Rscript mundo/confirmados_muertes_por_dia_por_pob.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
 
+# Municipios
 Rscript municipios/muertes_recientes_municipios.r
 if [ $? -ne 0 ]; then
     echo "Error"
@@ -104,6 +106,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+# Socioeconomicos
 Rscript socioeconomicos/coneval_ind.r
 if [ $? -ne 0 ]; then
    echo "Error"

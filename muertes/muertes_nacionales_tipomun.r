@@ -76,19 +76,19 @@ max_y <- Dat %>%
 p1 <- Dat %>%
   filter(fecha >= "2020-03-25") %>%
   ggplot(aes(x = fecha, y = muertes_nuevas)) +
-  geom_rect(aes(xmin = fecha_final - 15, xmax = fecha_final,
-                ymin = -Inf, ymax = Inf),
+  geom_rect(aes(linetype = "Casos en estos días\npueden aumentar",
+                xmin = fecha_final - 15,
+                xmax = fecha_final,
+                ymin = -Inf,
+                ymax = Inf),
             fill = "pink") +
-  annotate("text",
-           x = fecha_final - 6,
-           y = 0.88 * max(max_y$muertes_nuevas),
-           label = 'italic("Estos\nnúmeros\npueden\naumentar")',
-           hjust = "middle",
-           parse = TRUE) +
   geom_bar(aes(fill = grupo), width=1, stat = "identity") +
   geom_vline(xintercept = fecha_final - 15) +
-  # scale_fill_brewer(palette = "PuBu", name = "") +
+  scale_linetype_manual(values = c("Casos en estos días\npueden aumentar" = 0),
+                        name = "",
+                        guide = guide_legend(override.aes = list(fill = c("pink")))) +
   scale_fill_manual(values = c("#0570b0","#74a9cf","#d0d1e6"), name = "") +
+  guides(fill = guide_legend(override.aes = list(size = 3), nrow = 2)) +
   scale_y_continuous(labels = scales::comma) + 
   ylab(label = "Número de fallecimientos") +
   xlab(label = "Fecha de defunción") +
@@ -100,9 +100,9 @@ p1 <- Dat %>%
         panel.background = element_blank(),
         panel.border = element_rect(fill=NA, colour = "black", size = 3),
         legend.position = "top",
+        legend.key = element_blank(),
         legend.text = element_text(size = 12),
         legend.background = element_blank())
-
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_nacionales_tipo_mun.png")

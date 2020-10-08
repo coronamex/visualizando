@@ -75,6 +75,7 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
                  fill = cambio),
              width = 1,
              stat = "identity") +
+    geom_vline(xintercept = fecha_final - 15) +
     scale_fill_manual(values = c("pink", cambio_cols),
                       name = "",
                       labels = c("Casos en estas fechas pueden aumentar", cambio_etiquetas)) +
@@ -120,7 +121,7 @@ fecha_final <- max(Dat$fecha)
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
 
 #
-p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[1:8],
+p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[1:8],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
                          offset_totales = 65)
@@ -130,7 +131,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_casos1@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[9:16],
+p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[9:16],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
                          offset_totales = 65)
@@ -140,7 +141,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_casos2@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[17:24],
+p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[17:24],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
                          offset_totales = 65)
@@ -150,7 +151,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "estados_casos3@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
-p1 <- graficar_entidades(Dat = Dat, entidades = unique(Dat$estado)[25:32],
+p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[25:32],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
                          offset_totales = 65)

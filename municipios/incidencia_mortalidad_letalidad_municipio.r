@@ -14,7 +14,6 @@
 
 library(tidyverse)
 library(broom)
-# library(geojsonio)
 source("util/leer_datos_abiertos.r")
 
 args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
@@ -27,9 +26,12 @@ args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
 cat("Incidencia, mortalidad y letalidad por municipios...\n")
 
 # Número de pruebas por municipio
-n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos, solo_confirmados = FALSE, solo_fallecidos = FALSE)
+n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos,
+                                 solo_confirmados = FALSE,
+                                 solo_fallecidos = FALSE,
+                                 solo_laboratorio = FALSE)
 n_pruebas <- n_pruebas %>%
-  filter(RESULTADO %in% c("1", "2")) %>%
+  filter(RESULTADO_LAB %in% c("1", "2")) %>%
   group_by(ENTIDAD_RES, MUNICIPIO_RES) %>%
   summarise(n_pruebas = length(ID_REGISTRO),
             .groups = "drop") %>%

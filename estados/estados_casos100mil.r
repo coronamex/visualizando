@@ -96,15 +96,17 @@ p2 <- Dat %>%
   # geom_bar(stat = "identity") +
   geom_col() +
   geom_vline(xintercept = c(20, 50), col = "red", size = 1) +
+  scale_x_continuous(breaks = function(lims){ seq(from = 0, to = lims[2], by = 10) }) +
   xlab(label = expression(frac("Casos recientes", "100 mil habitantes"))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
         axis.text.y = element_blank(),
-        axis.text.x = element_text(angle = 90),
+        axis.text.x = element_text(angle = 90, vjust = 0.5),
         axis.title.y = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "top",
         plot.margin = margin(r = 20))
+# p2
 
 pp <- cowplot::plot_grid(p1, p2 + aplot::ylim2(p1), axis = "bt", align = "h", rel_widths = c(0.8, 0.2))
 # ggsave("test.png", pp, width = 7, height = 6.7, dpi = 75)
