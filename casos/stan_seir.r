@@ -174,7 +174,6 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   theme_classic()
 p1
 
-
 ### Diagnostics
 par.names <- summary(m1.stan, pars = c("r_betas", "phi"))$summary %>% 
   row.names()
