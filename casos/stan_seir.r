@@ -74,7 +74,8 @@ fecha_final <- max(Dat$fecha)
 n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
-fechas_dias <- fechas_dias[-(11)]
+# fechas_dias <- fechas_dias[-(11)]
+fechas_dias <- fechas_dias[-c(8,11)]
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
@@ -106,52 +107,27 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    T_inf = 5,
                    likelihood = 1,
                    f_red = log(1.22))
-# m1.opt <- optimizing(m1.model,
-#                      data = stan_datos,
-#                      verbose = TRUE,
-#                      init = list(r_beta = 0.61,
-#                                  f_int = c(0.5,0.4,0.3,0.3,0.2,0.2),
-#                                  phi = 3),
-#                      hessian = TRUE,
-#                      iter = 2000,
-#                      algorithm = "Newton")
-# init <- list(logphi = 3.5,
-#              r_betas = c(0.77, 0.40,
-#                        0.37, 0.30,
-#                        0.28, 0.25,
-#                        0.23, 0.22,
-#                        0.21, 0.18,
-#                        0.18, 0.20,
-#                        0.17))
+
+# init <- list(logphi = 3.7,
+#              r_betas = c(0.73, 0.40,
+#                          0.37, 0.30,
+#                          0.28, 0.24,
+#                          0.23, 0.23,
+#                          0.22, 0.18,
+#                          0.20,0.18,
+#                          0.20))
 init <- list(logphi = 3.7,
-             r_betas = c(0.73, 0.40,
+             r_betas = c(0.74, 0.38,
                          0.37, 0.30,
-                         0.28, 0.24,
-                         0.23, 0.23,
-                         0.22, 0.18,
-                         0.20,0.18,
-                         0.20))
+                         0.28, 0.25,
+                         0.23, 0.22,
+                         0.18, 0.20,
+                         0.18, 0.20))
 
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
              chain_4 = init)
-# init
-# load("m1.stan.rdat")
-# log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,1:4])
-# summary(m1.stan, pars = c("r_betas"))$c_summary[,1,1:4]
-# init <- list(chain_1 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,1])),
-#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,1])),
-# 
-#      chain_2 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,2])),
-#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,2])),
-# 
-#      chain_3 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,3])),
-#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,3])),
-# 
-#      chain_4 = list(logphi = as.numeric(log(summary(m1.stan, pars = c("phi"))$c_summary[1,1,4])),
-#                     r_betas = as.numeric(summary(m1.stan, pars = c("r_betas"))$c_summary[,1,4])))
-
 m1.stan <- sampling(m1.model,
                     data = stan_datos,
                     pars = c("r_betas",
@@ -177,6 +153,11 @@ m1.stan <- sampling(m1.model,
 m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
+
+# (as.array(m1.stan)[,1,] %>% colMeans())[1:13]
+# (as.array(m1.stan)[,2,] %>% colMeans())[1:13]
+# (as.array(m1.stan)[,3,] %>% colMeans())[1:13]
+# (as.array(m1.stan)[,4,] %>% colMeans())[1:13]
 
 p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
