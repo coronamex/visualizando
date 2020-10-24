@@ -190,12 +190,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.20, 0.20))
 
 init <- list(logphi = 3.1,
-             r_betas = c(0.62, 0.38,
-                         0.35, 0.28,
+             r_betas = c(0.64, 0.39,
+                         0.34, 0.28,
                          0.25, 0.24,
                          0.22, 0.18,
                          0.20, 0.19,
-                         0.21))
+                         0.21, 0.21))
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
@@ -205,17 +205,6 @@ m1.stan <- sampling(m1.model,
                     pars = c("r_betas",
                              "phi",
                              "I_hoy"),
-                    # init = list(chain_1 = init,
-                    #             chain_2 = init,
-                    #             chain_3 = init,
-                    #             chain_4 = init),
-                    # init = function(){
-                    #   list(logphi = rnorm(n=1, mean = 3, sd = 0.5),
-                    #        r_betas = runif(length(stan_datos$fechas_dias),
-                    #                        min = 0,
-                    #                        max = 1) %>%
-                    #          sort(decreasing = TRUE))
-                    # },
                     init = init,
                     chains = 4,
                     iter = 4000,
@@ -231,10 +220,10 @@ m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
 
-# (as.array(m1.stan)[,1,] %>% colMeans())[1:13]
-# (as.array(m1.stan)[,2,] %>% colMeans())[1:13]
-# (as.array(m1.stan)[,3,] %>% colMeans())[1:13]
-# (as.array(m1.stan)[,4,] %>% colMeans())[1:13]
+# (as.array(m1.stan)[,1,] %>% colMeans())[1:4]
+# (as.array(m1.stan)[,2,] %>% colMeans())[1:4]
+# (as.array(m1.stan)[,3,] %>% colMeans())[1:4]
+# (as.array(m1.stan)[,4,] %>% colMeans())[1:4]
 
 p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
