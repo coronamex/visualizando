@@ -102,6 +102,21 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 # Graficar por estado
 estados <- Dat$estado %>% unique %>% sort
 
+# Dat %>%
+#   filter(estado == "Estado de México") %>%
+#   filter(fecha >= "2020-09-01") %>% print(n = 20)
+#   # arrange(desc(IRAG_GEN_Disponibles + IRAG_GEN_Ocupadas)) %>% print(n = 20)
+
+# Eliminar registros con errores claros
+Dat <- Dat %>%
+  filter(!(estado == "Baja California Sur" & fecha == "2020-09-09")) %>%
+  filter(!(estado == "Estado de México" & fecha == "2020-09-06")) %>%
+  filter(!(estado == "Michoacán" & fecha == "2020-10-02")) %>%
+  filter(!(estado == "Nayarit" & fecha == "2020-10-02")) %>%
+  filter(!(estado == "Oaxaca" & fecha == "2020-10-02")) %>%
+  filter(!(estado == "Puebla" & fecha == "2020-10-02")) %>%
+  filter(!(estado == "Yucatán" & fecha == "2020-09-17"))
+
 p1 <- graficar_ocupacion_hospitalaria(Dat = Dat, estados = estados[1:8])
 # p1
 archivo <- file.path(args$dir_salida, "ocupacion_hospitalaria_estados1.png")
@@ -130,6 +145,8 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "ocupacion_hospitalaria_estados4@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
+# Dat %>%
+#   arrange(IRAG_GEN_Total)
 
 
 
