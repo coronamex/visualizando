@@ -190,7 +190,7 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.20, 0.20))
 
 init <- list(logphi = 3.1,
-             r_betas = c(0.64, 0.39,
+             r_betas = c(0.66, 0.38,
                          0.34, 0.28,
                          0.25, 0.24,
                          0.22, 0.18,
