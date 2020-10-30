@@ -22,6 +22,7 @@ args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
              casos_nacionales = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              dir_estimados = "estimados/",
              fecha_inicio = "2020-03-01",
+             dias_max = 180,
              dias_extra = 0)
 cat("Modelos seir...\n")
 
@@ -73,7 +74,7 @@ p1 <- Tab %>%
                                q_50 = nuevos_obs_50,
                                q_90 = nuevos_obs_90)),
             by = "fecha") %>%
-  
+  filter(fecha > final_datos - args$dias_max) %>%
   ggplot(aes(x = fecha)) +
   geom_rect(aes(linetype = "Casos en estos días pueden aumentar"),
                 xmin = final_datos - 15,
@@ -101,6 +102,7 @@ p1 <- Tab %>%
   
   scale_y_continuous(labels = scales::comma,
                      breaks = scales::breaks_extended(n=7)) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
 
   ylab("Número de casos nuevos") +
   xlab("Fecha de inicio de síntomas") +
