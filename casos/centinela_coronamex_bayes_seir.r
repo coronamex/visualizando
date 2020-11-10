@@ -189,14 +189,15 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.18, 0.20,
 #                          0.20, 0.20))
 
-init <- list(logphi = 3.1,
+init <- list(logphi = 2.9,
              r_betas = c(0.66, 0.38,
                          0.34, 0.28,
                          0.25, 0.24,
                          0.22, 0.18,
                          0.20, 0.19,
-                         0.21, 0.21))
-# 0.23
+                         0.21, 0.23,
+                         0.22))
+
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
@@ -221,10 +222,10 @@ m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
 
-# (as.array(m1.stan)[,1,] %>% colMeans())[1:4]
-# (as.array(m1.stan)[,2,] %>% colMeans())[1:4]
-# (as.array(m1.stan)[,3,] %>% colMeans())[1:4]
-# (as.array(m1.stan)[,4,] %>% colMeans())[1:4]
+# (as.array(m1.stan)[,1,] %>% colMeans())[1:length(fechas_dias)]
+# (as.array(m1.stan)[,2,] %>% colMeans())[1:length(fechas_dias)]
+# (as.array(m1.stan)[,3,] %>% colMeans())[1:length(fechas_dias)]
+# (as.array(m1.stan)[,4,] %>% colMeans())[1:length(fechas_dias)]
 
 p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
