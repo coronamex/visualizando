@@ -17,51 +17,53 @@ rolling_mean <- tibbletime::rollify(mean, window = 7, na_value = NA)
 
 #' Title
 #'
-#' @param d Defunciones por día en años previos
-#' @param m Defunciones por día en pandemia
+#' @param Dat Tabla con todas las defunciones. Debe tener columnas
+#' fecha, region y muertes
 #'
 #' @return
 #' @export
-calcular_exceso_mortalidad <- function(d, m){
-  # Calcular base
-  # Separar fecha para calcular por día del año (¿qué pasa con bisiestos?)
-  d <- d %>%
+calcular_exceso_mortalidad <- function(Dat){
+
+  Dat <- Dat %>%
     separate(fecha, into = c("A", "M", "D"), sep = "-")
-  base <- d %>%
-    group_by(M, D) %>%
+  
+  # Calcular muertes esperadas, y cuantil 95
+  base <- Dat %>%
+    filter(A %in% c("2012", "2013", "2014", "2015",
+                    "2016", "2017", "2018")) %>%
+    group_by(M, D, region) %>%
     summarise(muertes.med = mean(muertes),
               muertes.sd = sd(muertes),
               .groups = 'drop') %>%
     mutate(base = qnorm(p = 0.95, mean = muertes.med, sd = muertes.sd))
-  # mutate(base = muertes.med + 2 * floor(muertes.sd))
-  
-  # Datos recientes y calcular exceso
-  m <- m %>%
-    separate(fecha, into = c("A", "M", "D"), sep = "-") %>%
-    left_join(base, by = c("M", "D")) %>%
+    
+  # Calcular exceso
+  Dat <- Dat %>%
+    left_join(base %>%
+                mutate(A = "2020"),
+              by = c("A", "M", "D", "region")) %>%
     mutate(fecha = paste(A, M, D, sep = "-")) %>%
     mutate(fecha = parse_date(fecha, format = "%Y-%m-%d"))  %>%
-    mutate(exceso = muertes > base) 
+    mutate(dummy_fecha = paste("2020", M, D, sep = "-")) %>%
+    mutate(dummy_fecha = parse_date(dummy_fecha, format = "%Y-%m-%d")) %>%
+    mutate(exceso = muertes > base)
   
   # Calcular exceso de mortalidad
-  extra <- m %>%
+  extra <- Dat %>%
     filter(fecha >= "2020-03-01") %>%
     filter(exceso) %>%
-    summarise(base = sum(base), muertes = sum(muertes))
-  extra$exceso.num <- extra$muertes - extra$base
-  extra$exceso.perc <- 100 * ((extra$muertes / extra$base) - 1)
-  extra$exceso.num <- ifelse(extra$exceso.num < 0, 0, extra$exceso.num)
-  extra$exceso.perc <- ifelse(extra$exceso.perc < 0, 0, extra$exceso.perc)
-  extra$A <- "A"
+    group_by(region) %>%
+    summarise(base = sum(base),
+              y_max = max(muertes),
+              muertes = sum(muertes),
+              .groups = "drop") %>%
+    mutate(exceso.num = muertes - base) %>%
+    mutate(exceso.perc = 100 * ((muertes / base) - 1)) %>%
+    mutate(exceso.num = ifelse(exceso.num < 0, 0, exceso.num),
+           exceso.perc = ifelse(exceso.perc < 0, 0, exceso.perc),
+           A = "A")
   
-  # Combinar todas las defunciones
-  d <- d %>%
-    mutate(fecha = paste("2020", M, D, sep = "-")) %>%
-    mutate(fecha = parse_date(fecha, format = "%Y-%m-%d"))  %>%
-    bind_rows(m %>%
-                select(A, M, D, muertes, fecha))
-  
-  return(list(d = d, m = m, extra = extra))
+  return(list(Dat = Dat, extra = extra))
 }
 
 graficar_exceso_mortalidad <- function(d, m){
@@ -112,66 +114,17 @@ graficar_exceso_mortalidad <- function(d, m){
           legend.key = element_blank())
 }
 
-exceso_mortalidad_region <- function(d, m, estados, nrow = 3){
-  # Agrupar datos por mes
-  d <- d %>%
-    filter(estado %in% estados) %>%
-    separate(fecha, into = c("A", "M", "D"), sep = "-") %>%
-    group_by(estado, A, M) %>%
-    summarise(D = as.character(max(as.numeric(D))),
-              muertes = sum(muertes),
-              .groups = "drop") %>%
-    mutate(fecha_dummy = paste("2020", M, D, sep = "-")) %>%
-    mutate(fecha_dummy = parse_date(fecha_dummy, format = "%Y-%m-%d")) 
+exceso_mortalidad_region <- function(Dat, regiones, nrow = 3){
+
+  # Seleccionar datos y calcular exceso de mortalidad
+  Res <- Dat %>%
+    filter(region %in% regiones) %>%
+    calcular_exceso_mortalidad()
   
-  # Calcular base
-  base <- d %>%
-    group_by(estado, M) %>%
-    summarise(muertes.med = median(muertes),
-              muertes.sd = sd(muertes),
-              .groups = 'drop') %>%
-    mutate(base = muertes.med + 2 * floor(muertes.sd))
-  
-  # Datos recientes y calcular exceso
-  m <- m %>%
-    filter(estado %in% estados) %>%
-    rename(A = anio, M = mes) %>%
-    mutate(A = as.character(A),
-           D = lubridate::ceiling_date(parse_date(paste(A, M, "01", sep = "-")),
-                                       "month") - 1) %>%
-    separate(D, into = c(NA, NA, "D"), sep = "-") %>%
-    left_join(base, by = c("M", "estado")) %>%
-    mutate(fecha_dummy = paste("2020", M, D, sep = "-")) %>%
-    mutate(fecha_dummy = parse_date(fecha_dummy, format = "%Y-%m-%d"))  %>%
-    mutate(exceso = muertes > base)
-  
-  # Combinar todas las defunciones
-  d <- d %>%
-    bind_rows(m %>%
-                select(estado, A, M, D, muertes, fecha_dummy))
-  
-  # Calcular exceso de mortalidad
-  extra <- m %>%
-    filter(fecha_dummy >= "2020-03-01") %>%
-    filter(exceso) %>%
-    group_by(estado) %>%
-    summarise(base = sum(base),
-              muertes = sum(muertes),
-              .groups = "drop") %>%
-    mutate(exceso.num = muertes - base) %>%
-    mutate(exceso.num = replace(exceso.num, exceso.num < 0, 0)) %>%
-    mutate(exceso.perc = 100 * exceso.num / base) %>%
-    mutate(A = "A") %>%
-    left_join(d %>% group_by(estado) %>% summarise(y_max = max(muertes), .groups = "drop"),
-              by = "estado")
-  # extra
-  # extra %>% arrange(desc(exceso.perc)) %>% print(n = 100)
-  # extra %>% arrange(desc(exceso.num)) %>% print(n = 100)
-  
-  p1 <- d %>%
-    ggplot(aes(x = fecha_dummy, y = muertes, group = A)) +
-    geom_ribbon(data = m %>%
-                  filter(fecha_dummy >= "2020-03-01") %>%
+  p1 <- Res$Dat %>%
+    ggplot(aes(x = dummy_fecha, y = muertes, group = A)) +
+    geom_ribbon(data = Res$Dat %>%
+                  filter(fecha >= "2020-03-01") %>%
                   mutate(base = ifelse(base > muertes, muertes, base)),
                 aes(ymin = base, ymax = muertes),
                 fill = "#fdae6b",
@@ -181,7 +134,7 @@ exceso_mortalidad_region <- function(d, m, estados, nrow = 3){
                        name = "Año") +
     scale_size_manual(values = c(rep(1,7), 2),
                       name = "Año") +
-    geom_text(data = extra,
+    geom_text(data = Res$extra,
               aes(label = paste0("+",
                                  scales::comma(exceso.num),
                                  "\n(+",
@@ -198,8 +151,8 @@ exceso_mortalidad_region <- function(d, m, estados, nrow = 3){
                          limits[1] <- 0
                          limits
                        }) +
-    scale_x_date(breaks = sort(unique(d$fecha_dummy))[-3],
-                 labels = scales::date_format("%b")) +
+    # scale_x_date(breaks = sort(unique(d$fecha_dummy))[-3],
+    #              labels = scales::date_format("%b")) +
     ylab("Defunciones por todas las causas") +
     xlab("Mes de defunción") +
     AMOR::theme_blackbox() +
@@ -215,14 +168,14 @@ exceso_mortalidad_region <- function(d, m, estados, nrow = 3){
           legend.background = element_blank(),
           legend.key = element_blank())
   
-  if(length(estados) > 1){
+  if(length(regiones) > 1){
     p1 <- p1 +
-      facet_wrap(~ estado, scales = "free_y", nrow = nrow)
+      facet_wrap(~ region, scales = "free_y", nrow = nrow)
   }
   
   p1
 }
-
+#######################
 
 args <- list(defs_entidad_prevs = "../mortalidad/catalogos_defs/defunciones_por_entidad.tsv",
              # defs_entidad_rec = "../mortalidad/proyecto.li/def_entidades.tsv",
@@ -235,16 +188,19 @@ Defs <- read_tsv(args$defs_entidad_prevs,
                  col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
                                   CVE_ENT = col_character(),
                                   .default = col_number()))
-Defs
-# Li <- read_tsv(args$defs_entidad_rec,
-#                col_types = cols(CVE_ENT = col_character(),
-#                                 mes = col_character(),
-#                                 .default = col_number()))
-# Li
+
 Pand <- read_csv(args$defs_entidad_rec,
                  col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
                                   CVE_ENT = col_character()))
-Pand
+
+Dat <- Defs %>%
+  filter(!(CVE_ENT %in% c("33", "34", "35"))) %>%
+  select(fecha, CVE_ENT, muertes = def_registradas) %>%
+  bind_rows(Pand %>% rename(muertes = def_registradas))
+
+Dat <- Dat %>%
+  rename(region = CVE_ENT)
+
 
 # Defunciones nacionales previas
 d <- Defs %>%
@@ -252,20 +208,12 @@ d <- Defs %>%
   group_by(fecha) %>%
   # summarise(muertes = sum(def_residentes), .groups = "drop")
   summarise(muertes = sum(def_registradas), .groups = "drop")
-d
 
 # Defunciones nacionales este año
-# m <- Li %>%
-#   filter(CVE_ENT != "39") %>%
-#   group_by(anio, mes) %>%
-#   summarise(muertes = sum(muertes),
-#             .groups = "drop")
-# # m
 m <- Pand %>%
   group_by(fecha) %>%
   summarise(muertes = sum(def_registradas),
             .groups = 'drop')
-m
 
 p1 <- graficar_exceso_mortalidad(d = d, m = m)
 # p1
@@ -286,20 +234,25 @@ estados_lut <- estados_lut[1:32]
 d <- Defs %>%
   filter(!(CVE_ENT %in% c("33", "34", "35"))) %>%
   group_by(CVE_ENT, fecha) %>%
-  summarise(muertes = sum(def_residentes),
+  # summarise(muertes = sum(def_residentes),
+  #           .groups = "drop") %>%
+  summarise(muertes = sum(def_registradas),
             .groups = "drop") %>%
   mutate(estado = as.character(estados_lut[CVE_ENT])) %>%
   select(-CVE_ENT)
+d
 
-m <- Li %>%
-  filter(CVE_ENT != "39") %>%
-  group_by(CVE_ENT, anio, mes) %>%
-  summarise(muertes = sum(muertes),
-            .groups = "drop") %>%
+# m <- Li %>%
+#   filter(CVE_ENT != "39") %>%
+#   group_by(CVE_ENT, anio, mes) %>%
+#   summarise(muertes = sum(muertes),
+#             .groups = "drop") %>%
+#   mutate(estado = as.character(estados_lut[CVE_ENT])) %>%
+#   select(-CVE_ENT)
+m <- Pand %>%
   mutate(estado = as.character(estados_lut[CVE_ENT])) %>%
   select(-CVE_ENT)
 
-estados <- 
 
 p1 <- exceso_mortalidad_region(d = d, m = m,
                                estados = as.character(sort(estados_lut)[1:8]))
