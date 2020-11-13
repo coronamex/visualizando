@@ -17,30 +17,6 @@ library(tidyverse)
 library(rstan)
 source("casos/sir_funciones.r")
 
-# # https://rpubs.com/tjmahr/hpdi
-# compute_hpdi <- function(xs, prob = .9) {
-#   x_sorted <- sort(xs)
-#   n <- length(xs)
-#   
-#   num_to_keep <- ceiling(prob * n)
-#   num_to_drop <- n - num_to_keep
-#   
-#   possible_starts <- seq(1, num_to_drop + 1, by = 1)
-#   # Just count down from the other end
-#   possible_ends <- rev(seq(from = n, length = num_to_drop + 1, by = -1))
-#   
-#   # Find smallest interval
-#   span <- x_sorted[possible_ends] - x_sorted[possible_starts]
-#   edge <- which.min(span)
-#   edges <- c(possible_starts[edge], possible_ends[edge])
-#   
-#   # My requirement: length of span interval must be same as number to keep.
-#   # Other methods produce intervals that are 1 longer.
-#   stopifnot(length(edges[1]:edges[2]) == num_to_keep)
-#   
-#   x_sorted[edges]
-# }
-
 args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              modelo_stan = "casos/sir.stan",
              dias_retraso = 15,
@@ -57,16 +33,6 @@ Dat <- Dat %>% select(fecha, sintomas_acumulados, sintomas_nuevos)
 Dat <- Dat %>%
   filter(fecha >= fecha_inicio) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
-# Dat
-
-# 2.03 * 2.54
-# 2.712 * 4.06
-# rgamma(n = 10000, shape = 2.03, rate = 1/2.54) %>% summary
-# qgamma(p = 0.5, shape = 2.03, rate = 1/2.54)
-# Dat %>%
-#   pmap_dfr(function(fecha, sintomas_acumulados, sintomas_nuevos, dia){
-#     rgamma(n = sintomas_nuevos, shape = )
-#   })
 
 # Determinando fechas
 fecha_inicio <- min(Dat$fecha)
@@ -108,14 +74,6 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    likelihood = 1,
                    f_red = log(1.22))
 
-# init <- list(logphi = 3.7,
-#              r_betas = c(0.73, 0.40,
-#                          0.37, 0.30,
-#                          0.28, 0.24,
-#                          0.23, 0.23,
-#                          0.22, 0.18,
-#                          0.20,0.18,
-#                          0.20))
 init <- list(logphi = 3.7,
              r_betas = c(0.75, 0.38,
                          0.37, 0.30,
@@ -147,6 +105,12 @@ m1.stan <- sampling(m1.model,
 m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
+
+# tibble(chain1 = (as.array(m1.stan)[,1,] %>% colMeans())[1:length(fechas_dias)],
+#        chain2 = (as.array(m1.stan)[,2,] %>% colMeans())[1:length(fechas_dias)],
+#        chain3 = (as.array(m1.stan)[,3,] %>% colMeans())[1:length(fechas_dias)],
+#        chain4 = (as.array(m1.stan)[,4,] %>% colMeans())[1:length(fechas_dias)]) %>%
+#   print(n = length(fechas_dias))
 
 # (as.array(m1.stan)[,1,] %>% colMeans())[1:length(fechas_dias)]
 # (as.array(m1.stan)[,2,] %>% colMeans())[1:length(fechas_dias)]

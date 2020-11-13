@@ -181,13 +181,6 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    T_inf = 5,
                    likelihood = 1,
                    f_red = log(1.22))
-# init <- list(logphi = 3.1,
-#              r_betas = c(0.58, 0.40,
-#                          0.36, 0.29,
-#                          0.25, 0.24,
-#                          0.22, 0.18,
-#                          0.18, 0.20,
-#                          0.20, 0.20))
 
 init <- list(logphi = 2.9,
              r_betas = c(0.66, 0.38,
@@ -196,7 +189,7 @@ init <- list(logphi = 2.9,
                          0.22, 0.18,
                          0.20, 0.19,
                          0.21, 0.23,
-                         0.22))
+                         0.21))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -221,6 +214,12 @@ m1.stan <- sampling(m1.model,
 m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
+
+# tibble(chain1 = (as.array(m1.stan)[,1,] %>% colMeans())[1:length(fechas_dias)],
+#        chain2 = (as.array(m1.stan)[,2,] %>% colMeans())[1:length(fechas_dias)],
+#        chain3 = (as.array(m1.stan)[,3,] %>% colMeans())[1:length(fechas_dias)],
+#        chain4 = (as.array(m1.stan)[,4,] %>% colMeans())[1:length(fechas_dias)]) %>%
+#   print(n = length(fechas_dias))
 
 # (as.array(m1.stan)[,1,] %>% colMeans())[1:length(fechas_dias)]
 # (as.array(m1.stan)[,2,] %>% colMeans())[1:length(fechas_dias)]
