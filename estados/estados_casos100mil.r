@@ -96,7 +96,9 @@ p2 <- Dat %>%
   # geom_bar(stat = "identity") +
   geom_col() +
   geom_vline(xintercept = c(20, 50), col = "red", size = 1) +
-  scale_x_continuous(breaks = function(lims){ seq(from = 0, to = lims[2], by = 10) }) +
+  scale_x_continuous(breaks = function(lims){ seq(from = 0,
+                                                  to = lims[2],
+                                                  by = 20) }) +
   xlab(label = expression(frac("Casos recientes", "100 mil habitantes"))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
