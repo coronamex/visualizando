@@ -62,10 +62,10 @@ Dat <- Dat %>%
 # Solo necesario para versión octubre2020 de los datos
 Dat <- Dat %>%
   mutate(RESULTADO = replace(CLASIFICACION_FINAL,
-                             CLASIFICACION_FINAL %in% c("1", "2", "3"),
+                             CLASIFICACION_FINAL %in% c("1", "2", "3", "8"),
                              "1")) %>%
   mutate(RESULTADO = replace(RESULTADO, RESULTADO %in% c("7"), "2")) %>%
-  mutate(RESULTADO = replace(RESULTADO, RESULTADO %in% c("4", "5", "6"), "3")) %>%
+  mutate(RESULTADO = replace(RESULTADO, RESULTADO %in% c("4", "5", "6", "9"), "3")) %>%
   # select(RESULTADO, CLASIFICACION_FINAL) %>% table
   select(-CLASIFICACION_FINAL)
 
@@ -183,13 +183,13 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    f_red = log(1.22))
 
 init <- list(logphi = 2.9,
-             r_betas = c(0.65, 0.38,
+             r_betas = c(0.68, 0.38,
                          0.34, 0.28,
                          0.25, 0.24,
                          0.22, 0.18,
                          0.20, 0.19,
                          0.21, 0.23,
-                         0.22, 0.22))
+                         0.22, 0.23))
 
 init <- list(chain_1 = init,
              chain_2 = init,
