@@ -331,12 +331,12 @@ p1 <- bind_rows(mu_est %>%
   
   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
-           x = fin_ajuste_curva - 3,
+           x = fin_ajuste_curva - 5,
            y = ymax / 3.5, angle = 90,
            size = 4) +
   
   scale_y_continuous(labels = scales::comma,
-                     breaks = scales::breaks_extended(n=7),
+                     breaks = scales::breaks_extended(n=10),
                     limits = c(0, ymax)) +
   
   ylab("Casos acumulados estimados") +
