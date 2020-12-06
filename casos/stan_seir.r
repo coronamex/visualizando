@@ -82,7 +82,7 @@ init <- list(logphi = 3.7,
                          0.18, 0.20,
                          0.18, 0.20,
                          0.23, 0.21,
-                         0.20))
+                         0.21, 0.20))
 
 init <- list(chain_1 = init,
              chain_2 = init,
