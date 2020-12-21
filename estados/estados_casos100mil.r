@@ -23,6 +23,11 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz")
 cat("Incidencia por estado...\n")
 
+incidencia_cortes <- 80
+mortalidad_cortes <- 5
+casos_acum_cortes <- 800
+muertes_acum_cortes <- 80
+
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,
                 col_types = cols(estado = col_character(),
@@ -86,7 +91,7 @@ axis.title.size.x <- 8
 legend.text.size <- 10
 
 ## Totales
-dat
+# dat
 pal <- colorRampPalette(colors = c("#c7eae5", "#01665e"))
 pal <- colorRampPalette(colors = c("white", "#01665e"))
 p1 <- dat %>%
@@ -149,7 +154,7 @@ p3 <- dat %>%
   geom_vline(xintercept = c(20, 50), col = "red", size = 1) +
   scale_x_continuous(breaks = function(lims){ seq(from = 0,
                                                   to = lims[2],
-                                                  by = 40) }) +
+                                                  by = incidencia_cortes) }) +
   xlab(label = expression(frac("Casos recientes", "100 mil hab."))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -173,7 +178,7 @@ p4 <- dat %>%
   geom_vline(xintercept = c(2, 5), col = "red", size = 1) +
   scale_x_continuous(breaks = function(lims){ seq(from = 0,
                                                   to = lims[2],
-                                                  by = 2) }) +
+                                                  by = mortalidad_cortes) }) +
   xlab(label = expression(frac("Muertes recientes", "100 mil hab."))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -208,7 +213,7 @@ p5 <- dat %>%
   geom_col() +
   scale_x_continuous(breaks = function(lims){ seq(from = 0,
                                                   to = lims[2],
-                                                  by = 600) }) +
+                                                  by = casos_acum_cortes) }) +
   xlab(label = expression(frac("Casos totales", "100 mil hab."))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
@@ -226,7 +231,7 @@ p6 <- dat %>%
   geom_col() +
   scale_x_continuous(breaks = function(lims){ seq(from = 0,
                                                   to = lims[2],
-                                                  by = 50) }) +
+                                                  by = muertes_acum_cortes) }) +
   xlab(label = expression(frac("Muertes totales", "100 mil hab."))) +
   AMOR::theme_blackbox() +
   theme(panel.background = element_blank(),
