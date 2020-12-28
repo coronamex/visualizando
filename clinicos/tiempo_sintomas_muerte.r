@@ -27,7 +27,9 @@ Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
                            version = "adivinar")
 dat <- Dat %>%
   select(FECHA_DEF, FECHA_SINTOMAS) %>%
-  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS))
+  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS)) %>%
+  filter(numero_dias >= 0)
+# summary(dat$numero_dias)
 
 p1 <- dat %>%
   filter(numero_dias <= 50) %>%
