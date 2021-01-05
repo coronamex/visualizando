@@ -233,6 +233,34 @@ dat$fecha_estimacion <- fecha_estimacion
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 
+# dat <- read_csv("estimados/bayes_seir_nacional_pre_2020-03-16.csv")
+# dat %>% print(n = 100)
+
+# dat <- (modelos %>%
+#   map(function(l){
+#     l$tiempos_betas <- l$tiempos_betas[1]
+#     l$r_betas <- l$r_betas[1]
+#     l
+#   }))[1:10] %>%
+#   simular_ode(n_dias = stan_datos$n_obs,odefun = seir2, otros_par = "phi") %>%
+#   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio) %>% print(n = 100)
+# dat %>% print(n = 100)
+# 
+# simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+#               odefun = seir2,
+#               otros_par = "phi") %>%
+#   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+# dat$fecha_estimacion <- fecha_estimacion
+# dat
+# 
+# cat("======================\n")
+# class(modelos[1])
+# 
+# cat("======================\n")
+# class(modelos[[1]])
+# modelos
+# str(modelos[1:2])
+
 # Modelo simulando comportamiento antes de 2020-04-15
 dat <- modelos %>%
   map(function(l){
