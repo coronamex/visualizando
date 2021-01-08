@@ -41,7 +41,7 @@ n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 # fechas_dias <- fechas_dias[-(11)]
-fechas_dias <- fechas_dias[-c(8,11)]
+fechas_dias <- fechas_dias[-c(8,11,17)]
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
@@ -82,8 +82,8 @@ init <- list(logphi = 3.7,
                          0.18, 0.20,
                          0.18, 0.20,
                          0.23, 0.21,
-                         0.21, 0.24,
-                         0.22))
+                         0.24, 0.24,
+                         0.17))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -219,12 +219,12 @@ write_csv(dat, "estimados/bayes_seir_nacional.csv")
 
 
 # Modelo simulando comportamiento antes de sana distancia
-dat <- modelos %>%
+dat <- (modelos %>%
   map(function(l){
     l$tiempos_betas <- l$tiempos_betas[1]
     l$r_betas <- l$r_betas[1]
     l
-  }) %>%
+  })) %>%
   simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
               odefun = seir2,
               otros_par = "phi") %>%
@@ -262,12 +262,12 @@ write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 # str(modelos[1:2])
 
 # Modelo simulando comportamiento antes de 2020-04-15
-dat <- modelos %>%
+dat <- (modelos %>%
   map(function(l){
     l$tiempos_betas <- l$tiempos_betas[1:3]
     l$r_betas <- l$r_betas[1:3]
     l
-  }) %>%
+  })) %>%
   simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
               odefun = seir2,
               otros_par = "phi") %>%
