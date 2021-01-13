@@ -377,6 +377,9 @@ simular_ode <- function(modelos, n_dias,odefun = seir2, otros_par = NULL){
 
 
 seir_ci <- function(sims, pob, fecha_inicio){
+  # sims <- dat
+  # pob <- stan_datos$pob
+  
   dat <- sims %>%
     # filter(modelo %in% 1:100) %>%
     split(.$modelo) %>%

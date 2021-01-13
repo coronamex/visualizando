@@ -83,7 +83,7 @@ init <- list(logphi = 3.7,
                          0.18, 0.20,
                          0.23, 0.21,
                          0.24, 0.24,
-                         0.17))
+                         0.18))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -219,16 +219,16 @@ write_csv(dat, "estimados/bayes_seir_nacional.csv")
 
 
 # Modelo simulando comportamiento antes de sana distancia
-dat <- (modelos %>%
+dat <- modelos %>%
   map(function(l){
     l$tiempos_betas <- l$tiempos_betas[1]
     l$r_betas <- l$r_betas[1]
     l
-  })) %>%
-  simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+  }) 
+dat <- simular_ode(modelos = dat, n_dias = 200,
               odefun = seir2,
-              otros_par = "phi") %>%
-  seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+              otros_par = "phi")
+dat <- seir_ci(sims = dat, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
 dat$fecha_estimacion <- fecha_estimacion
 dat
 write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
@@ -268,7 +268,7 @@ dat <- (modelos %>%
     l$r_betas <- l$r_betas[1:3]
     l
   })) %>%
-  simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+  simular_ode(n_dias = 200,
               odefun = seir2,
               otros_par = "phi") %>%
   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
