@@ -25,8 +25,8 @@ cat("Incidencia por estado...\n")
 
 incidencia_cortes <- 80
 mortalidad_cortes <- 5
-casos_acum_cortes <- 800
-muertes_acum_cortes <- 80
+casos_acum_cortes <- 1000
+muertes_acum_cortes <- 50
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,
@@ -151,7 +151,7 @@ p3 <- dat %>%
   geom_col(aes(fill = "pink")) +
   scale_fill_manual(name = "", values = "pink",
                     labels = "Últimos 14 días\n(puede aumentar)") +
-  geom_vline(xintercept = c(20, 50), col = "red", size = 1) +
+  geom_vline(xintercept = c(20), col = "red", size = 1) +
   scale_x_continuous(breaks = function(lims){ seq(from = 0,
                                                   to = lims[2],
                                                   by = incidencia_cortes) }) +
@@ -175,7 +175,7 @@ p4 <- dat %>%
   filter(periodo_id < 0) %>%
   ggplot(aes(x = mortalidad, y = estado)) +
   geom_col(fill = "pink") +
-  geom_vline(xintercept = c(2, 5), col = "red", size = 1) +
+  geom_vline(xintercept = c(2), col = "red", size = 1) +
   scale_x_continuous(breaks = function(lims){ seq(from = 0,
                                                   to = lims[2],
                                                   by = mortalidad_cortes) }) +
