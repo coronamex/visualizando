@@ -326,7 +326,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[2]],
              fecha_inicio = fecha_inicio,
              fecha_final = fecha_final,
-             offset_totales = 65)
+             offset_totales = 85)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos.png")
@@ -337,7 +337,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[3]],
              fecha_inicio = fecha_inicio,
              fecha_final = fecha_final,
-             offset_totales = 65)
+             offset_totales = 85)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos2.png")
@@ -349,7 +349,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[4]],
                    fecha_inicio = fecha_inicio,
                    fecha_final = fecha_final,
-                   offset_totales = 65)
+                   offset_totales = 85)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos3.png")
