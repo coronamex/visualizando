@@ -183,15 +183,15 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    f_red = log(1.22))
 
 init <- list(logphi = 2.9,
-             r_betas = c(0.67, 0.38,
-                         0.34, 0.28,
+             r_betas = c(0.65, 0.38,
+                         0.34, 0.27,
                          0.25, 0.24,
                          0.22, 0.18,
                          0.20, 0.19,
                          0.21, 0.23,
                          0.22, 0.24,
                          0.25, 0.25,
-                         0.21))
+                         0.23, 0.24))
 
 init <- list(chain_1 = init,
              chain_2 = init,
