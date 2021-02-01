@@ -100,7 +100,7 @@ m1.stan <- sampling(m1.model,
                     warmup = 3000,
                     thin = 1,
                     cores = 4,
-                    control = list(max_treedepth = 10,
+                    control = list(max_treedepth = 20,
                                    adapt_delta = 0.5))
 # save(m1.stan, file = "m1.stan.rdat")
 # load("m1.stan.rdat")
