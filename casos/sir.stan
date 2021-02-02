@@ -104,7 +104,8 @@ transformed parameters {
   // Casos infecciosos (sintomáticos) esperados por día
   for (i in 1:n_obs){
     if(i == 1)
-      acumulados_ayer = 0;
+      // acumulados_ayer = 0;
+      acumulados_ayer = y0[3] + y0[4];
     else
       acumulados_ayer = y_hat[i - 1, 3] + y_hat[i - 1, 4];
 
