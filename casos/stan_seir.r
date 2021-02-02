@@ -21,6 +21,8 @@ args <- list(serie_real = "../datos/datos_abiertos/serie_tiempo_nacional_confirm
              modelo_stan = "casos/sir.stan",
              dias_retraso = 15,
              dias_extra_sim = 60,
+             dias_ajuste = 180,
+             modelo_previo = "m1.stan.rdat",
              dir_esimados = "estimados/",
              dir_salida = "../sitio_hugo/static/imagenes/")
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
@@ -30,9 +32,23 @@ Dat <- read_csv(args$serie_real,
                 col_types = cols(fecha = col_date("%Y-%m-%d"),
                                  .default = col_number()))
 Dat <- Dat %>% select(fecha, sintomas_acumulados, sintomas_nuevos)
+
+# Ajustando sólo a fechas recientes
+fecha_I <- max(Dat$fecha) - args$dias_retraso - args$dias_ajuste - 1 - 4
+fecha_E <- max(Dat$fecha) - args$dias_retraso - args$dias_ajuste - 1
+Dat <- Dat %>%
+  filter(fecha > fecha_I)
+approx_E <- Dat %>%
+  filter(fecha > fecha_I & fecha <= fecha_E) %>%
+  select(sintomas_nuevos) %>%
+  unlist %>% sum
+Dat <- Dat %>%
+  filter(fecha > fecha_E)
+
 Dat <- Dat %>%
   filter(fecha >= fecha_inicio) %>%
   mutate(dia = as.numeric(fecha - min(fecha)))
+
 
 # Determinando fechas
 fecha_inicio <- min(Dat$fecha)
@@ -41,18 +57,19 @@ n_dias <- as.numeric(fecha_final - fecha_inicio)
 n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 # fechas_dias <- fechas_dias[-(11)]
-fechas_dias <- fechas_dias[-c(8,11,17)]
-# fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
+# fechas_dias <- fechas_dias[-c(8,11,17)]
+fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
+
 fechas_dias
 c(fechas_dias, n_dias_ajuste) %>% diff
 
 dat_train <- Dat %>%
   filter(dia < n_dias_ajuste)
 
-t_0 <- c(pob - 2 * Dat$sintomas_acumulados[1],
-         Dat$sintomas_acumulados[1],
-         Dat$sintomas_acumulados[1],
-         0) / pob
+t_0 <- c(pob - Dat$sintomas_acumulados[1],
+         approx_E,
+         approx_E,
+         Dat$sintomas_acumulados[1] - 2 * approx_E) / pob
 
 dat_train <- dat_train %>%
   filter(dia > 0)
@@ -74,16 +91,24 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    likelihood = 1,
                    f_red = log(1.22))
 
+# init <- list(logphi = 3.8,
+#              r_betas = c(0.746, 0.381,
+#                          0.366, 0.296,
+#                          0.276, 0.243,
+#                          0.228, 0.217,
+#                          0.183, 0.200,
+#                          0.177, 0.201,
+#                          0.231, 0.211,
+#                          0.236, 0.236,
+#                          0.200, 0.253))
+
 init <- list(logphi = 3.8,
-             r_betas = c(0.746, 0.381,
-                         0.366, 0.296,
-                         0.276, 0.243,
-                         0.228, 0.217,
-                         0.183, 0.200,
-                         0.177, 0.201,
-                         0.231, 0.211,
-                         0.236, 0.236,
-                         0.200, 0.253))
+             r_betas = c(0.22, 0.19,
+                         0.19, 0.18,
+                         0.21, 0.23,
+                         0.20, 0.22,
+                         0.25, 0.21,
+                         0.23, 0.23))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -96,11 +121,11 @@ m1.stan <- sampling(m1.model,
                              "I_hoy"),
                     init = init,
                     chains = 4,
-                    iter = 4000,
-                    warmup = 3000,
+                    iter = 2000,
+                    warmup = 1000,
                     thin = 1,
                     cores = 4,
-                    control = list(max_treedepth = 20,
+                    control = list(max_treedepth = 10,
                                    adapt_delta = 0.5))
 # save(m1.stan, file = "m1.stan.rdat")
 # load("m1.stan.rdat")
@@ -212,69 +237,70 @@ sims <- simular_ode(modelos = modelos,
                     otros_par = "phi")
 
 # Encontrar mediana posterior casos nuevos (1-4)
-dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+dat <- seir_ci(sims = sims, pob = stan_datos$pob, fecha_inicio = fecha_inicio) %>%
+  filter(fecha > fecha_inicio)
 dat$fecha_estimacion <- fecha_estimacion
 dat
 write_csv(dat, "estimados/bayes_seir_nacional.csv")
 
 
-# Modelo simulando comportamiento antes de sana distancia
-dat <- modelos %>%
-  map(function(l){
-    l$tiempos_betas <- l$tiempos_betas[1]
-    l$r_betas <- l$r_betas[1]
-    l
-  }) 
-dat <- simular_ode(modelos = dat, n_dias = 200,
-              odefun = seir2,
-              otros_par = "phi")
-dat <- seir_ci(sims = dat, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- fecha_estimacion
-dat
-write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
-
-# dat <- read_csv("estimados/bayes_seir_nacional_pre_2020-03-16.csv")
-# dat %>% print(n = 100)
-
-# dat <- (modelos %>%
+# # Modelo simulando comportamiento antes de sana distancia
+# dat <- modelos %>%
 #   map(function(l){
 #     l$tiempos_betas <- l$tiempos_betas[1]
 #     l$r_betas <- l$r_betas[1]
 #     l
-#   }))[1:10] %>%
-#   simular_ode(n_dias = stan_datos$n_obs,odefun = seir2, otros_par = "phi") %>%
-#   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio) %>% print(n = 100)
-# dat %>% print(n = 100)
+#   }) 
+# dat <- simular_ode(modelos = dat, n_dias = 200,
+#               odefun = seir2,
+#               otros_par = "phi")
+# dat <- seir_ci(sims = dat, pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+# dat$fecha_estimacion <- fecha_estimacion
+# dat
+# write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-03-16.csv")
 # 
-# simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+# # dat <- read_csv("estimados/bayes_seir_nacional_pre_2020-03-16.csv")
+# # dat %>% print(n = 100)
+# 
+# # dat <- (modelos %>%
+# #   map(function(l){
+# #     l$tiempos_betas <- l$tiempos_betas[1]
+# #     l$r_betas <- l$r_betas[1]
+# #     l
+# #   }))[1:10] %>%
+# #   simular_ode(n_dias = stan_datos$n_obs,odefun = seir2, otros_par = "phi") %>%
+# #   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio) %>% print(n = 100)
+# # dat %>% print(n = 100)
+# # 
+# # simular_ode(n_dias = stan_datos$n_obs + args$dias_extra_sim,
+# #               odefun = seir2,
+# #               otros_par = "phi") %>%
+# #   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
+# # dat$fecha_estimacion <- fecha_estimacion
+# # dat
+# # 
+# # cat("======================\n")
+# # class(modelos[1])
+# # 
+# # cat("======================\n")
+# # class(modelos[[1]])
+# # modelos
+# # str(modelos[1:2])
+# 
+# # Modelo simulando comportamiento antes de 2020-04-15
+# dat <- (modelos %>%
+#   map(function(l){
+#     l$tiempos_betas <- l$tiempos_betas[1:3]
+#     l$r_betas <- l$r_betas[1:3]
+#     l
+#   })) %>%
+#   simular_ode(n_dias = 200,
 #               odefun = seir2,
 #               otros_par = "phi") %>%
 #   seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
 # dat$fecha_estimacion <- fecha_estimacion
 # dat
-# 
-# cat("======================\n")
-# class(modelos[1])
-# 
-# cat("======================\n")
-# class(modelos[[1]])
-# modelos
-# str(modelos[1:2])
-
-# Modelo simulando comportamiento antes de 2020-04-15
-dat <- (modelos %>%
-  map(function(l){
-    l$tiempos_betas <- l$tiempos_betas[1:3]
-    l$r_betas <- l$r_betas[1:3]
-    l
-  })) %>%
-  simular_ode(n_dias = 200,
-              odefun = seir2,
-              otros_par = "phi") %>%
-  seir_ci(pob = stan_datos$pob, fecha_inicio = fecha_inicio)
-dat$fecha_estimacion <- fecha_estimacion
-dat
-write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
+# write_csv(dat, "estimados/bayes_seir_nacional_pre_2020-04-15.csv")
 
 dat <- read_csv("estimados/bayes_seir_nacional.csv")
 p1 <- Dat %>%
