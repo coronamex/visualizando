@@ -110,6 +110,12 @@ max_muertes_diarias <- dat %>%
 y_top <- (max_muertes_diarias / 2) + 50
 y_bottom <- (max_muertes_diarias / 2) - 50
 
+dat %>%
+  # filter(region == "Centrosur") %>%
+  filter(fecha == "2021-01-10") %>%
+  print(n = 20)
+
+
 p1 <- dat %>%
   ggplot(aes(x = fecha, y = muertes, group = grupo)) +
   
@@ -127,7 +133,8 @@ p1 <- dat %>%
   scale_fill_brewer(type = "qual", breaks = unique(Dat$region), name = "") +
   guides(fill = guide_legend(nrow = 2)) +
   
-  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = y_top, yend = y_bottom, size =2) +
+  geom_vline(xintercept = max(dat$fecha) - 15, col = "black") +
+  geom_segment(x = parse_date("2020-03-25"), xend = parse_date("2020-03-25"), y = y_top, yend = y_bottom, size =2) +
   annotate("text",
            x = parse_date("2020-03-20") - 3,
            y = max_muertes_diarias / 2,
@@ -155,7 +162,7 @@ p1 <- dat %>%
         axis.text.y = element_blank(),
 
         plot.margin = margin(l = 20, r = 20))
-# p1
+p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_region.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
