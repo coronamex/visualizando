@@ -13,11 +13,11 @@
 # You should have received a copy of the GNU General Public License
 
 library(tidyverse)
-library(ggmuller)
+library(cowplot)
 
 args <- list(serie = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
-cat("Muertes por fecha...\n")
+cat("Muertes por fecha y región...\n")
 
 Dat <- read_csv(args$serie,
                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
@@ -76,72 +76,71 @@ Dat <- Dat %>%
   group_by(fecha, region) %>%
   summarise(muertes = sum(muertes),
             .groups = "drop") %>%
-  # ungroup() %>%
-
-  # filter(muertes > 0) %>%
   filter(fecha >= "2020-03-18")
 # Dat
 
-# max_muertes <- Dat %>% group_by(fecha) %>% summarise(muertes = sum(muertes)) %>% select(muertes) %>% max
 
-adj <- tibble(Parent = "0", Identity = unique(Dat$region))
-dat <- Dat %>%
-  transmute(Generation = as.numeric(fecha - min(fecha)),
-            Identity = region,
-            Population = muertes) %>%
-  arrange(Generation) %>%
-  bind_rows(tibble(Generation = 0, Identity = "0", Population = 0))
-dat <- get_Muller_df(adj, dat)
-dat <- dat %>%
-  filter(Identity != "0") %>%
-  add_empty_pop() %>%
-  transmute(fecha = min(Dat$fecha) + Generation,
-            muertes = Population,
-            grupo = Group_id,
-            region = Identity)
-
-max_muertes_diarias <- dat %>%
-  group_by(fecha) %>%
-  summarize(muertes = sum(muertes),
-            .groups = "drop") %>%
-  select(muertes) %>%
-  max()
-
-y_top <- (max_muertes_diarias / 2) + 50
-y_bottom <- (max_muertes_diarias / 2) - 50
-
-p1 <- dat %>%
-  ggplot(aes(x = fecha, y = muertes, group = grupo)) +
-  
+p1 <- Dat %>%
+  split(.$fecha) %>%
+  map_dfr(function(d){
+    tot_def <- sum(d$muertes)
+    
+    d$ymax <- cumsum(d$muertes) - (tot_def / 2)
+    d$xmin <- d$fecha - 1
+    
+    d %>%
+      mutate(ymin = lag(ymax, n = 1, default = - (tot_def / 2))) %>%
+      filter(muertes > 0)
+  }) %>%
+  ggplot(aes(fill = region)) +
   geom_rect(aes(xmin = max(fecha) - 15, xmax = max(fecha),
                 ymin = -Inf, ymax = Inf),
             fill = "pink") +
-  annotate("text",
-           x = max(dat$fecha) - 7,
-           y = 0.97 * max_muertes_diarias,
-           label = 'italic("Estos números\npueden aumentar")',
-           hjust = "middle",
-           parse = TRUE) +
-  
-  geom_area(aes(fill = region)) +
-  scale_fill_brewer(type = "qual", breaks = unique(Dat$region), name = "") +
+  geom_rect(aes(xmin = xmin, xmax = fecha,
+                ymin = ymin, ymax = ymax), col = NA) +
+  scale_fill_brewer(type = "qual", name = "") +
   guides(fill = guide_legend(nrow = 2)) +
   
-  geom_segment(x = parse_date("2020-03-20"), xend = parse_date("2020-03-20"), y = y_top, yend = y_bottom, size =2) +
-  annotate("text",
-           x = parse_date("2020-03-20") - 3,
-           y = max_muertes_diarias / 2,
-           size = 6,
-           angle = 90,
-           label = 'italic("100 fallecimientos")',
-           hjust = "middle",
-           parse = TRUE) +
+  geom_vline(xintercept = max(Dat$fecha) - 15, col = "black") +
+  scale_y_continuous(breaks = function(lims){
+    seq(from = lims[1], to = lims[2], by = 100)
+    },
+    labels = function(labs){
+      labs <- as.numeric(labs)
+      labs + abs(min(labs))
+    }) +
+  ylab(label = "Fallecimientos") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  AMOR::theme_blackbox() +
+  theme(legend.position = "none",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill=NA, colour = "black", size = 3),
+        axis.title.y = element_text(size = 20),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20, b = 10))
+# p1
+
+p2 <- Dat %>%
+  filter(muertes > 0) %>%
+  ggplot(aes(x = fecha, y = muertes)) +
+  geom_bar(aes(fill = region),
+           position = "fill", stat = "identity", width = 1) +
+  scale_fill_brewer(type = "qual", name = "") +
+  guides(fill = guide_legend(nrow = 2)) +
   
-  # ylab(label = paste(max_muertes_diarias, "muertes")) +
-  ylab(label = "Muertes nuevas por día") +
+  geom_vline(xintercept = max(Dat$fecha) - 15, col = "black") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  ylab(label = "% de fallecimientos") +
   xlab(label = "Fecha de defunción") +
   AMOR::theme_blackbox() +
-  theme(legend.position = "top",
+  theme(legend.position = "bottom",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14, face = "bold"),
         legend.background = element_blank(),
@@ -149,15 +148,12 @@ p1 <- dat %>%
         panel.background = element_blank(),
         panel.border = element_rect(fill=NA, colour = "black", size = 3),
         axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10),
-        
-        axis.ticks.y = element_blank(),
-        axis.text.y = element_blank(),
-
+        axis.text.x = element_text(size = 10, angle = 90),
+        axis.text.y = element_text(size = 10),
         plot.margin = margin(l = 20, r = 20))
-# p1
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+
+pp <- cowplot::plot_grid(p1,p2, nrow = 2)
 archivo <- file.path(args$dir_salida, "muertes_region.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+ggsave(archivo, pp, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "muertes_region@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+ggsave(archivo, pp, width = 7, height = 6.7, dpi = 150)
