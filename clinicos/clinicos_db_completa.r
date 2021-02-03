@@ -15,10 +15,113 @@
 library(tidyverse)
 source("util/leer_datos_abiertos.r")
 
-args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
-             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
-cat("Calculando riesgos relativos...\n")
+args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
+             dir_salida = "../sitio_hugo/static/imagenes/")
 
+cat("Leer base de datos...\n")
+# Lee base de datos
+Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
+                           solo_confirmados = TRUE,
+                           solo_fallecidos = FALSE,
+                           solo_laboratorio = FALSE,
+                           version = "adivinar")
+
+
+cat("Tiempo entre síntomas y defunción...\n")
+p1 <- Dat %>%
+  filter(!is.na(FECHA_DEF)) %>%
+  select(FECHA_DEF, FECHA_SINTOMAS) %>%
+  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS)) %>%
+  filter(numero_dias >= 0) %>%
+  filter(numero_dias <= 50) %>%
+  ggplot(aes(x = numero_dias)) +
+  geom_histogram(bins = 15) +
+  geom_vline(aes(xintercept = median(numero_dias))) +
+  scale_x_continuous(breaks = function(lims){seq(from = 0, to = lims[2], by = 5)}) +
+  scale_y_continuous(labels = scales::comma) +
+  ylab("Número de defunciones") +
+  xlab("Días entre inicio de síntomas y defunción") +
+  AMOR::theme_blackbox() +
+  theme(legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"),
+        legend.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20))
+# p1
+archivo <- file.path(args$dir_salida, "tiempo_defuncion.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "tiempo_defuncion@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)  
+
+###########################################
+cat("Casos y defunciones por edad...\n")
+
+# Seleccionar fechas y redondear edades
+p1 <- Dat %>%
+  select(FECHA_SINTOMAS,
+         EDAD,
+         FECHA_DEF) %>%
+  mutate(EDAD = floor(EDAD / 10) * 10) %>%
+  mutate(EDAD = replace(EDAD, EDAD >= 70, 70)) %>%  
+  
+  # Crear tabla por fecha y por grupo de edad
+  group_by(FECHA_SINTOMAS, EDAD) %>%
+  summarise(Casos = length(EDAD),
+            Defunciones = sum(!is.na(FECHA_DEF)),
+            .groups = 'drop') %>%
+  pivot_longer(cols = c(-FECHA_SINTOMAS, -EDAD),
+               values_to = "sintomas_nuevos",
+               names_to = "grupo") %>%
+  filter(sintomas_nuevos > 0) %>%
+
+  filter(FECHA_SINTOMAS >= "2020-03-01") %>%
+  filter(FECHA_SINTOMAS < max(FECHA_SINTOMAS) - 11) %>%
+  # arrange(desc(FECHA_SINTOMAS)) %>%
+  # print()
+  
+  # Graficar
+  ggplot(aes(x = FECHA_SINTOMAS, y = sintomas_nuevos)) +
+  facet_wrap(~ grupo, ncol = 1) +
+  geom_bar(aes(fill = as.character(EDAD)), stat = "identity", position = "fill", width = 1) +
+  geom_hline(yintercept = c(0.25, 0.5, 0.75)) +
+  scale_fill_brewer(palette = "PuOr", name = "Edad",
+                    labels = c("0-9 años",
+                               "10-19 años",
+                               "20-29 años",
+                               "30-39 años",
+                               "40-49 años",
+                               "50-59 años",
+                               "60-69 años",
+                               "70 ó más años")) +
+  scale_y_continuous(labels = scales::percent) +
+  
+  ylab(label = "Porcentaje de pacientes") +
+  xlab(label = "Fecha de inicio de síntomas") +
+  AMOR::theme_blackbox() +
+  theme(axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(l = 20, r = 20),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill=NA, colour = "black", size = 3),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        legend.title = element_text(face = "bold"),
+        strip.background = element_blank(),
+        strip.text = element_text(face = "bold", size = 12))
+# p1 
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "casos_def_por_edad.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "casos_def_por_edad@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+#######################################
+
+# LUT de nombres de variables
 rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inmnosupresión",
                       "Hipertensión", "Otro", "Enfermedad cardiovascular", "Obesidad",
                       "Insuficiencia renal crónica",
@@ -26,14 +129,6 @@ rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inm
                     c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
                       "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
                       "TABAQUISMO", "EMBARAZO", "SEXO", "EDAD", "INDIGENA"))
-
-# Leer casos confirmados
-Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
-                           solo_confirmados = TRUE,
-                           solo_fallecidos = FALSE,
-                           solo_laboratorio = FALSE,
-                           version = "adivinar")
-# Dat <- Dat[1:1e5, ]
 
 # Eliminar casos recientes
 Dat <- Dat %>%
@@ -69,6 +164,7 @@ d <- Dat %>%
 d <- d %>%
   mutate(EDAD = EDAD / 10)
 
+cat("Calculando riesgos relativos...\n")
 # Sólo efectos fijos
 m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG + INDIGENA +
             DIABETES + EPOC + ASMA + INMUSUPR +
@@ -86,7 +182,7 @@ m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +  INDIGENA +
 # summary(m2)
 
 p1 <- list(Muerte = m1,
-     `Hospitalización` = m2) %>%
+           `Hospitalización` = m2) %>%
   map_dfr(broom::tidy, .id = "resultado") %>%
   filter(term %in% names(rr_lut)) %>%
   mutate(riesgo_inferior = estimate + qnorm(p = 0.025) * std.error,
@@ -98,7 +194,7 @@ p1 <- list(Muerte = m1,
             riesgo_superior = exp(riesgo_superior)) %>%
   arrange(riesgo_inferior) %>%
   mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo))) %>%
-
+  
   # print(n = 100) %>%
   
   ggplot(aes(x = riesgo_relativo, y = factor_riesgo, col = resultado)) +
@@ -134,17 +230,3 @@ archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-  
-  
-# Encontrar casos "sin" factores de riesgo
-# d %>%
-#   filter(EMBARAZO == 0 & HABLA_LENGUA_INDIG == 0 &
-#            DIABETES == 0 & EPOC == 0 & ASMA == 0 &
-#            INMUSUPR == 0 & HIPERTENSION == 0 &
-#            OTRA_COM == 0 & CARDIOVASCULAR == 0 &
-#            OBESIDAD == 0 & RENAL_CRONICA == 0 &
-#            TABAQUISMO == 0) %>%
-#   filter(DEF == 1) 
-#   # filter(SEXO == 1) %>% select(EDAD) %>% summary
-#   # select(EDAD) %>% summary
-#   # select(SEXO) %>% table

@@ -16,24 +16,13 @@ if [ $? -ne 0 ]; then
 fi
 
 # Clinicos
-Rscript clinicos/tiempo_sintomas_muerte.r
+Rscript clinicos/clinicos_db_completa.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
+
 Rscript clinicos/tiempos_deteccion.r
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1
-fi
-
-Rscript clinicos/riesgos_relativos.r
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1
-fi
-
-Rscript clinicos/casos_def_por_edad.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
