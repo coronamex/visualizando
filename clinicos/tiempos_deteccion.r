@@ -11,12 +11,12 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-
 library(tidyverse)
 
 args <- list(Serie_confirmados = "../datos/datos_abiertos/serie_tiempo_nacional_confirmados.csv.gz",
              serie_deteccion = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
-             dir_salida = "../sitio_hugo/static/imagenes/")
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             n_dias = 60)
 cat("Calcular tiempos de detección...\n")
 
 Dat_pos <- read_csv(args$Serie_confirmados,
@@ -26,7 +26,6 @@ Dat_pos <- read_csv(args$Serie_confirmados,
 Dat_conf <- read_csv(args$serie_deteccion,
                      col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
                                       .default = col_number()))
-# Dat_conf
 
 # Unir datos
 Dat <- Dat_pos %>%
@@ -34,13 +33,16 @@ Dat <- Dat_pos %>%
   full_join(Dat_conf %>%
               select(fecha, casos_acumulados),
             by = "fecha") %>%
-  mutate(casos_acumulados = replace(casos_acumulados, is.na(casos_acumulados), 0))
-Dat <- tibble(fecha = min(Dat$fecha) - 1,
-       sintomas_acumulados = 0,
-       ingreso_acumulados = 0,
-       casos_acumulados = 0) %>%
-  bind_rows(Dat)
+  mutate(casos_acumulados = replace(casos_acumulados,
+                                    is.na(casos_acumulados), 0)) %>%
+  filter(fecha > max(fecha) - args$n_dias)
+# Dat <- tibble(fecha = min(Dat$fecha) - 1,
+#        sintomas_acumulados = 0,
+#        ingreso_acumulados = 0,
+#        casos_acumulados = 0) %>%
+#   bind_rows(Dat)
 # Dat
+
 
 Res <- tibble(dias = 0:as.numeric(max(Dat$fecha) - min(Dat$fecha)),
               sintomas_ingreso = 0,
@@ -79,39 +81,14 @@ for(i in 2:nrow(Dat)){
     }
   }
 }
-# Res %>% print(n = 100)
-# Dat %>% print(n = 100)
-
+# Res %>% print(n = 15)
+# Dat %>% print(n = 15)
+# 
 # sum(Res$sintomas_ingreso)
 # sum(Res$ingreso_confirmacion)
 # sum(Res$tiempo_deteccion)
 
-p1 <- Dat %>%
-  pivot_longer(-fecha, names_to = "tipo", values_to = "casos_acumulados") %>%
-  filter(fecha >= "2020-03-01") %>%
-  mutate(tipo = factor(tipo, levels = c("sintomas_acumulados", "ingreso_acumulados", "casos_acumulados"))) %>%
-  
-  ggplot(aes(x = fecha, y = casos_acumulados, group = tipo)) +
-  geom_line(aes(col = tipo), size = 2) +
-  
-  scale_color_manual(values = c("#7570b3", "#d95f02", "#1b9e77"),
-                     name = "",
-                     labels = c("Inicio de síntomas", "Ingreso a unidad médica", "Confirmados")) +
-  scale_y_continuous(labels = scales::comma) +
-  xlab("Fecha") +
-  ylab("Casos totales") +
-  guides(color = guide_legend(override.aes = list(size = 3), nrow = 2)) +
-  AMOR::theme_blackbox() +
-  theme(panel.background = element_blank(),
-        panel.border = element_rect(fill = NA, color = "black", size = 3),
-        legend.position = "bottom",
-        legend.text = element_text(size = 14),
-        legend.key = element_blank(),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10, color = "black"),
-        plot.margin = margin(l = 20, r = 20))
-
-p2 <- Res %>%
+p1 <- Res %>%
   mutate(sintomas_ingreso = sintomas_ingreso / sum(sintomas_ingreso),
          ingreso_confirmacion = ingreso_confirmacion / sum(ingreso_confirmacion),
          tiempo_deteccion = tiempo_deteccion / sum(tiempo_deteccion)) %>%
@@ -146,12 +123,10 @@ p2 <- Res %>%
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-# p2
-
-pp <- cowplot::plot_grid(p2, p1, nrow = 2)
-# pp
+# p1
 # ggsave("test.png", pp, width = 7, height = 6.7, dpi = 150)
 archivo <- file.path(args$dir_salida, "tiempo_deteccion.png")
-ggsave(archivo, pp, width = 7, height = 6.7, dpi = 75)
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "tiempo_deteccion@2x.png")
-ggsave(archivo, pp, width = 7, height = 6.7, dpi = 150)
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
