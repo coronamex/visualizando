@@ -13,8 +13,12 @@
 # You should have received a copy of the GNU General Public License
 
 library(tidyverse)
+# library(epitools)
+# library(lme4)
+library(brms)
 source("util/leer_datos_abiertos.r")
 
+<<<<<<< HEAD:clinicos/clinicos_db_completa.r
 args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/")
 
@@ -118,6 +122,75 @@ archivo <- file.path(args$dir_salida, "casos_def_por_edad.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "casos_def_por_edad@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+=======
+#' Probabilidades posteriorers regresión logística riesgos
+#'
+#' @param d_pred
+#' @param model
+#' @param coef_ii
+#' @param re_ii
+#'
+#' @return
+#' @export
+#'
+#' @examples
+pred_brms_logistic <- function(d_pred, model, coef_ii = 1:15, re_ii = 16:17){
+  # d_pred <- d_pred_template
+  # model <- m6
+  # coef_ii <- 1:15
+  # re_ii <- 16:17
+
+  # Extraer posterior de modelo brms
+  post <- posterior_samples(m6)[,c(coef_ii, re_ii)] %>%
+    as_tibble()
+  # post
+
+  # Re ajustar indices
+  coef_ii <- 1:length(coef_ii)
+  re_ii <- (length(coef_ii) + 1):(length(coef_ii) + length(re_ii))
+
+  # Cambiar "efectos aleatorios" por predicción
+  for(i in re_ii){
+    post[,i] <- rnorm(n = nrow(post), mean = 0, sd = post[,i] %>% unlist %>% as.numeric())
+  }
+
+  # Calcular predictor lineal para cada muestra de la posterior
+  pred_post <- apply(post, 1, function(coef, d_pred){
+    # coef <- post[1,] %>% as.numeric()
+    # Formula sin efectos aleatorios
+    X <- model.matrix(~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+                        DIABETES + EPOC + ASMA + INMUSUPR +
+                        HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+                        OBESIDAD + RENAL_CRONICA + TABAQUISMO,
+                      data = d_pred)
+    # Coeficientes efectos "fijos"
+    beta <- coef[coef_ii]
+    # Ecuación normal más efectos aleatorios
+    y <- X %*% matrix(beta, ncol = 1) + sum(coef[re_ii])
+
+    y
+  }, d_pred = d_pred) %>%
+    apply(., 1, quantile, probs = c(0.1, 0.5, 0.9)) %>%
+    t %>%
+    as_tibble() %>%
+    rename(p_def_q10 = '10%',
+           p_def_q50 = '50%',
+           p_def_q90 = '90%') %>%
+    mutate_at(.vars = c("p_def_q10", "p_def_q50", "p_def_q90"), .funs = logistic)
+
+  return(pred_post)
+}
+
+
+
+logistic <- function(x){
+  1 / (1 + exp(-x))
+}
+
+args <- list(dir_salida = "../sitio_hugo/static/imagenes/",
+             base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz")
+cat("Calculando riesgos relativos...\n")
+>>>>>>> 7b808e8fb3fdb5524280bd95de7b641ff79d40ee:clinicos/riesgos_relativos.r
 
 #######################################
 
@@ -180,6 +253,120 @@ m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +  INDIGENA +
             ENTIDAD_UM + SECTOR,
           data = d, family = binomial(link = "logit"))
 # summary(m2)
+#
+# # Efectos aleatorios para entidad y sectrp
+# m3 <- lme4::glmer(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+#                     DIABETES + EPOC + ASMA + INMUSUPR +
+#                     HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+#                     OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+#                     (1|ENTIDAD_UM) + (1|SECTOR),
+#                   data = d, family = binomial(link = "logit"),
+#                   verbose = TRUE)
+# summary(m3)
+#
+# m4 <- lme4::glmer(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+#                     DIABETES + EPOC + ASMA + INMUSUPR +
+#                     HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+#                     OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+#                     (1|ENTIDAD_UM) + (1|SECTOR),
+#                   data = d, family = binomial(link = "logit"),
+#                   verbose = TRUE)
+# summary(m4)
+#
+#
+# # predict.fun <- function(m4) {
+# #   predict(m4, newdata = d[1,], re.form = NA)   # This is predict.merMod
+# #   # fixef(m4)
+# # }
+# # m.boots <- bootMer(m1, predict.fun, nsim = 10, verbose = TRUE, .progress = "txt")
+#
+m5 <- brms::brm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+                  DIABETES + EPOC + ASMA + INMUSUPR +
+                  HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+                  OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+                  (1|ENTIDAD_UM) + (1|SECTOR),
+                data = d, family = brms::bernoulli(link = "logit"),
+                inits = "0", chains = 1, cores = 1, iter = 500,
+                prior = brms::prior(normal(0,1), class = 'b') +
+                  brms::prior(exponential(2), class = 'sd'))
+summary(m5)
+#
+# m6 <- brms::brm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +
+#                   DIABETES + EPOC + ASMA + INMUSUPR +
+#                   HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+#                   OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+#                   (1|ENTIDAD_UM) + (1|SECTOR),
+#                 data = d, family = brms::bernoulli(link = "logit"),
+#                 inits = "0", chains = 1, cores = 1, iter = 500,
+#                 prior = brms::prior(normal(0,1), class = 'b'))
+# summary(m6)
+#
+# # save(m1,m2,m3,m4,m5,m6, file = "mortality_logit.rdat")
+#
+d_pred_template <- tibble(EDAD.real = rep(seq(from = 20, to = 70, by = 5), each = 2),
+                          SEXO = rep(0:1, times = 11),
+                          EMBARAZO = 0,
+                          HABLA_LENGUA_INDIG = 0,
+                          DIABETES = 0,
+                          EPOC = 0,
+                          ASMA = 0,
+                          INMUSUPR = 0,
+                          HIPERTENSION = 0,
+                          OTRA_COM = 0,
+                          CARDIOVASCULAR = 0,
+                          OBESIDAD = 0,
+                          RENAL_CRONICA = 0,
+                          TABAQUISMO = 0) %>%
+  mutate(EDAD = (EDAD.real - edad_mu) / edad_sd )
+d_pred_template
+
+# mcmc_plot(m6, type = "trace")
+
+load("mortality_logit.rdat")
+
+f_riesgo <- c("HABLA_LENGUA_INDIG", "DIABETES", "EPOC", "ASMA", "INMUSUPR",
+              "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
+              "TABAQUISMO")
+
+Res <- pred_brms_logistic(d_pred = d_pred_template, model = m5, coef_ii = 1:15, re_ii = 16:17) %>%
+  bind_cols(d_pred_template %>%
+              select(EDAD.real, SEXO)) %>%
+  mutate(SEXO = as.character(SEXO),
+         f_riesgo = "Sin factores de riesgo")
+
+for(fr in f_riesgo){
+  d_pred <- d_pred_template
+  d_pred[fr] <- 1
+
+  res <- pred_brms_logistic(d_pred = d_pred, model = m5, coef_ii = 1:15, re_ii = 16:17) %>%
+    bind_cols(d_pred %>%
+                select(EDAD.real, SEXO)) %>%
+    mutate(SEXO = as.character(SEXO),
+           f_riesgo = fr)
+
+  Res <- Res %>%
+    bind_rows(res)
+}
+
+Res
+Res %>%
+  ggplot(aes(x = EDAD.real, group = SEXO, col = SEXO, fill = SEXO)) +
+  facet_wrap(. ~ f_riesgo, ncol = 3) +
+  geom_line(aes(y = p_def_q50)) +
+  geom_ribbon(aes(ymin = p_def_q10, ymax = p_def_q90), alpha = 0.2) +
+  geom_hline(yintercept = 0.5) +
+  geom_vline(xintercept = 50) +
+  theme_classic()
+
+
+summary(m5)
+
+
+ggsave("test.png", mcmc_plot(m5, type = "pairs"), width = 25, height = 25)
+
+
+
+
 
 p1 <- list(Muerte = m1,
            `Hospitalización` = m2) %>%
@@ -196,7 +383,7 @@ p1 <- list(Muerte = m1,
   mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo))) %>%
   
   # print(n = 100) %>%
-  
+
   ggplot(aes(x = riesgo_relativo, y = factor_riesgo, col = resultado)) +
   geom_vline(xintercept = 1, color = "darkgrey") +
   geom_errorbarh(aes(xmin = riesgo_inferior, xmax = riesgo_superior), position = position_dodge(width = 1)) +
@@ -230,3 +417,20 @@ archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+<<<<<<< HEAD:clinicos/clinicos_db_completa.r
+=======
+
+
+# Encontrar casos "sin" factores de riesgo
+# d %>%
+#   filter(EMBARAZO == 0 & HABLA_LENGUA_INDIG == 0 &
+#            DIABETES == 0 & EPOC == 0 & ASMA == 0 &
+#            INMUSUPR == 0 & HIPERTENSION == 0 &
+#            OTRA_COM == 0 & CARDIOVASCULAR == 0 &
+#            OBESIDAD == 0 & RENAL_CRONICA == 0 &
+#            TABAQUISMO == 0) %>%
+#   filter(DEF == 1)
+#   # filter(SEXO == 1) %>% select(EDAD) %>% summary
+#   # select(EDAD) %>% summary
+#   # select(SEXO) %>% table
+>>>>>>> 7b808e8fb3fdb5524280bd95de7b641ff79d40ee:clinicos/riesgos_relativos.r
