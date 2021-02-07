@@ -1,4 +1,4 @@
-# (C) Copyright 2020 Sur Herrera Paredes
+# (C) Copyright 2020-2021 Sur Herrera Paredes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,11 +31,10 @@ n_pruebas <- leer_datos_abiertos(archivo = args$base_de_datos,
                                  solo_fallecidos = FALSE,
                                  solo_laboratorio = FALSE)
 n_pruebas <- n_pruebas %>%
-  filter(RESULTADO_LAB %in% c("1", "2")) %>%
+  filter(CLASIFICACION_FINAL %in% c("1", "2", "3", "4", "7", "8", "9")) %>%
   group_by(ENTIDAD_RES, MUNICIPIO_RES) %>%
   summarise(n_pruebas = length(ID_REGISTRO),
             .groups = "drop") %>%
-  # ungroup() %>%
   mutate(clave_municipio = paste(ENTIDAD_RES, MUNICIPIO_RES, sep = "")) %>%
   select(clave_municipio, n_pruebas) %>%
   mutate(clave_municipio = str_remove(clave_municipio, "^0"))

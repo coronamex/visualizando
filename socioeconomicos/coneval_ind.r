@@ -59,9 +59,6 @@ args <- list(indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobre
 cat("Coneval...\n")
 
 # Leer mapa
-# mun_sp <- geojson_read(args$mapa_shp, what = "sp")
-# mun_sp@data$clave <- paste(mun_sp@data$CVE_ENT, mun_sp@data$CVE_MUN, sep = "_")
-# mun_sp <- tidy(mun_sp, region = "clave")
 mun_sp <- rgdal::readOGR(args$mapa_topojson, layer = "municipalities")
 mun_sp@data <- mun_sp@data %>%
   mutate(clave = paste(str_pad(state_code, width = 2, side = "left", pad = "0"),
@@ -69,11 +66,6 @@ mun_sp@data <- mun_sp@data %>%
                        sep = "_"))
 mun_sp <- mun_sp %>% fortify(region = "clave")  %>%
   rename(clave = id)
-# head(mun_sp)
-# mun_sp$group %>% table %>% length
-# mun_sp$piece %>% table %>% length
-# mun_sp$id %>% table %>% length
-# mun_sp %>% ggplot() + geom_polygon(aes(x = long, y = lat, group = group), fill = NA, col = "red")
 
 # Leer indicadores
 Ind <- read_csv(args$indicadores,
