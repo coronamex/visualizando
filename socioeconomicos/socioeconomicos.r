@@ -17,7 +17,6 @@ library(tidyverse)
 
 args <- list(indicadores = "../socioeconomicos/coneval/coneval_indicadores_pobreza_municipa_2015.csv",
              serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_res_confirmados.csv.gz",
-             datos_municipios = "estimados/municipios_obs_esp.csv",
              cdi_base = "../socioeconomicos/cdi/cdi-base-indicadores-2015.csv",
              dir_estimados = "estimados/",
              dir_salida = "../sitio_hugo/static/imagenes/")
