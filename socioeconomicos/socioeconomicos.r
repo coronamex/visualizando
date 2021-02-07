@@ -33,7 +33,7 @@ Ind <- read_csv(args$indicadores,
 Ind <- Ind %>%
   select(!ends_with("_pob"), -entidad_federativa, - municipio) %>%
   rename(pv = npnv) %>%
-  mutate(pv = 100 - pv) %>% 
+  mutate(pv = 100 - pv) %>%
   mutate(mun = str_sub(clave_municipio, start = -3)) %>%
   mutate(clave_entidad = str_pad(string = clave_entidad, width = 2, side = "left", pad = "0")) %>%
   mutate(clave = paste(clave_entidad, mun, sep = "_")) %>%
@@ -84,14 +84,14 @@ p1 <- Dat %>%
                           "vul_car")) %>%
   mutate(indicador = replace(indicador, indicador == "ic_asalud",
                              "Carencia en acceso a salud")) %>%
-  
+
   mutate(indicador = replace(indicador, indicador == "pobreza",
                              "Situación de pobreza")) %>%
   mutate(indicador = replace(indicador, indicador == "vul_car",
                              "Vulnerables por carencia social")) %>%
   mutate(indicador = replace(indicador, indicador == "vul_ing",
                              "Vulnerables por ingreso")) %>%
-  
+
   ggplot(aes(x = percent, y = mortalidad)) +
   facet_wrap(~ indicador, scales = "free") +
   # geom_point(aes(size = poblacion), shape = 21, col = "black") +
@@ -139,8 +139,6 @@ Cdi <- Cdi %>%
 Dat <- Casos %>%
   left_join(Cdi, by = "clave")
 
-
-table(Dat$NOMTIPO)
 # Unir pob y casos
 p1 <- Dat %>%
   filter(!is.na(prop_indigena)) %>%
@@ -149,7 +147,7 @@ p1 <- Dat %>%
   filter(poblacion <= 1e5) %>%
   ggplot(aes(x = prop_indigena, y = mortalidad) ) +
   geom_point(aes(col = NOMTIPO), size = 3) +
-  scale_color_brewer(palette = "Set1", 
+  scale_color_brewer(palette = "Set1",
                      name = "Grado de\nmarginación") +
   # scale_size(name = "Población\nmunicipal") +
   geom_smooth(method = "lm") +

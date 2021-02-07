@@ -96,7 +96,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Socioeconomicos
-Rscript socioeconomicos/socioeconómicos.r
+Rscript socioeconomicos/socioeconomicos.r
 if [ $? -ne 0 ]; then
    echo "Error"
    exit 1
