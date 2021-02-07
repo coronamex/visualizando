@@ -73,6 +73,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Socioeconomicos
+Rscript socioeconomicos/socioeconomicos.r
+if [ $? -ne 0 ]; then
+   echo "Error"
+   exit 1
+fi
+Rscript socioeconomicos/casos_marginacion_municipal.r
+if [ $? -ne 0 ]; then
+   echo "Error"
+   exit 1
+fi
+
 # Municipios
 Rscript municipios/muertes_recientes_municipios.r
 if [ $? -ne 0 ]; then
@@ -89,20 +101,8 @@ if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
 fi
-Rscript municipios/incidencia_mortalidad_letalidad_municipio.r
+Rscript municipios/mapa_mortalidad.r
 if [ $? -ne 0 ]; then
-   echo "Error"
-   exit 1
-fi
-
-# Socioeconomicos
-Rscript socioeconomicos/socioeconomicos.r
-if [ $? -ne 0 ]; then
-   echo "Error"
-   exit 1
-fi
-Rscript socioeconomicos/casos_marginacion_municipal.r
-if [ $? -ne 0 ]; then
-   echo "Error"
-   exit 1
+    echo "Error"
+    exit 1
 fi
