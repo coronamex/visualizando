@@ -96,12 +96,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Socioeconomicos
-Rscript socioeconomicos/coneval_ind.r
-if [ $? -ne 0 ]; then
-   echo "Error"
-   exit 1
-fi
-Rscript socioeconomicos/pob_indigena.r
+Rscript socioeconomicos/socioeconómicos.r
 if [ $? -ne 0 ]; then
    echo "Error"
    exit 1
