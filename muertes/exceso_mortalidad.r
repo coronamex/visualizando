@@ -1,4 +1,4 @@
-# (C) Copyright 2020 Sur Herrera Paredes
+# (C) Copyright 2020-2021 Sur Herrera Paredes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,41 +23,62 @@ rolling_mean <- tibbletime::rollify(mean, window = 7, na_value = NA)
 #' @return
 #' @export
 calcular_exceso_mortalidad <- function(Dat, semanal = FALSE){
+  # Dat <- Dat %>%
+  #   filter(region %in% regiones)
+  # semanal <- TRUE
   
   if(semanal){
     Dat <- Dat %>%
       mutate(semana = lubridate::epiweek(fecha),
              A = lubridate::epiyear(fecha)) %>%
+      # filter(semana == 53)
       group_by(A, semana, region) %>%
       summarise(fecha = max(fecha),
                 muertes = sum(muertes),
                 .groups = 'drop') %>%
-      select(fecha, muertes, region, semana, A) %>%
-      filter(A != 2019)
+      select(fecha, muertes, region, semana, A)
     
     
     # Calcular muertes esperadas, y cuantil 95
     base <- Dat %>%
-      filter(A %in% c("2012", "2013", "2014", "2015",
-                      "2016", "2017", "2018")) %>%
+      filter(A %in% 2012:2018) %>%
       group_by(semana, region) %>%
       summarise(muertes.med = mean(muertes),
                 muertes.sd = sd(muertes),
                 .groups = 'drop') %>%
+      mutate(muertes.sd = replace_na(muertes.sd, 0)) %>% # Corregir semana 53
       mutate(base = qnorm(p = 0.95, mean = muertes.med, sd = muertes.sd))
-    
-    
+      
     # Calcular exceso
-    Dat <- Dat %>%
-      left_join(base %>%
-                  mutate(A = 2020),
-                by = c("A", "semana", "region")) %>%
-      mutate(dummy_fecha = str_replace(fecha, "^[0-9]{4}", "2020")) %>%
-      mutate(dummy_fecha = parse_date(dummy_fecha, format = "%Y-%m-%d")) %>%
-      mutate(A = as.character(A)) %>%
+    Dat.pand <- Dat %>%
+      filter(A >= 2020) %>%
+      left_join(base, by = c("semana", "region")) %>%
+      mutate(dummy_fecha = fecha) %>%
       mutate(exceso = muertes > base)
+    Dat.prev <- Dat %>%
+      filter(A < 2019)  %>%
+      left_join(Dat.pand %>%
+                  select(region, semana, dummy_fecha) %>%
+                  mutate(muertes.med = NA,
+                         muertes.sd = NA,
+                         base = NA,
+                         exceso = NA),
+                by = c("region", "semana"))
+    Dat <- Dat.prev %>%
+      bind_rows(Dat.pand) %>%
+      mutate(A = as.character(A))
+    
+    # y <- Dat %>%
+    #   left_join(base %>%
+    #               mutate(A = 2020),
+    #             by = c("A", "semana", "region")) %>%
+    #   mutate(dummy_fecha = str_replace(fecha, "^[0-9]{4}", "2020")) %>%
+    #   mutate(dummy_fecha = parse_date(dummy_fecha, format = "%Y-%m-%d")) %>%
+    #   mutate(A = as.character(A)) %>%
+    #   mutate(exceso = muertes > base)
     
   }else{
+    warning("AVISO: NO SE HA REVIZADO PARA DATOS DE MÁS DE UN AÑO")
     Dat <- Dat %>%
       separate(fecha, into = c("A", "M", "D"), sep = "-")
     
@@ -119,11 +140,11 @@ graficar_exceso_mortalidad <- function(Dat, regiones,
   # semanal = TRUE
   # nrow <- 3
   
-
   # Seleccionar datos y calcular exceso de mortalidad
   Res <- Dat %>%
     filter(region %in% regiones) %>%
     calcular_exceso_mortalidad(semanal = semanal)
+  # Res <- list(Dat = Dat, extra = extra)
   
   p1 <- Res$Dat %>%
     ggplot(aes(x = dummy_fecha, y = muertes, group = A)) +
