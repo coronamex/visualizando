@@ -1,6 +1,6 @@
 functions {
   // Modelo SEIR básico
-  real[] seir(
+  real[] seir_simple(
     real t,
     real[] estado,
     real[] params,
@@ -99,7 +99,7 @@ transformed parameters {
   }
 
   // Integrando ODEs
-  y_hat = integrate_ode_rk45(seir, y0, t0, ts, params, x_r, x_i);
+  y_hat = integrate_ode_rk45(seir_simple, y0, t0, ts, params, x_r, x_i);
 
   // Casos infecciosos (sintomáticos) esperados por día
   for (i in 1:n_obs){
