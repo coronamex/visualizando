@@ -147,7 +147,7 @@ n_dias_ajuste <- n_dias - args$dias_retraso
 fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 # Prácticamente no hubo cambio estos díás, uniendo periodos
 # fechas_dias <- fechas_dias[-c(8:9)]
-fechas_dias <- fechas_dias[-c(8:9, 11)]
+fechas_dias <- fechas_dias[-c(8:9, 11, 19)]
 
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 
@@ -182,17 +182,17 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    likelihood = 1,
                    f_red = log(1.22))
 
-init <- list(logphi = 2.9,
-             r_betas = c(0.30, 0.39,
+init <- list(logphi = 3.3,
+             r_betas = c(0.67, 0.37,
                          0.34, 0.27,
                          0.25, 0.24,
                          0.22, 0.18,
                          0.20, 0.19,
                          0.21, 0.23,
                          0.22, 0.24,
-                         0.25, 0.25,
-                         0.23, 0.25,
-                         0.19, 0.19))
+                         0.25, 0.23,
+                         0.26, 0.18,
+                         0.15))
 
 init <- list(chain_1 = init,
              chain_2 = init,
