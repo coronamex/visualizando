@@ -23,10 +23,10 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz")
 cat("Incidencia por estado...\n")
 
-incidencia_cortes <- 80
+incidencia_cortes <- 50
 mortalidad_cortes <- 5
-casos_acum_cortes <- 1000
-muertes_acum_cortes <- 50
+casos_acum_cortes <- 1500
+muertes_acum_cortes <- 100
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,
