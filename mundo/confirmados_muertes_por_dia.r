@@ -16,7 +16,6 @@ library(tidyverse)
 
 args <- list(min_casos = 60,
              dias_ventana = 7,
-             # tabla_mx = "../datos/ssa_dge_2020-04-19//reportes_diarios.csv",
              tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
              serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
              serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
