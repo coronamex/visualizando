@@ -13,16 +13,18 @@
 # You should have received a copy of the GNU General Public License
 library(tidyverse)
 
+
+args <- list(min_muertes = 14,
+             dias_recientes = 14,
+             dias_ventana = 7,
+             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
+             # serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
+             serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
+             lut_csse = "../COVID-19/csse_covid_19_data/UID_ISO_FIPS_LookUp_Table.csv",
+             dir_salida = "../sitio_hugo/static/imagenes/")
 roll_media <- tibbletime::rollify(mean,
                                   window = args$dias_ventana,
                                   na_value = 0)
-
-args <- list(min_casos = 60,
-             dias_ventana = 7,
-             tabla_mx = "../datos/datos_abiertos/serie_tiempo_nacional_fecha_confirmacion.csv.gz",
-             serie_tiempo_casos_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv",
-             serie_tiempo_muertes_mundo = "../COVID-19/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
-             dir_salida = "../sitio_hugo/static/imagenes/")
 cat("Comparaciones mundiales...\n")
 
 lut_paises <- set_names(c("EEUU", "España", "Italia",
@@ -165,10 +167,82 @@ p1 <- Dat %>%
         axis.title = element_text(size = 20),
         axis.text.x = element_text(size = 10, angle = 90),
         plot.margin = margin(l = 20, r = 20, b = 10))
-p1
+# p1
+archivo <- file.path(args$dir_salida, "muertes_mundiales.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "muertes_mundiales@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
 
 
+# Combinar datos
+Dat <- muertes_mundo %>%
+  bind_rows(datos_mx %>%
+              select(pais, fecha, muertes_acumuladas, muertes_nuevas))
+
+lut_csse <- read_csv(args$lut_csse,
+                     col_types = cols(.default = col_character(),
+                                      Population = col_number(),
+                                      Lat = col_number(),
+                                      Long_ = col_number()))
+lut_csse <- lut_csse %>%
+  filter(is.na(Province_State)) %>%
+  select(UID, pais = Country_Region, pob = Population) %>%
+  mutate(pais = replace(pais, pais == "Mexico", "México"))
+# lut_csse
+
+mortalidad_reciente <- Dat %>%
+  filter(fecha > max(fecha) - args$dias_recientes) %>%
+  group_by(pais) %>%
+  summarise(muertes = sum(muertes_nuevas)) %>%
+  left_join(lut_csse %>%
+              select(pais, pob),
+            by = "pais") %>%
+  mutate(mortalidad = 1e5 * muertes / pob) %>%
+  arrange(desc(mortalidad)) %>%
+  filter(muertes >= args$min_muertes)
+
+Dat <- Dat %>%
+  filter(pais %in% mortalidad_reciente$pais[1:10]) %>%
+  filter(fecha > max(fecha) - 60 - args$dias_ventana ) %>%
+  rename(muertes = muertes_nuevas)
 
 
+p1 <- Dat %>%
+  split(.$pais) %>%
+  map_dfr(function(d){
+    d %>%
+      arrange(fecha) %>%
+      mutate(muertes = floor(roll_media(muertes))) %>%
+      filter(muertes != 0)
+  }) %>%
+  filter(fecha > max(fecha) - 60) %>%
+  left_join(lut_csse %>%
+              select(pais, pob),
+            by = "pais") %>%
+  mutate(mortalidad = 1e5 * muertes / pob) %>%
+  ggplot(aes(x = fecha, y = mortalidad, group = pais)) +
+  geom_line(aes(col = pais), size = 2) +
+  scale_color_brewer(palette = "Set3", name = "") +
+  guides(color = guide_legend(nrow = 3)) +
+  ylab(expression(frac("Muertes", "100 mil habitantes"))) +
+  xlab("Fecha de registro") +
+  AMOR::theme_blackbox() +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14, face = "bold"),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_rect(fill=NA, colour = "black", size = 3),
+        axis.title.y = element_text(size = 20, face = "bold"),
+        axis.text.y = element_text(size = 10),
+        axis.title = element_text(size = 20),
+        axis.text.x = element_text(size = 10, angle = 90),
+        plot.margin = margin(l = 20, r = 20, b = 10))
+# p1
+archivo <- file.path(args$dir_salida, "paises_mortalidad_reciente.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "paises_mortalidad_reciente@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
