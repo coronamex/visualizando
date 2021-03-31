@@ -67,7 +67,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Mundo
-Rscript mundo/confirmados_muertes_por_dia_por_pob.r
+Rscript mundo/muertes_mundo.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
