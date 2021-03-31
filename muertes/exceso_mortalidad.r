@@ -155,9 +155,9 @@ graficar_exceso_mortalidad <- function(Dat, regiones,
                 fill = "#fdae6b",
                 alpha = 1, size = 0) +
     geom_line(aes(col = A, size = A)) +
-    scale_color_manual(values = rev(grey.colors(n = 8, start = 0)),
+    scale_color_manual(values = rev(c("black", "black", grey.colors(n = 7, start = 0))),
                        name = "Año") +
-    scale_size_manual(values = c(rep(lineas.sizes[1],7), lineas.sizes[2]),
+    scale_size_manual(values = c(rep(lineas.sizes[1], 7), lineas.sizes[2], lineas.sizes[2]),
                       name = "Año") +
     # geom_text(data = Res$extra,
     #           aes(label = paste0("+",
@@ -226,7 +226,7 @@ Pand <- read_csv(args$defs_entidad_rec,
                                   CVE_ENT = col_character()))
 
 Dat <- Defs %>%
-  filter(!(CVE_ENT %in% c("33", "34", "35"))) %>%
+  filter(!(CVE_ENT %in% c("33", "34", "35", "99"))) %>%
   select(fecha, CVE_ENT, muertes = def_registradas) %>%
   bind_rows(Pand %>% rename(muertes = def_registradas))
 
