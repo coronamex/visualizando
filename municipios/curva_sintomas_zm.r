@@ -303,7 +303,8 @@ fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
 
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[1]],
              fecha_inicio = fecha_inicio,
-             fecha_final = fecha_final) +
+             fecha_final = fecha_final,
+             offset_totales = 40) +
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   ggtitle(label = "Valle de México") +
   AMOR::theme_blackbox() +
@@ -326,7 +327,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[2]],
              fecha_inicio = fecha_inicio,
              fecha_final = fecha_final,
-             offset_totales = 85)
+             offset_totales = 100)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos.png")
@@ -337,7 +338,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[3]],
              fecha_inicio = fecha_inicio,
              fecha_final = fecha_final,
-             offset_totales = 85)
+             offset_totales = 100)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos2.png")
@@ -349,7 +350,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[4]],
                    fecha_inicio = fecha_inicio,
                    fecha_final = fecha_final,
-                   offset_totales = 85)
+                   offset_totales = 100)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos3.png")
