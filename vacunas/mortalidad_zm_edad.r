@@ -3,7 +3,8 @@ source("util/leer_datos_abiertos.r")
 
 
 args <- list(datos_abiertos = "../datos/datos_abiertos/base_de_datos.csv.gz",
-             lut_zm = "../datos/util/zonas_metropolitanas_2015.csv")
+             lut_zm = "../datos/util/zonas_metropolitanas_2015.csv",
+             n_dias = 45)
 
 Dat <- leer_datos_abiertos(args$datos_abiertos, solo_confirmados = TRUE,
                            solo_fallecidos = TRUE, solo_laboratorio = FALSE)
@@ -25,6 +26,7 @@ zm_muns <- paste0(zm_muns$CVE_ENT, "_", zm_muns$CVE_MUN %>% str_sub(3,5) )
 
 roll_media <- tibbletime::rollify(mean, window = 7, na_value = 0)
 Dat
+fecha_inicio <- max(Dat$FECHA_DEF) - args$n_dias
 Dat %>%
   mutate(zm = c("no_zm", "zm")[ 1*(mun_cve %in% zm_muns) + 1 ]) %>%
   # select(zm) %>% table 
@@ -42,7 +44,7 @@ Dat %>%
       mutate(muertes_ventana = roll_media(defs)) %>%
       mutate(muertes_escala = muertes_ventana / max(muertes_ventana))
   }) %>%
-  filter(FECHA_DEF >= "2021-03-01") %>%
+  filter(FECHA_DEF > fecha_inicio) %>%
   # filter(FECHA_DEF >= "2020-07-15" & FECHA_DEF < "2020-10-01") %>%
   ggplot(aes(x = FECHA_DEF, y = muertes_escala, group = edad)) +
   facet_wrap(~zm) +
