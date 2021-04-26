@@ -4,6 +4,7 @@ source("util/leer_datos_abiertos.r")
 
 args <- list(datos_abiertos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              lut_zm = "../datos/util/zonas_metropolitanas_2015.csv",
+             dias_recientes = 14,
              n_dias = 45)
 
 Dat <- leer_datos_abiertos(args$datos_abiertos, solo_confirmados = TRUE,
