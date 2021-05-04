@@ -96,12 +96,14 @@ p1 <- Dat %>%
                                "60-69 años",
                                "70 ó más años")) +
   scale_y_continuous(labels = scales::percent) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
   
   ylab(label = "Porcentaje de pacientes") +
   xlab(label = "Fecha de inicio de síntomas") +
   AMOR::theme_blackbox() +
   theme(axis.title = element_text(size = 20),
         axis.text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
         plot.margin = margin(l = 20, r = 20),
         panel.background = element_blank(),
         panel.border = element_rect(fill=NA, colour = "black", size = 3),

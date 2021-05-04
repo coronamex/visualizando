@@ -103,12 +103,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.200, 0.253))
 
 init <- list(logphi = 3.8,
-             r_betas = c(0.26, 0.21,
-                         0.21, 0.23,
-                         0.24, 0.20,
-                         0.26, 0.18,
-                         0.14, 0.17,
-                         0.18, 0.17))
+             r_betas = c(0.26, 0.20,
+                         0.23, 0.24,
+                         0.20, 0.26,
+                         0.16, 0.14,
+                         0.18, 0.17,
+                         0.17, 0.19))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -164,24 +164,24 @@ par.names <- summary(m1.stan, pars = c("r_betas", "phi"))$summary %>%
   row.names()
 lp <- bayesplot::log_posterior(m1.stan)
 np <- bayesplot::nuts_params(m1.stan)
-bayesplot::mcmc_parcoord(as.matrix(m1.stan),
-                         np = np,
-                         pars = par.names,
-                         transformations = list(phi = "log"))
-bayesplot::mcmc_trace(as.array(m1.stan), pars = par.names, np = np)
-
-bayesplot::mcmc_pairs(as.array(m1.stan),
-                      pars = par.names,
-                      np = np,
-                      off_diag_args = list(size = 0.75))
-
-bayesplot::mcmc_nuts_divergence(np, lp)
-bayesplot::mcmc_nuts_energy(np)
-bayesplot::mcmc_acf(as.array(m1.stan),
-                    pars = par.names,
-                    lags = 10)
-
-stan_diag(m1.stan)
+# bayesplot::mcmc_parcoord(as.matrix(m1.stan),
+#                          np = np,
+#                          pars = par.names,
+#                          transformations = list(phi = "log"))
+# bayesplot::mcmc_trace(as.array(m1.stan), pars = par.names, np = np)
+# 
+# bayesplot::mcmc_pairs(as.array(m1.stan),
+#                       pars = par.names,
+#                       np = np,
+#                       off_diag_args = list(size = 0.75))
+# 
+# bayesplot::mcmc_nuts_divergence(np, lp)
+# bayesplot::mcmc_nuts_energy(np)
+# bayesplot::mcmc_acf(as.array(m1.stan),
+#                     pars = par.names,
+#                     lags = 10)
+# 
+# stan_diag(m1.stan)
 ##
 
 bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8)
