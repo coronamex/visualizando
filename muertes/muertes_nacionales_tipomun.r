@@ -89,7 +89,10 @@ p1 <- Dat %>%
                         guide = guide_legend(override.aes = list(fill = c("pink")))) +
   scale_fill_manual(values = c("#0570b0","#74a9cf","#d0d1e6"), name = "") +
   guides(fill = guide_legend(override.aes = list(size = 3), nrow = 2)) +
-  scale_y_continuous(labels = scales::comma) + 
+  scale_y_continuous(labels = scales::comma,
+                     breaks = function(lims){
+                       seq(from = 0, to = lims[2], by = 200)
+                     }) + 
   ylab(label = "Número de fallecimientos") +
   xlab(label = "Fecha de defunción") +
   AMOR::theme_blackbox() +
