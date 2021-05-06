@@ -1,3 +1,18 @@
+# (C) Copyright 2021 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 library(tidyverse)
 source("util/leer_datos_abiertos.r")
 
@@ -7,9 +22,12 @@ args <- list(datos_abiertos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              dias_recientes = 14,
              max_ola1 = "2020-07-21",
              max_ola2 = "2021-01-20",
-             n_dias = 45)
+             fecha_inicio = "2021-03-01",
+             dir_salida = "../sitio_hugo/static/imagenes/")
+cat("Mortalidad por edad y tipo de municipio...\n")
 args$max_ola1 <- parse_date(args$max_ola1, format = "%Y-%m-%d")
 args$max_ola2 <- parse_date(args$max_ola2, format = "%Y-%m-%d")
+args$fecha_inicio <- parse_date(args$fecha_inicio, format = "%Y-%m-%d")
 
 Dat <- leer_datos_abiertos(args$datos_abiertos, solo_confirmados = TRUE,
                            solo_fallecidos = TRUE, solo_laboratorio = FALSE)
@@ -75,21 +93,22 @@ Dat <- Dat %>%
       mutate(muertes_ventana = roll_media(defs)) 
       # mutate(muertes_escala = muertes_ventana / max(muertes_ventana))
   })
-Dat  
+# Dat  
 
 
 n_dias <- as.numeric(max(Dat$FECHA_DEF) - args$max_ola2)
-n_dias
+# n_dias
 
+n_dias_grafica <- as.numeric(max(Dat$FECHA_DEF) - args$fecha_inicio)
+# n_dias_grafica
 
-
-bind_rows(Dat %>%
+p1 <- bind_rows(Dat %>%
             filter(FECHA_DEF >= args$max_ola1 & FECHA_DEF <= args$max_ola1 + n_dias) %>%
             group_by(edad, zm) %>%
             summarise(FECHA_DEF = FECHA_DEF,
                       muertes_escala = muertes_ventana / muertes_ventana[FECHA_DEF == args$max_ola1],
                       .groups = 'drop') %>%
-            filter(FECHA_DEF > max(FECHA_DEF) - args$n_dias) %>%
+            filter(FECHA_DEF > max(FECHA_DEF) - n_dias_grafica) %>%
             mutate(ola = '1a. "ola"'),
           Dat %>%
             filter(FECHA_DEF >= args$max_ola2 & FECHA_DEF <= args$max_ola2 + n_dias) %>%
@@ -97,7 +116,7 @@ bind_rows(Dat %>%
             summarise(FECHA_DEF = FECHA_DEF,
                       muertes_escala = muertes_ventana / muertes_ventana[FECHA_DEF == args$max_ola2],
                       .groups = 'drop') %>%
-            filter(FECHA_DEF > max(FECHA_DEF) - args$n_dias) %>%
+            filter(FECHA_DEF > max(FECHA_DEF) - n_dias_grafica) %>%
             mutate(ola = '2a. "ola"')) %>%
   mutate(zm = replace(zm, zm == "zm", "Zonas metropolitanas")) %>%
   mutate(zm = replace(zm, zm == "no_zm", "Zonas no metropolitanas")) %>%
@@ -108,8 +127,22 @@ bind_rows(Dat %>%
   scale_y_continuous(labels = scales::percent) +
   xlab("Fecha de defunción") +
   ylab("Fallecimientos como proporción del máximo") +
-  theme_classic()
-  
+  theme_classic() +
+  theme(plot.margin = margin(l = 20, r = 20),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        legend.title = element_text(face = "bold"),
+        axis.title.y = element_text(size = 16),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10))
+# p1
+# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "mortalidad_edad_tipomun.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
+archivo <- file.path(args$dir_salida, "mortalidad_edad_tipomun@2x.png")
+ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 
 
     
