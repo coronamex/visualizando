@@ -3,12 +3,7 @@ export LC_ALL=es_MX.UTF-8
 export LANG=es_MX.UTF-8
 
 # Casos
-Rscript casos/inicio_sintomas_por_fecha.r
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1
-fi
-
+# Rscript casos/inicio_sintomas_por_fecha.r
 Rscript casos/sir.r
 if [ $? -ne 0 ]; then
     echo "Error"
@@ -16,12 +11,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Clinicos
-Rscript clinicos/clinicos_db_completa.r
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1
-fi
-
+# Rscript clinicos/clinicos_db_completa.r
 Rscript clinicos/tiempos_deteccion.r
 if [ $? -ne 0 ]; then
     echo "Error"
