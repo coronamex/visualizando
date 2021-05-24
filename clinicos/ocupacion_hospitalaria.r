@@ -1,4 +1,4 @@
-# (C) Copyright 2020 Sur Herrera Paredes
+# (C) Copyright 2020-2021 Sur Herrera Paredes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -82,14 +82,67 @@ graficar_ocupacion_hospitalaria <- function(Dat, estados = NULL){
   p1
 }
 
-args <- list(serie_tiempo_hosp = "../datos/hospitalizaciones/serie_tiempo_estados_hosp_irag.tsv",
-             dir_salida = "../sitio_hugo/static/imagenes/")
+args <- list(serie_tiempo_hosp = "../hospitalizaciones/datos/2021-05-10/ocupacion_hospitalaria_entidad.csv",
+             dir_salida = "../sitio_hugo/static/imagenes/",
+             lut_entidades = "../datos/util/estados_lut_datos_abiertos.csv")
 cat("Ocupación hospitalaria\n")
 
-Dat <- read_tsv("../datos/hospitalizaciones/serie_tiempo_estados_hosp_irag.tsv",
+
+Dat <- read_csv(args$serie_tiempo_hosp,
                 col_types = cols(fecha = col_date(format = "%Y-%m-%d"),
-                                 estado = col_character(),
+                                 cve_ent = col_character(),
                                 .default = col_number()))
+Dat
+
+
+Dat %>%
+  select(-cve_ent) %>%
+  group_by(fecha) %>%
+  summarise_all(function(x){sum(x, na.rm = T)}) %>%
+  ungroup() %>%
+  pivot_longer(-fecha,
+               names_to = "grupo",
+               values_to = "numero") %>%
+  mutate(grupo = factor(grupo,
+                        levels = c("pacientes_sin_cama",
+                                   "camas_general_o",
+                                   "camas_ventilador_o",
+                                   "camas_ventilador_d",
+                                   "camas_general_d",
+                                   "ventiladores_respaldo"))) %>%
+  split(.$fecha) %>%
+  map_dfr(function(d){
+    d <- d %>%
+      arrange(grupo)
+    tot <- sum(d$numero)
+    
+    d$ymax <- cumsum(d$numero) - (tot / 2)
+    d$xmin <- d$fecha - 1
+    
+    d %>%
+      mutate(ymin = lag(ymax, n = 1, default = - (tot / 2))) %>%
+      filter(numero > 0)
+  }) %>%
+  ggplot(aes(x = fecha, y = numero)) +
+  geom_bar(aes(fill = grupo), stat = "identity", position = "fill", width = 1)
+
+
+  ggplot(aes(x = fecha, fill = grupo)) +
+  geom_rect(aes(xmin = xmin, xmax = fecha,
+                ymin = ymin, ymax = ymax), col = NA) +
+  scale_fill_brewer(palette = "Paired", type = "qual", name = "") +
+  guides(fill = guide_legend(nrow = 2)) +
+  scale_y_continuous(breaks = function(lims){
+    seq(from = lims[1], to = lims[2], by = 3000)
+  },
+  labels = function(labs){
+    labs <- as.numeric(labs)
+    labs + abs(min(labs))
+  }) +
+  theme_classic() +
+  theme(legend.position = "top")
+
+
 
 
 p1 <- graficar_ocupacion_hospitalaria(Dat = Dat, estados = NULL)
