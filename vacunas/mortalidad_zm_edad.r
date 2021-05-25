@@ -16,7 +16,6 @@
 library(tidyverse)
 source("util/leer_datos_abiertos.r")
 
-
 args <- list(datos_abiertos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              lut_zm = "../datos/util/zonas_metropolitanas_2015.csv",
              dias_recientes = 14,
@@ -36,7 +35,8 @@ Dat <- leer_datos_abiertos(args$datos_abiertos, solo_confirmados = TRUE,
 Dat <- Dat %>%
   mutate(edad = NA) %>%
   mutate(edad = replace(EDAD, EDAD >= 60, "60+")) %>%
-  mutate(edad = replace(edad, EDAD < 60, "0-59")) %>%
+  mutate(edad = replace(edad, EDAD >= 50 & EDAD < 60, "50-59+")) %>%
+  mutate(edad = replace(edad, EDAD < 50, "0-49")) %>%
   mutate(mun_cve = paste0(ENTIDAD_RES, "_", MUNICIPIO_RES)) %>%
   group_by(mun_cve, edad, FECHA_DEF) %>%
   summarise(muertes = length(FECHA_DEF),
@@ -123,7 +123,8 @@ p1 <- bind_rows(Dat %>%
   ggplot(aes(x = FECHA_DEF, y = muertes_escala)) +
   facet_wrap(ola ~ zm, scales = "free") +
   geom_line(aes(col = edad), size = 2) +
-  scale_color_manual(values = c("#8073ac", "#e08214")) +
+  scale_color_manual(values = c("#5e3c99", "#b2abd2", "#e66101")) +
+  # scale_color_manual(values = c("#8073ac", "#e08214")) +
   scale_y_continuous(labels = scales::percent) +
   xlab("Fecha de defunción") +
   ylab("Fallecimientos como proporción del máximo") +
