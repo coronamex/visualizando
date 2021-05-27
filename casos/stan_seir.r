@@ -103,12 +103,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.200, 0.253))
 
 init <- list(logphi = 3.8,
-             r_betas = c(0.26, 0.24,
-                         0.21, 0.25,
-                         0.21, 0.14,
-                         0.16, 0.18,
-                         0.17, 0.18,
-                         0.19, 0.16))
+             r_betas = c(0.27, 0.23,
+                         0.21, 0.26,
+                         0.16, 0.14,
+                         0.18, 0.17,
+                         0.17, 0.19,
+                         0.17, 0.16))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -338,3 +338,4 @@ p1 <- Dat %>%
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
 p1
+
