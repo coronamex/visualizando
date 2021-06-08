@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 library(tidyverse)
 
-
 args <- list(min_muertes = 14,
              dias_recientes = 14,
              dias_ventana = 7,
@@ -114,6 +113,9 @@ Dat <- Dat %>%
   summarise(muertes = sum(muertes_nuevas),
             .groups = "drop")
 # Dat
+
+# Corregir datos de Perú que se refieren a una corrección retrospectiva
+Dat$muertes[ Dat$pais == "Perú" & Dat$fecha == "2021-06-02" ] <- 0
 
 p1 <- Dat %>%
   split(.$pais) %>%
