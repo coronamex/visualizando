@@ -82,7 +82,8 @@ Dat <- Dat %>%
   group_by(edad, FECHA_DEF, zm) %>%
   summarise(defs = sum(muertes),
             .groups = 'drop') %>%
-  split(list(.$zm, .$edad)) %>%
+  # split(list(.$zm, .$edad)) %>%
+  split(list(.$edad)) %>%
   map_dfr(function(d){
     days <- as.numeric(max(d$FECHA_DEF) - min(d$FECHA_DEF))
     tibble(FECHA_DEF = min(d$FECHA_DEF) + 0:days) %>%
@@ -121,7 +122,8 @@ p1 <- bind_rows(Dat %>%
   mutate(zm = replace(zm, zm == "zm", "Zonas metropolitanas")) %>%
   mutate(zm = replace(zm, zm == "no_zm", "Zonas no metropolitanas")) %>%
   ggplot(aes(x = FECHA_DEF, y = muertes_escala)) +
-  facet_wrap(ola ~ zm, scales = "free") +
+  # facet_wrap(ola ~ zm, scales = "free") +
+  facet_wrap(ola ~ ., scales = "free", nrow = 2) +
   geom_line(aes(col = edad), size = 2) +
   scale_color_manual(values = c("#5e3c99", "#b2abd2", "#e66101")) +
   # scale_color_manual(values = c("#8073ac", "#e08214")) +
