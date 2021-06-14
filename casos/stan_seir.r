@@ -103,12 +103,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.200, 0.253))
 
 init <- list(logphi = 3.8,
-             r_betas = c(0.28, 0.19,
-                         0.26, 0.19,
-                         0.14, 0.17,
-                         0.18, 0.17,
-                         0.19, 0.18,
-                         0.17, 0.19))
+             r_betas = c(0.29, 0.21,
+                         0.24, 0.15,
+                         0.14, 0.19,
+                         0.17, 0.18,
+                         0.19, 0.17,
+                         0.18, 0.21))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -198,6 +198,7 @@ apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.
   ggplot(aes(x = dia)) +
   geom_line(aes(y = stan_median), size = 2) +
   geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), alpha = 0.2) +
+  geom_hline(yintercept = 1) +
   ylab("R0") +
   theme_classic()
 
