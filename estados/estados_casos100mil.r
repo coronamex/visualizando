@@ -23,7 +23,7 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz")
 cat("Incidencia por estado...\n")
 
-incidencia_cortes <- 20
+incidencia_cortes <- 40
 mortalidad_cortes <- 1
 casos_acum_cortes <- 2000
 muertes_acum_cortes <- 100
