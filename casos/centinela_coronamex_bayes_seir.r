@@ -182,8 +182,8 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    likelihood = 1,
                    f_red = log(1.22))
 
-init <- list(logphi = 2.9,
-             r_betas = c(0.36, 0.36,
+init <- list(logphi = 3.6,
+             r_betas = c(0.40, 0.36,
                          0.34, 0.28,
                          0.25, 0.24,
                          0.22, 0.18,
@@ -195,8 +195,8 @@ init <- list(logphi = 2.9,
                          0.15, 0.19,
                          0.19, 0.19,
                          0.20, 0.18,
-                         0.19, 0.23,
-                         0.25))
+                         0.20, 0.22,
+                         0.26, 0.30))
 
 init <- list(chain_1 = init,
              chain_2 = init,
