@@ -35,7 +35,7 @@ Dat <- leer_datos_abiertos(args$datos_abiertos, solo_confirmados = TRUE,
 Dat <- Dat %>%
   mutate(edad = NA) %>%
   mutate(edad = replace(EDAD, EDAD >= 60, "60+")) %>%
-  mutate(edad = replace(edad, EDAD >= 50 & EDAD < 60, "50-59+")) %>%
+  mutate(edad = replace(edad, EDAD >= 50 & EDAD < 60, "50-59")) %>%
   mutate(edad = replace(edad, EDAD < 50, "0-49")) %>%
   mutate(mun_cve = paste0(ENTIDAD_RES, "_", MUNICIPIO_RES)) %>%
   group_by(mun_cve, edad, FECHA_DEF) %>%
@@ -110,7 +110,7 @@ p1 <- bind_rows(Dat %>%
                       muertes_escala = muertes_ventana / muertes_ventana[FECHA_DEF == args$max_ola1],
                       .groups = 'drop') %>%
             filter(FECHA_DEF > max(FECHA_DEF) - n_dias_grafica) %>%
-            mutate(ola = '1a. "ola"'),
+            mutate(ola = 'Entre 1a y 2a "olas"'),
           Dat %>%
             filter(FECHA_DEF >= args$max_ola2 & FECHA_DEF <= args$max_ola2 + n_dias) %>%
             group_by(edad, zm) %>%
@@ -118,7 +118,7 @@ p1 <- bind_rows(Dat %>%
                       muertes_escala = muertes_ventana / muertes_ventana[FECHA_DEF == args$max_ola2],
                       .groups = 'drop') %>%
             filter(FECHA_DEF > max(FECHA_DEF) - n_dias_grafica) %>%
-            mutate(ola = '2a. "ola"')) %>%
+            mutate(ola = 'Entre 2a y 3a "olas"')) %>%
   mutate(zm = replace(zm, zm == "zm", "Zonas metropolitanas")) %>%
   mutate(zm = replace(zm, zm == "no_zm", "Zonas no metropolitanas")) %>%
   ggplot(aes(x = FECHA_DEF, y = muertes_escala)) +
