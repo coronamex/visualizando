@@ -1,4 +1,4 @@
-# (C) Copyright 2020 Sur Herrera Paredes
+# (C) Copyright 2021 Sur Herrera Paredes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ source("util/leer_datos_abiertos.r")
 args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/",
              fecha_parteaguas = "2021-04-01")
+cat("Riesgos relativos pre-vacunación")
 
 cat("Leer base de datos...\n")
 # Lee base de datos
@@ -26,103 +27,6 @@ Dat <- leer_datos_abiertos(archivo = args$base_de_datos,
                            solo_fallecidos = FALSE,
                            solo_laboratorio = FALSE,
                            version = "adivinar")
-
-
-cat("Tiempo entre síntomas y defunción...\n")
-p1 <- Dat %>%
-  filter(!is.na(FECHA_DEF)) %>%
-  select(FECHA_DEF, FECHA_SINTOMAS) %>%
-  mutate(numero_dias = as.numeric(FECHA_DEF - FECHA_SINTOMAS)) %>%
-  filter(numero_dias >= 0) %>%
-  filter(numero_dias <= 50) %>%
-  ggplot(aes(x = numero_dias)) +
-  geom_histogram(bins = 15) +
-  geom_vline(aes(xintercept = median(numero_dias))) +
-  scale_x_continuous(breaks = function(lims){seq(from = 0, to = lims[2], by = 5)}) +
-  scale_y_continuous(labels = scales::comma) +
-  ylab("Número de defunciones") +
-  xlab("Días entre inicio de síntomas y defunción") +
-  AMOR::theme_blackbox() +
-  theme(legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14, face = "bold"),
-        legend.background = element_blank(),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10),
-        plot.margin = margin(l = 20, r = 20))
-# p1
-archivo <- file.path(args$dir_salida, "tiempo_defuncion.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "tiempo_defuncion@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)  
-
-###########################################
-cat("Casos y defunciones por edad...\n")
-
-# Seleccionar fechas y redondear edades
-p1 <- Dat %>%
-  select(FECHA_SINTOMAS,
-         EDAD,
-         FECHA_DEF) %>%
-  mutate(EDAD = floor(EDAD / 10) * 10) %>%
-  mutate(EDAD = replace(EDAD, EDAD >= 70, 70)) %>%  
-  
-  # Crear tabla por fecha y por grupo de edad
-  group_by(FECHA_SINTOMAS, EDAD) %>%
-  summarise(Casos = length(EDAD),
-            Defunciones = sum(!is.na(FECHA_DEF)),
-            .groups = 'drop') %>%
-  pivot_longer(cols = c(-FECHA_SINTOMAS, -EDAD),
-               values_to = "sintomas_nuevos",
-               names_to = "grupo") %>%
-  filter(sintomas_nuevos > 0) %>%
-
-  filter(FECHA_SINTOMAS >= "2020-03-01") %>%
-  filter(FECHA_SINTOMAS < max(FECHA_SINTOMAS) - 11) %>%
-  # arrange(desc(FECHA_SINTOMAS)) %>%
-  # print()
-  
-  # Graficar
-  ggplot(aes(x = FECHA_SINTOMAS, y = sintomas_nuevos)) +
-  facet_wrap(~ grupo, ncol = 1) +
-  geom_bar(aes(fill = as.character(EDAD)), stat = "identity", position = "fill", width = 1) +
-  geom_hline(yintercept = c(0.25, 0.5, 0.75)) +
-  scale_fill_brewer(palette = "PuOr", name = "Edad",
-                    labels = c("0-9 años",
-                               "10-19 años",
-                               "20-29 años",
-                               "30-39 años",
-                               "40-49 años",
-                               "50-59 años",
-                               "60-69 años",
-                               "70 ó más años")) +
-  scale_y_continuous(labels = scales::percent) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
-  
-  ylab(label = "Porcentaje de pacientes") +
-  xlab(label = "Fecha de inicio de síntomas") +
-  AMOR::theme_blackbox() +
-  theme(axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10),
-        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
-        plot.margin = margin(l = 20, r = 20),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill=NA, colour = "black", size = 3),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        legend.background = element_blank(),
-        legend.key = element_blank(),
-        legend.title = element_text(face = "bold"),
-        strip.background = element_blank(),
-        strip.text = element_text(face = "bold", size = 12))
-# p1 
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "casos_def_por_edad.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "casos_def_por_edad@2x.png")
-ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
-
-#######################################
 
 # LUT de nombres de variables
 rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inmnosupresión",
@@ -133,11 +37,12 @@ rr_lut <- set_names(c("Habla lengua indígena", "Diabetes", "EPOC", "Asma", "Inm
                       "HIPERTENSION", "OTRA_COM", "CARDIOVASCULAR", "OBESIDAD", "RENAL_CRONICA",
                       "TABAQUISMO", "EMBARAZO", "SEXO", "EDAD", "INDIGENA"))
 
-# Eliminar casos recientes
+# # Eliminar casos recientes
+# Dat <- Dat %>%
+#   filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
+# Mantener sólo casos antes de la vacunación masiva (approx)
 Dat <- Dat %>%
-  filter(FECHA_SINTOMAS >= args$fecha_parteaguas) %>%
-  filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
-
+  filter(FECHA_SINTOMAS < args$fecha_parteaguas)
 
 # Seleccionar datos y convertir variables a indicadores
 d <- Dat %>%
@@ -215,7 +120,7 @@ p1 <- list(Muerte = m1,
            angle = 90,
            size = 6) +
   ylab("Factores de riesgo") +
-  xlab("Riesgo relativo\n(Desde abril 2021)") +
+  xlab("Riesgo relativo\n(antes de abril 2021)") +
   guides(color = guide_legend(nrow = 2)) +
   AMOR::theme_blackbox() +
   theme(axis.text.x = element_text(angle = 90),
@@ -229,9 +134,12 @@ p1 <- list(Muerte = m1,
         axis.title = element_text(size = 20),
         axis.text = element_text(size = 10, color = "black"),
         plot.margin = margin(l = 20, r = 20))
-p1
+# p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
+archivo <- file.path(args$dir_salida, "riesgos_relativos_prevac.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
+archivo <- file.path(args$dir_salida, "riesgos_relativos_prevac@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
+
+archivo <- file.path("estimados/riesgos_relativos_prevac.tsv")
+write_tsv(p1$data, archivo)
