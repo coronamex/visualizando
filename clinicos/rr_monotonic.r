@@ -4,7 +4,7 @@ source("util/leer_datos_abiertos.r")
 
 args <- list(base_de_datos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              dir_salida = "../sitio_hugo/static/imagenes/",
-             fecha_parteaguas = "2021-04-01")
+             fecha_inicio = "2021-04-01")
 
 cat("Leer base de datos...\n")
 # Lee base de datos
@@ -30,7 +30,6 @@ Dat <- Dat %>%
   filter(FECHA_SINTOMAS > "2021-05-01") %>%
   # filter(FECHA_SINTOMAS >= args$fecha_parteaguas) %>%
   filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
-
 Dat
 
 # Seleccionar datos y convertir variables a indicadores
@@ -59,30 +58,38 @@ d <- Dat %>%
   pivot_wider(id_cols = c(ENTIDAD_UM, DEF, HOSP, EDAD, SEXO, EMBARAZO, SECTOR, ID_REGISTRO, Mes),
               names_from = factor_riesgo, values_from = valor) %>%
   select(-ID_REGISTRO) %>%
-  drop_na
-
-d <- d %>%
+  drop_na %>%
   mutate(EDAD = round(EDAD, -1))
 
 d
 
 ftable(DEF ~ Mes, d)
 
-m1 <- brm(DEF ~ mo(EDAD)*Mes + SEXO, data = d, chains = 4, cores = 4, warmup = 500, iter = 1000)
+# m1 <- brm(DEF ~ mo(EDAD)*Mes + SEXO, data = d, chains = 4, cores = 4, warmup = 500, iter = 1000)
+# m2 <- brm(DEF ~ mo(EDAD)*Mes + SEXO, data = d, chains = 4, cores = 4, warmup = 500, iter = 1000, family = bernoulli(link = "logit"))
 
-m2 <- brm(DEF ~ mo(EDAD)*Mes + SEXO, data = d, chains = 4, cores = 4, warmup = 500, iter = 1000, family = bernoulli(link = "logit"))
-
-
+d
 d <- d %>%
-  select(DEF, EDAD, SEXO, Mes) %>%
-  group_by(EDAD, SEXO, Mes) %>%
+  select(DEF, EDAD, Mes, ENTIDAD_UM, SEXO, EMBARAZO,
+         SECTOR, HABLA_LENGUA_INDIG, DIABETES, EPOC, ASMA,
+         INMUSUPR, HIPERTENSION, CARDIOVASCULAR, OBESIDAD,
+         RENAL_CRONICA, TABAQUISMO, INDIGENA, OTRA_COM) %>%
+  group_by(EDAD, Mes, ENTIDAD_UM, SEXO, EMBARAZO,
+           SECTOR, HABLA_LENGUA_INDIG, DIABETES, EPOC, ASMA,
+           INMUSUPR, HIPERTENSION, CARDIOVASCULAR, OBESIDAD,
+           RENAL_CRONICA, TABAQUISMO, INDIGENA, OTRA_COM) %>%
   summarise(defs = sum(DEF),
             n_ind = length(DEF),
-            .groups = 'drop')
-d$EDAD <- factor(d$EDAD, levels = sort(unique(d$EDAD)), ordered = TRUE)
+            .groups = 'drop') %>%
+    mutate(EDAD = factor(EDAD, levels = sort(unique(d$EDAD)), ordered = TRUE)) 
 d
 
-m3 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO, data = d,
+m3 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO + EMBARAZO +
+            HABLA_LENGUA_INDIG + INDIGENA +
+            DIABETES + EPOC + ASMA + INMUSUPR +
+            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
+            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
+            ENTIDAD_UM + SECTOR, data = d,
           chains = 4, cores = 4, warmup = 500, iter = 1000,
           family = binomial(link = "logit"))
 summary(m3)
