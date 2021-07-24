@@ -139,7 +139,7 @@ m4 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO + EMBARAZO +
             HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
             OBESIDAD + RENAL_CRONICA + TABAQUISMO,
           data = d4,
-          chains = 4, cores = 4, warmup = 500, iter = 1000,
+          chains = 4, cores = 4, warmup = 500, iter = 1500,
           family = binomial(link = "logit"))
 summary(m4)
 res <- conditional_effects(m4, "EDAD:Mes", prob = 0.95)
@@ -153,44 +153,44 @@ res <- res %>%
             upper = exp(upper__)) %>%
   mutate(Mes = parse_date(as.character(Mes), format = "%m-%Y")) 
 
-res %>%
-  ggplot(aes(x = Edad, y = Estimate, col = Mes)) +
-  geom_point() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
-  scale_y_continuous(name = "Mes (2021)") +
-  AMOR::theme_blackbox()
-
-res %>%
-  ggplot(aes(x = Mes, y = Estimate, col = Edad)) +
-  geom_point() +
-  geom_line() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
-  AMOR::theme_blackbox()
-
-
-res %>%
-  ggplot(aes(x = Edad, y = Estimate)) +
-  facet_wrap(~ Mes, scales = "free_y") +
-  geom_point() + 
-  geom_vline(xintercept = 6, col = "darkgrey") +
-  geom_hline(yintercept = 1.2, col = "darkgrey") +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
-  theme_classic()
-
-
-res %>%
-  ggplot(aes(x = Mes, y = Estimate)) +
-  facet_wrap(~ Edad, scales = "free_y") +
-  geom_point() + 
-  # geom_vline(xintercept = 6, col = "darkgrey") +
-  # geom_hline(yintercept = 1.2, col = "darkgrey") +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-  theme_classic()
+# res %>%
+#   ggplot(aes(x = Edad, y = Estimate, col = Mes)) +
+#   geom_point() +
+#   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+#   scale_y_continuous(name = "Mes (2021)") +
+#   AMOR::theme_blackbox()
+# 
+# res %>%
+#   ggplot(aes(x = Mes, y = Estimate, col = Edad)) +
+#   geom_point() +
+#   geom_line() +
+#   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+#   AMOR::theme_blackbox()
+# 
+# 
+# res %>%
+#   ggplot(aes(x = Edad, y = Estimate)) +
+#   facet_wrap(~ Mes, scales = "free_y") +
+#   geom_point() + 
+#   geom_vline(xintercept = 6, col = "darkgrey") +
+#   geom_hline(yintercept = 1.2, col = "darkgrey") +
+#   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+#   theme_classic()
+# 
+# 
+# res %>%
+#   ggplot(aes(x = Mes, y = Estimate)) +
+#   facet_wrap(~ Edad, scales = "free_y") +
+#   geom_point() + 
+#   # geom_vline(xintercept = 6, col = "darkgrey") +
+#   # geom_hline(yintercept = 1.2, col = "darkgrey") +
+#   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+#   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+#   theme_classic()
 
   
 
-res %>%
+p1 <- res %>%
   mutate(grupo = Edad > 40) %>%
   ggplot(aes(x = Edad, y = Estimate, col = Mes, group = Mes)) +
   # facet_wrap(~ grupo, scales = "free") +
@@ -215,72 +215,8 @@ res %>%
         axis.text = element_text(size = 10, color = "black"),
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
         plot.margin = margin(l = 20, r = 20))
-  
-
-
-cat("Calculando riesgos relativos...\n")
-# Sólo efectos fijos
-m1 <- glm(DEF ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG + INDIGENA +
-            DIABETES + EPOC + ASMA + INMUSUPR +
-            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-            ENTIDAD_UM + SECTOR,
-          data = d, family = binomial(link = "logit"))
-# summary(m1)
-m2 <- glm(HOSP ~ EDAD + SEXO + EMBARAZO + HABLA_LENGUA_INDIG +  INDIGENA +
-            DIABETES + EPOC + ASMA + INMUSUPR +
-            HIPERTENSION + OTRA_COM + CARDIOVASCULAR +
-            OBESIDAD + RENAL_CRONICA + TABAQUISMO +
-            ENTIDAD_UM + SECTOR,
-          data = d, family = binomial(link = "logit"))
-# summary(m2)
-
-p1 <- list(Muerte = m1,
-           `Hospitalización` = m2) %>%
-  map_dfr(broom::tidy, .id = "resultado") %>%
-  filter(term %in% names(rr_lut)) %>%
-  mutate(riesgo_inferior = estimate + qnorm(p = 0.025) * std.error,
-         riesgo_superior = estimate + qnorm(p = 0.975) * std.error) %>%
-  transmute(resultado,
-            factor_riesgo = as.character(rr_lut[term]),
-            riesgo_relativo = exp(estimate),
-            riesgo_inferior = exp(riesgo_inferior),
-            riesgo_superior = exp(riesgo_superior)) %>%
-  arrange(riesgo_inferior) %>%
-  mutate(factor_riesgo = factor(factor_riesgo, levels = unique(factor_riesgo))) %>%
-  
-  # print(n = 100) %>%
-  
-  ggplot(aes(x = riesgo_relativo, y = factor_riesgo, col = resultado)) +
-  geom_vline(xintercept = 1, color = "darkgrey") +
-  geom_errorbarh(aes(xmin = riesgo_inferior, xmax = riesgo_superior), position = position_dodge(width = 1)) +
-  geom_point(position = position_dodge(width = 1)) +
-  scale_color_manual(values = c("#b35806", "#1b9e77"), name = "") +
-  annotate("text",
-           label = "Sin diferencia de riesgo",
-           x = 0.85,
-           y = 11,
-           col = "darkgrey",
-           angle = 90,
-           size = 6) +
-  ylab("Factores de riesgo") +
-  xlab("Riesgo relativo\n(Desde abril 2021)") +
-  guides(color = guide_legend(nrow = 2)) +
-  AMOR::theme_blackbox() +
-  theme(axis.text.x = element_text(angle = 90),
-        panel.background = element_blank(),
-        panel.border = element_rect(fill = NA, color = "black", size = 3),
-        legend.position = "top",
-        legend.text = element_text(size = 14),
-        legend.background = element_blank(),
-        legend.box.background = element_blank(),
-        legend.key = element_blank(),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10, color = "black"),
-        plot.margin = margin(l = 20, r = 20))
-p1
-# ggsave("test.png", p1, width = 7, height = 6.7, dpi = 150)
-archivo <- file.path(args$dir_salida, "riesgos_relativos.png")
+# p1
+archivo <- file.path(args$dir_salida, "rr_edad_mes.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
-archivo <- file.path(args$dir_salida, "riesgos_relativos@2x.png")
+archivo <- file.path(args$dir_salida, "rr_edad_mes@2x.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
