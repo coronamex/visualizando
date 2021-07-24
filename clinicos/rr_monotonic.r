@@ -117,7 +117,8 @@ d4 <- Dat %>%
               names_from = factor_riesgo, values_from = valor) %>%
   select(-ID_REGISTRO) %>%
   drop_na %>%
-  mutate(EDAD = round(EDAD, -1)) %>%
+  mutate(EDAD = 10 * (EDAD %/% 10)) %>%
+  mutate(EDAD = replace(EDAD, EDAD >=80, 80)) %>%
   select(DEF, EDAD, Mes, SEXO, EMBARAZO,
          HABLA_LENGUA_INDIG, DIABETES, EPOC, ASMA,
          INMUSUPR, HIPERTENSION, CARDIOVASCULAR, OBESIDAD,
@@ -129,7 +130,7 @@ d4 <- Dat %>%
   summarise(defs = sum(DEF),
             n_ind = length(DEF),
             .groups = 'drop') %>%
-  mutate(EDAD = factor(EDAD, levels = sort(unique(d$EDAD)), ordered = TRUE))
+  mutate(EDAD = factor(EDAD, levels = sort(unique(EDAD)), ordered = TRUE))
 d4
 
 m4 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO + EMBARAZO +
@@ -141,9 +142,80 @@ m4 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO + EMBARAZO +
           chains = 4, cores = 4, warmup = 500, iter = 1000,
           family = binomial(link = "logit"))
 summary(m4)
-conditional_effects(m4, "EDAD:Mes")
+res <- conditional_effects(m4, "EDAD:Mes", prob = 0.95)
+res <- res$`EDAD:Mes`
+res <- res %>%
+  as_tibble() %>%
+  transmute(Edad = effect1__,
+            Mes = effect2__,
+            Estimate = exp(estimate__),
+            lower = exp(lower__),
+            upper = exp(upper__)) %>%
+  mutate(Mes = parse_date(as.character(Mes), format = "%m-%Y")) 
+
+res %>%
+  ggplot(aes(x = Edad, y = Estimate, col = Mes)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  scale_y_continuous(name = "Mes (2021)") +
+  AMOR::theme_blackbox()
+
+res %>%
+  ggplot(aes(x = Mes, y = Estimate, col = Edad)) +
+  geom_point() +
+  geom_line() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  AMOR::theme_blackbox()
 
 
+res %>%
+  ggplot(aes(x = Edad, y = Estimate)) +
+  facet_wrap(~ Mes, scales = "free_y") +
+  geom_point() + 
+  geom_vline(xintercept = 6, col = "darkgrey") +
+  geom_hline(yintercept = 1.2, col = "darkgrey") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  theme_classic()
+
+
+res %>%
+  ggplot(aes(x = Mes, y = Estimate)) +
+  facet_wrap(~ Edad, scales = "free_y") +
+  geom_point() + 
+  # geom_vline(xintercept = 6, col = "darkgrey") +
+  # geom_hline(yintercept = 1.2, col = "darkgrey") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme_classic()
+
+  
+
+res %>%
+  mutate(grupo = Edad > 40) %>%
+  ggplot(aes(x = Edad, y = Estimate, col = Mes, group = Mes)) +
+  # facet_wrap(~ grupo, scales = "free") +
+  geom_point() +
+  geom_line() +
+  # geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+  scale_y_continuous(name = "Riesgo relativo de\nfallecer por COVId-19") +
+  scale_x_discrete(name = "Edad (años)", labels = c("0-9", "10-19", "20-29",
+                                                    "30-39", "40-49", "50-59",
+                                                    "60-69", "70-79", "80+")) +
+  guides(color = guide_legend(title = "Mes\n(2021)")) +
+  AMOR::theme_blackbox() +
+  theme(panel.background = element_blank(),
+        panel.border = element_rect(fill = NA, color = "black", size = 3),
+        legend.position = "top",
+        legend.text = element_text(size = 14, angle = 0, hjust = 1),
+        legend.title = element_text(face = "bold", size = 16),
+        legend.background = element_blank(),
+        legend.box.background = element_blank(),
+        legend.key = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text = element_text(size = 10, color = "black"),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        plot.margin = margin(l = 20, r = 20))
+  
 
 
 cat("Calculando riesgos relativos...\n")
