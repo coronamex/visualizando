@@ -155,6 +155,7 @@ m4 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO + EMBARAZO +
           chains = 4, cores = 4, warmup = 500, iter = 1500,
           family = binomial(link = "logit"))
 summary(m4)
+# save(m4, file = "m1.rr_edad_mes.rdat")
 res <- conditional_effects(m4, "EDAD:Mes", prob = 0.95)
 res <- res$`EDAD:Mes`
 res <- res %>%
@@ -184,7 +185,7 @@ res <- res %>%
 # res %>%
 #   ggplot(aes(x = Edad, y = Estimate)) +
 #   facet_wrap(~ Mes, scales = "free_y") +
-#   geom_point() + 
+#   geom_point() +
 #   geom_vline(xintercept = 6, col = "darkgrey") +
 #   geom_hline(yintercept = 1.2, col = "darkgrey") +
 #   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
@@ -194,7 +195,7 @@ res <- res %>%
 # res %>%
 #   ggplot(aes(x = Mes, y = Estimate)) +
 #   facet_wrap(~ Edad, scales = "free_y") +
-#   geom_point() + 
+#   geom_point() +
 #   # geom_vline(xintercept = 6, col = "darkgrey") +
 #   # geom_hline(yintercept = 1.2, col = "darkgrey") +
 #   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
