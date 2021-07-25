@@ -1,3 +1,16 @@
+# (C) Copyright 2021 Sur Herrera Paredes
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
 library(tidyverse)
 library(brms)
 source("util/leer_datos_abiertos.r")
@@ -30,7 +43,7 @@ Dat <- Dat %>%
   filter(FECHA_SINTOMAS > args$fecha_inicio) %>%
   # filter(FECHA_SINTOMAS >= args$fecha_parteaguas) %>%
   filter(FECHA_SINTOMAS < Sys.Date() - 15 | !is.na(FECHA_DEF))
-Dat
+# Dat
 
 # # Seleccionar datos y convertir variables a indicadores
 # d <- Dat %>%
@@ -131,7 +144,7 @@ d4 <- Dat %>%
             n_ind = length(DEF),
             .groups = 'drop') %>%
   mutate(EDAD = factor(EDAD, levels = sort(unique(EDAD)), ordered = TRUE))
-d4
+# d4
 
 m4 <- brm(defs | trials(n_ind) ~ mo(EDAD)*Mes + SEXO + EMBARAZO +
             HABLA_LENGUA_INDIG + INDIGENA +
