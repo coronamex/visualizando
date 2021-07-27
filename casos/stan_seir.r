@@ -1,4 +1,4 @@
-# (C) Copyright 2020 Sur Herrera Paredes
+# (C) Copyright 2020-2021 Sur Herrera Paredes
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -103,12 +103,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.200, 0.253))
 
 init <- list(logphi = 3.9,
-             r_betas = c(0.22, 0.13,
-                         0.16, 0.18,
-                         0.17, 0.18,
+             r_betas = c(0.19, 0.14,
                          0.18, 0.17,
-                         0.19, 0.23,
-                         0.27, 0.28))
+                         0.17, 0.19,
+                         0.17, 0.17,
+                         0.21, 0.25,
+                         0.28, 0.31))
 
 init <- list(chain_1 = init,
              chain_2 = init,
