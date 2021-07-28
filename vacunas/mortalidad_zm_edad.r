@@ -30,17 +30,24 @@ args$fecha_inicio <- parse_date(args$fecha_inicio, format = "%Y-%m-%d")
 
 Dat <- leer_datos_abiertos(args$datos_abiertos, solo_confirmados = TRUE,
                            solo_fallecidos = TRUE, solo_laboratorio = FALSE)
+# Dat2 <- Dat
+# Dat <- Dat2
 
 # Agregar por edad, fecha y municipio
 Dat <- Dat %>%
   mutate(edad = NA) %>%
   mutate(edad = replace(EDAD, EDAD >= 60, "60+")) %>%
   mutate(edad = replace(edad, EDAD >= 50 & EDAD < 60, "50-59")) %>%
-  mutate(edad = replace(edad, EDAD < 50, "0-49")) %>%
+  mutate(edad = replace(edad, EDAD >= 40 & EDAD < 50, "40-49")) %>%
+  mutate(edad = replace(edad, EDAD < 40, "0-39")) %>%
   mutate(mun_cve = paste0(ENTIDAD_RES, "_", MUNICIPIO_RES)) %>%
   group_by(mun_cve, edad, FECHA_DEF) %>%
   summarise(muertes = length(FECHA_DEF),
             .groups = 'drop')
+# Dat %>%
+#   filter(FECHA_DEF == "2021-01-20") %>%
+#   select(-muertes) %>%
+#   duplicated %>% any
 
 # Leer lista de municipios en zonas metropolitanas
 zm_muns <- read_csv(args$lut_zm)
@@ -79,9 +86,12 @@ roll_media <- tibbletime::rollify(mean, window = 7, na_value = 0)
 Dat <- Dat %>%
   filter(FECHA_DEF < max(FECHA_DEF) - args$dias_recientes) %>%
   mutate(zm = c("no_zm", "zm")[ 1*(mun_cve %in% zm_muns) + 1 ]) %>%
+  mutate(zm = "zm") %>%
   group_by(edad, FECHA_DEF, zm) %>%
   summarise(defs = sum(muertes),
             .groups = 'drop') %>%
+  # filter(FECHA_DEF == "2021-01-20")
+  
   # split(list(.$zm, .$edad)) %>%
   split(list(.$edad)) %>%
   map_dfr(function(d){
@@ -125,7 +135,8 @@ p1 <- bind_rows(Dat %>%
   # facet_wrap(ola ~ zm, scales = "free") +
   facet_wrap(ola ~ ., scales = "free", nrow = 2) +
   geom_line(aes(col = edad), size = 2) +
-  scale_color_manual(values = c("#5e3c99", "#b2abd2", "#e66101")) +
+  # scale_color_manual(values = c("#5e3c99", "#b2abd2", "#e66101")) +
+  scale_color_manual(values = c("#5e3c99", "#b2abd2", "#fdb863", "#e66101")) +
   # scale_color_manual(values = c("#8073ac", "#e08214")) +
   scale_y_continuous(labels = scales::percent) +
   xlab("Fecha de defunción") +
