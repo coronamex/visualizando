@@ -86,7 +86,7 @@ roll_media <- tibbletime::rollify(mean, window = 7, na_value = 0)
 Dat <- Dat %>%
   filter(FECHA_DEF < max(FECHA_DEF) - args$dias_recientes) %>%
   mutate(zm = c("no_zm", "zm")[ 1*(mun_cve %in% zm_muns) + 1 ]) %>%
-  mutate(zm = "zm") %>%
+  mutate(zm = "zm") %>% # descartando esta variable de momento
   group_by(edad, FECHA_DEF, zm) %>%
   summarise(defs = sum(muertes),
             .groups = 'drop') %>%
@@ -117,7 +117,7 @@ p1 <- bind_rows(Dat %>%
             filter(FECHA_DEF >= args$max_ola1 & FECHA_DEF <= args$max_ola1 + n_dias) %>%
             group_by(edad, zm) %>%
             summarise(FECHA_DEF = FECHA_DEF,
-                      muertes_escala = muertes_ventana / muertes_ventana[FECHA_DEF == args$max_ola1],
+                      muertes_escala = muertes_ventana / muertes_ventana[FECHA_DEF == args$max_ola2],
                       .groups = 'drop') %>%
             filter(FECHA_DEF > max(FECHA_DEF) - n_dias_grafica) %>%
             mutate(ola = 'Entre 1a y 2a "olas"'),
@@ -142,15 +142,16 @@ p1 <- bind_rows(Dat %>%
   xlab("Fecha de defunción") +
   ylab("Fallecimientos como proporción del máximo") +
   theme_classic() +
-  theme(plot.margin = margin(l = 20, r = 20),
+  theme(panel.background = element_blank(),
+        plot.margin = margin(l = 20, r = 20),
         legend.position = "top",
         legend.text = element_text(size = 12),
         legend.background = element_blank(),
         legend.key = element_blank(),
         legend.title = element_text(face = "bold"),
         axis.title.y = element_text(size = 16),
-        axis.title = element_text(size = 20),
-        axis.text = element_text(size = 10))
+        axis.title = element_text(size = 20, face = "bold", color = "black"),
+        axis.text = element_text(size = 10, color = "black"))
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "mortalidad_edad_tipomun.png")
