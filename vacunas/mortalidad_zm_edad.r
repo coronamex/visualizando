@@ -140,7 +140,7 @@ p1 <- bind_rows(Dat %>%
   # scale_color_manual(values = c("#8073ac", "#e08214")) +
   scale_y_continuous(labels = scales::percent) +
   xlab("Fecha de defunción") +
-  ylab("Fallecimientos como proporción del máximo") +
+  ylab("Fallecimientos como proporción del\nmáximo en 2a ola") +
   theme_classic() +
   theme(panel.background = element_blank(),
         plot.margin = margin(l = 20, r = 20),
