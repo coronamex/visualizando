@@ -39,7 +39,8 @@ Dat <- Dat %>%
   mutate(edad = replace(EDAD, EDAD >= 60, "60+")) %>%
   mutate(edad = replace(edad, EDAD >= 50 & EDAD < 60, "50-59")) %>%
   mutate(edad = replace(edad, EDAD >= 40 & EDAD < 50, "40-49")) %>%
-  mutate(edad = replace(edad, EDAD < 40, "0-39")) %>%
+  mutate(edad = replace(edad, EDAD >= 30 & EDAD < 40, "30-39")) %>%
+  mutate(edad = replace(edad, EDAD < 30, "0-29")) %>%
   mutate(mun_cve = paste0(ENTIDAD_RES, "_", MUNICIPIO_RES)) %>%
   group_by(mun_cve, edad, FECHA_DEF) %>%
   summarise(muertes = length(FECHA_DEF),
@@ -136,11 +137,11 @@ p1 <- bind_rows(Dat %>%
   facet_wrap(ola ~ ., scales = "free", nrow = 2) +
   geom_line(aes(col = edad), size = 2) +
   # scale_color_manual(values = c("#5e3c99", "#b2abd2", "#e66101")) +
-  scale_color_manual(values = c("#5e3c99", "#b2abd2", "#fdb863", "#e66101")) +
+  scale_color_manual(values = c("#5e3c99", "#b2abd2", "#fdb863", "#8073ac", "#e66101")) +
   # scale_color_manual(values = c("#8073ac", "#e08214")) +
   scale_y_continuous(labels = scales::percent) +
   xlab("Fecha de defunción") +
-  ylab("Fallecimientos como proporción del\nmáximo en 2a ola") +
+  ylab("Fallecimientos con respect al\n20 de enero de 2021") +
   theme_classic() +
   theme(panel.background = element_blank(),
         plot.margin = margin(l = 20, r = 20),
@@ -152,7 +153,7 @@ p1 <- bind_rows(Dat %>%
         axis.title.y = element_text(size = 16),
         axis.title = element_text(size = 20, face = "bold", color = "black"),
         axis.text = element_text(size = 10, color = "black"))
-# p1
+p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "mortalidad_edad_tipomun.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
