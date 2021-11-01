@@ -183,25 +183,25 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    likelihood = 1,
                    f_red = log(1.22))
 
-init <- list(logphi = 3.6,
-             r_betas = c(0.47, 0.35,
-                         0.34, 0.28,
-                         0.25, 0.24,
-                         0.22, 0.18,
-                         0.20, 0.19,
-                         0.21, 0.23,
-                         0.22, 0.24,
-                         0.25, 0.23,
-                         0.26, 0.18,
-                         0.15, 0.19,
-                         0.19, 0.19,
-                         0.20, 0.18,
-                         0.20, 0.22,
-                         0.26, 0.31,
-                         0.39, 0.34,
-                         0.24, 0.20,
-                         0.19, 0.18,
-                         0.18))
+# init <- list(logphi = 3.6,
+#              r_betas = c(0.47, 0.35,
+#                          0.34, 0.28,
+#                          0.25, 0.24,
+#                          0.22, 0.18,
+#                          0.20, 0.19,
+#                          0.21, 0.23,
+#                          0.22, 0.24,
+#                          0.25, 0.23,
+#                          0.26, 0.18,
+#                          0.15, 0.19,
+#                          0.19, 0.19,
+#                          0.20, 0.18,
+#                          0.20, 0.22,
+#                          0.26, 0.31,
+#                          0.39, 0.34,
+#                          0.24, 0.20,
+#                          0.19, 0.18,
+#                          0.18))
 
 init <- list(logphi = 3.6,
              r_betas = c(0.50, 0.35,
@@ -299,7 +299,7 @@ np <- bayesplot::nuts_params(m1.stan)
 
 bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8)
 
-# R0
+<# R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
   as_tibble() %>%
