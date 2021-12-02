@@ -223,6 +223,9 @@ init <- list(logphi = 3.6,
                          0.17, 0.18,
                          0.17))
 
+adapt_delta <- 0.5
+max_treedepth <- 10
+max_treedepth <- 12
 init <- list(chain_1 = init,
              chain_2 = init,
              chain_3 = init,
@@ -238,8 +241,8 @@ m1.stan <- sampling(m1.model,
                     warmup = 3000,
                     thin = 1,
                     cores = 4,
-                    control = list(max_treedepth = 10,
-                                   adapt_delta = 0.5))
+                    control = list(max_treedepth = max_treedepth,
+                                   adapt_delta = adapt_delta))
 # save(m1.stan, file = "m1.cen_coronamex.stan.rdat")
 # load("m1.cen_coronamex.stan.rdat")
 
