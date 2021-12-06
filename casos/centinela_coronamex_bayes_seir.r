@@ -224,7 +224,6 @@ init <- list(logphi = 3.6,
                          0.21, 0.21))
 
 adapt_delta <- 0.5
-adapt_delta <- 0.8
 max_treedepth <- 10
 init <- list(chain_1 = init,
              chain_2 = init,
