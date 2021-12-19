@@ -215,14 +215,14 @@ init <- list(logphi = 3.6,
                          0.26, 0.17,
                          0.18, 0.20,
                          0.20, 0.18,
-                         0.20, 0.22,
+                         0.20, 0.23,
                          0.26, 0.31,
                          0.39, 0.34,
                          0.24, 0.20,
                          0.19, 0.19,
                          0.17, 0.18,
                          0.21, 0.24,
-                         0.24))
+                         0.23))
 
 adapt_delta <- 0.5
 max_treedepth <- 10
@@ -303,7 +303,7 @@ np <- bayesplot::nuts_params(m1.stan)
 
 bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8)
 
-<# R0
+# R0
 apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
   as_tibble() %>%
