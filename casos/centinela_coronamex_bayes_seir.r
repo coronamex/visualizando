@@ -222,7 +222,7 @@ init <- list(logphi = 3.6,
                          0.19, 0.19,
                          0.17, 0.18,
                          0.21, 0.24,
-                         0.23))
+                         0.22))
 
 adapt_delta <- 0.5
 max_treedepth <- 10
