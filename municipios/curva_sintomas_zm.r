@@ -106,7 +106,7 @@ graficar_zms <- function(Dat, zonas_elegidas, fecha_inicio, fecha_final,
               size = 2, col = "black") +
     geom_text(data = zm_tots, aes(label = paste(casos_totales, "casos"),
                                   y = 0.9 * max_casos), x = fecha_inicio + offset_totales) +
-    guides(color = FALSE) + 
+    guides(color = "none") + 
     # guides(color = FALSE,
     #        fill = guide_legend(override.aes = list(fill = c("pink", "#FB8072","#8DD3C7")))) + 
     # "#8DD3C7" "#FFFFB3" "#BEBADA"
@@ -135,6 +135,7 @@ args <- list(serie_municipios = "../datos/datos_abiertos/serie_tiempo_municipio_
              municipios_lut = "../datos/util/municipios_lut_datos_abiertos.csv",
              # entidades_eliminar = c("09", "15"),
              dir_salida = "../sitio_hugo/static/imagenes/",
+             dias_max = 180,
              zonas_metropolitanas = "../datos/util/zonas_metropolitanas_2015.csv")
 cat("Curvas por zonas metropolitanas...\n")
 
@@ -251,7 +252,8 @@ zonas_grupos <- list(c("Valle de México"), zms[1:9],
 # Funcion de media suvizada
 rolling_mean <- tibbletime::rollify(mean, window = 7, na_value = 0)
 fecha_final <- max(Dat$fecha)
-fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
+# fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
+fecha_inicio <- fecha_final - args$dias_max
 
 # Valle de méxico
 # p1 <- Dat %>%
@@ -327,8 +329,8 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[2]],
              fecha_inicio = fecha_inicio,
              fecha_final = fecha_final,
-             offset_totales = 150)
-# p1
+             offset_totales = 70)
+p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -338,7 +340,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[3]],
              fecha_inicio = fecha_inicio,
              fecha_final = fecha_final,
-             offset_totales = 150)
+             offset_totales = 70)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos2.png")
@@ -350,7 +352,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_zms(Dat = Dat, zonas_elegidas = zonas_grupos[[4]],
                    fecha_inicio = fecha_inicio,
                    fecha_final = fecha_final,
-                   offset_totales = 150)
+                   offset_totales = 70)
 # p1
 # ggsave("test.png", p1, width = 7, height = 6.7, dpi = 75)
 archivo <- file.path(args$dir_salida, "top_zm_casos3.png")

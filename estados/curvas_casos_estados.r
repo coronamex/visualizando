@@ -87,7 +87,7 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
               size = 2, col = "black") +
     geom_text(data = ent_tots, aes(label = paste(casos_totales, "casos"),
                                    y = 0.9 * max_casos), x = fecha_inicio + offset_totales) +
-    guides(color = FALSE) +
+    guides(color = "none") +
     ylab(label = "Número de nuevos casos") +
     AMOR::theme_blackbox() +
     theme(axis.title = element_text(size = 20),
@@ -110,6 +110,7 @@ graficar_entidades <- function(Dat, entidades, fecha_inicio,
 
 
 args <- list(serie_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz",
+             max_dias = 180,
              dir_salida = "../sitio_hugo/static/imagenes/")
 cat("Curvas por estados...\n")
 
@@ -119,12 +120,12 @@ Dat <- read_csv(args$serie_estados,
                                  .default = col_number()))
 fecha_final <- max(Dat$fecha)
 fecha_inicio <- parse_date("2020-03-01", format = "%Y-%m-%d")
-
+fecha_inicio <- fecha_final - args$max_dias
 #
 p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[1:8],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 150)
+                         offset_totales = 70)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos1.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -134,7 +135,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[9:16],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 150)
+                         offset_totales = 70)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos2.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -144,7 +145,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[17:24],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 150)
+                         offset_totales = 70)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos3.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
@@ -154,7 +155,7 @@ ggsave(archivo, p1, width = 7, height = 6.7, dpi = 150)
 p1 <- graficar_entidades(Dat = Dat, entidades = sort(unique(Dat$estado))[25:32],
                          fecha_inicio = fecha_inicio,
                          fecha_final = fecha_final,
-                         offset_totales = 150)
+                         offset_totales = 70)
 # p1
 archivo <- file.path(args$dir_salida, "estados_casos4.png")
 ggsave(archivo, p1, width = 7, height = 6.7, dpi = 75)
