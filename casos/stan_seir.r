@@ -103,12 +103,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
 #                          0.200, 0.253))
 
 init <- list(logphi = 4.1,
-             r_betas = c(0.39, 0.25,
-                         0.20, 0.16,
+             r_betas = c(0.38, 0.24,
+                         0.19, 0.16,
                          0.16, 0.16,
                          0.15, 0.16,
-                         0.19, 0.21,
-                         0.18, 0.30))
+                         0.19, 0.20,
+                         0.18, 0.42))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -157,7 +157,7 @@ p1 <- apply(post$I_hoy, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   geom_line(aes(y = stan_median)) +
   geom_ribbon(aes(ymin = stan_lower, ymax = stan_upper), alpha = 0.2) +
   theme_classic()
-p1
+print(p1)
 
 ### Diagnostics
 par.names <- summary(m1.stan, pars = c("r_betas", "phi"))$summary %>% 
@@ -184,10 +184,10 @@ np <- bayesplot::nuts_params(m1.stan)
 # stan_diag(m1.stan)
 ##
 
-bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8)
+bayesplot::mcmc_areas(as.array(m1.stan), pars = par.names[1:length(fechas_dias)], prob = 0.8) %>% print()
 
 # R0
-apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
+p1 <- apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.rm = TRUE) %>%
   t %>%
   as_tibble() %>%
   rename(stan_lower = "10%",
@@ -201,6 +201,7 @@ apply(post$r_betas * stan_datos$T_inf, 2, quantile, prob = c(0.1, 0.5, 0.9), na.
   geom_hline(yintercept = 1) +
   ylab("R0") +
   theme_classic()
+print(p1)
 
 t_0 <- as.numeric(t_0)
 t_0 <- c(S = t_0[1],
@@ -338,6 +339,6 @@ p1 <- Dat %>%
         axis.title = element_text(face = "bold", size = 12),
         plot.margin = margin(l = 20, r = 20, b = 20),
         strip.text = element_text(face = "bold"))
-p1
+print(p1)
 
 # save(m1.stan, file = "m1.stan.rdat")
