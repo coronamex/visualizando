@@ -23,10 +23,10 @@ args <- list(poblacion = "../datos/demograficos/pob_estado.tsv",
              serie_tiempo_estados = "../datos/datos_abiertos/serie_tiempo_estados_um_confirmados.csv.gz")
 cat("Incidencia por estado...\n")
 
-incidencia_cortes <- 50
+incidencia_cortes <- 200
 mortalidad_cortes <- 2
-casos_acum_cortes <- 2000
-muertes_acum_cortes <- 100
+casos_acum_cortes <- 4000
+muertes_acum_cortes <- 150
 
 # Leer poblaciones
 pob <- read_tsv(args$poblacion,
@@ -113,7 +113,7 @@ p1 <- dat %>%
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
         legend.position = "top",
-        legend.text = element_text(size = legend.text.size),
+        legend.text = element_text(size = legend.text.size, angle = 90),
         legend.title = element_text(size = legend.text.size),
         plot.margin = margin(l = 0, r = 0))
 # p1
