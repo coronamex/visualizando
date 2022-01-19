@@ -103,7 +103,7 @@ p1 <- Dat %>%
   
   geom_vline(xintercept = max(Dat$fecha) - 15, col = "black") +
   scale_y_continuous(breaks = function(lims){
-    seq(from = lims[1], to = lims[2], by = 100)
+    seq(from = lims[1], to = lims[2], by = 200)
     },
     labels = function(labs){
       labs <- as.numeric(labs)
@@ -146,7 +146,7 @@ p2 <- Dat %>%
         legend.background = element_blank(),
         legend.key = element_blank(),
         panel.background = element_blank(),
-        panel.border = element_rect(fill=NA, colour = "black", size = 3),
+        panel.border = element_rect(fill = NA, colour = "black", size = 3),
         axis.title = element_text(size = 20),
         axis.text.x = element_text(size = 10, angle = 90),
         axis.text.y = element_text(size = 10),

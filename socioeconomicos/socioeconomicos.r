@@ -71,7 +71,8 @@ Dat <- Casos %>%
               select(-poblacion), by = "clave") %>%
   filter(muertes_totales >= 10) %>%
   filter(clave != "15_012") %>% # eliminando el outliar de Atizapán
-  pivot_longer(cols = indicadores, names_to = "indicador",
+  pivot_longer(cols = all_of(indicadores),
+               names_to = "indicador",
                values_to = "percent") %>%
   mutate(percent = percent / 100)
 
@@ -149,7 +150,7 @@ p1 <- Dat %>%
   scale_color_brewer(palette = "Set1",
                      name = "Grado de\nmarginación") +
   # scale_size(name = "Población\nmunicipal") +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm", formula = "y ~ x") +
   scale_x_log10(labels = function(x) scales::percent(x = x, accuracy = 0.1)) +
   scale_y_log10() +
   xlab("Población indígena municipal") +

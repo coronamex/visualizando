@@ -52,7 +52,7 @@ p1 <- Cdi %>%
   ggplot(aes(x = 1, y = pob)) +
   geom_bar(aes(fill = marginacion_2015), stat = "identity", position = "fill", width = 1) +
   scale_fill_brewer(palette = "RdPu") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   ylab(label = "Porcentaje de población") +
   AMOR::theme_blackbox() +
   theme(axis.title = element_text(size = 20),

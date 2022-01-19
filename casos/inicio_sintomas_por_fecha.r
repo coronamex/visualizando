@@ -46,7 +46,7 @@ p1 <- Dat %>%
   xlim(c(fecha_inicio, fecha_final)) +
   scale_y_continuous(labels = scales::comma,
                      breaks = function(lims){
-                       seq(from = 0, to = lims[2], by = 1e3)
+                       seq(from = 0, to = lims[2], by = 3e3)
                      }) +
   ylab(label = "Número de nuevos casos") +
   xlab(label = "Fecha de inicio de síntomas") +

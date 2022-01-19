@@ -90,9 +90,9 @@ p1 <- Tab %>%
   
   geom_line(aes(y = q_50, col = modelo)) +
   geom_ribbon(aes(ymin = q_10, ymax = q_90, fill = modelo, col = modelo), alpha = 0.2) +
-  scale_color_manual(values = c("#fb9a99", "#e31a1c"), guide = FALSE) +
+  scale_color_manual(values = c("#fb9a99", "#e31a1c"), guide = "none") +
   scale_fill_manual(values = c("#fb9a99", "#e31a1c"),
-                    guide = FALSE) +
+                    guide = "none") +
 
   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
@@ -322,7 +322,7 @@ p1 <- bind_rows(mu_est %>%
   
   scale_color_manual(values = c("#a6cee3", "#1f78b4",
                                 "#b2df8a", "#33a02c"),
-                     guide = FALSE) +
+                     guide = "none") +
   scale_fill_manual(values = c("#a6cee3", "#1f78b4",
                                "#b2df8a", "#33a02c"),
                     labels = c("Centinela\n(CoronaMex)", "CoronaMex\n+\nSEIR",
