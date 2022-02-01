@@ -98,7 +98,7 @@ p1 <- Tab %>%
   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
            x = fin_ajuste_curva - 3,
            # y = ymax / 0.9,
-           y = 3e5,
+           y = 1.5e5,
            angle = 90,
            size = 4) +
   
