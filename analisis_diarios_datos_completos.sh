@@ -17,7 +17,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Vacunas
-Rscript vacunas/mortalidad_zm_edad.r
+Rscript vacunas/mortalidad_edad.r
 if [ $? -ne 0 ]; then
     echo "Error"
     exit 1
