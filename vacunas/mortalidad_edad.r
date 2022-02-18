@@ -89,14 +89,22 @@ Dat$ola[ Dat$fecha >= "2020-11-01" & Dat$fecha <= as.Date("2020-11-01") + 135 ] 
 Dat$ola[ Dat$fecha >= "2021-06-01" & Dat$fecha <= as.Date("2021-06-01") + 180 ] <- "Ola 3"
 Dat$ola[ Dat$fecha >= "2021-12-20" & Dat$fecha <= as.Date("2021-12-20") + 180 ] <- "Ola 4"
 
-Dat <- Dat %>%
-  filter(!is.na(ola))
-
 dias_recientes <- tibble(ola = "Ola 4",
                          fecha_final = max(Dat$fecha),
                          fecha_reciente = max(Dat$fecha) - args$dias_recientes,
                          fecha = max(Dat$fecha),
                          muertes_escala = min(Dat$muertes_escala))
+
+Dat <- Dat %>%
+  filter(!is.na(ola))
+
+if(dias_recientes$fecha_reciente < max(Dat$fecha) & dias_recientes$fecha_final > max(Dat$fecha)){
+  dias_recientes$fecha_final <- max(Dat$fecha)
+}else if(dias_recientes$fecha_reciente > max(Dat$fecha)){
+  warn("CHECK that this works")
+  dias_recientes$ola <- "Sin ola"
+}
+
 
 p1 <- Dat %>%
   # filter(!is.na(ola)) %>%
