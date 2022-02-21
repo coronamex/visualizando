@@ -92,12 +92,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    f_red = log(1.22))
 
 init <- list(logphi = 4.1,
-             r_betas = c(0.24, 0.16,
+             r_betas = c(0.20, 0.15,
                          0.16, 0.15,
-                         0.15, 0.17,
-                         0.19, 0.20,
-                         0.19, 0.54,
-                         0.44, 0.12))
+                         0.16, 0.18,
+                         0.20, 0.18,
+                         0.29, 0.71,
+                         0.18, 0.07))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -330,4 +330,4 @@ p1 <- Dat %>%
         strip.text = element_text(face = "bold"))
 print(p1)
 
-# save(m1.stan, file = "m1.stan.rdat")
+save(m1.stan, file = "m1.stan.rdat")
