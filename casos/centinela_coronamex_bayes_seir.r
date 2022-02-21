@@ -153,7 +153,7 @@ fechas_dias <- fechas_dias[-c(8:9, 11, 19, 24:25)]
 # fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 
 fechas_dias
-c(fechas_dias, n_dias_ajuste) %>% diff
+print(c(fechas_dias, n_dias_ajuste) %>% diff)
 
 dat_train <- Cen %>%
   filter(dia < n_dias_ajuste)
@@ -195,15 +195,16 @@ init <- list(logphi = 3.6,
                          0.26, 0.17,
                          0.18, 0.20,
                          0.20, 0.18,
-                         0.20, 0.23,
+                         0.20, 0.22,
                          0.26, 0.31,
                          0.39, 0.34,
                          0.24, 0.20,
                          0.19, 0.19,
                          0.17, 0.18,
                          0.21, 0.24,
-                         0.22, 0.30,
-                         0.66, 0.34))
+                         0.22, 0.28,
+                         0.80, 0.29,
+			 0.13))
 
 adapt_delta <- 0.5
 max_treedepth <- 10
@@ -218,13 +219,13 @@ m1.stan <- sampling(m1.model,
                              "I_hoy"),
                     init = init,
                     chains = 4,
-                    iter = 4000,
-                    warmup = 3000,
+                    iter = 8000,
+                    warmup = 6000,
                     thin = 1,
                     cores = 4,
                     control = list(max_treedepth = max_treedepth,
                                    adapt_delta = adapt_delta))
-# save(m1.stan, file = "m1.cen_coronamex.stan.rdat")
+save(m1.stan, file = "m1.cen_coronamex.stan.rdat")
 # load("m1.cen_coronamex.stan.rdat")
 
 m1.stan
