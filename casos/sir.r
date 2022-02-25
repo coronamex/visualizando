@@ -333,7 +333,7 @@ p1 <- bind_rows(mu_est %>%
   
   geom_vline(xintercept = fin_ajuste_curva + 0.5) +
   annotate("text", label = paste("Fin ajuste de curva:", fin_ajuste_curva),
-           x = fin_ajuste_curva - 8,
+           x = fin_ajuste_curva - 20,
            y = ymax / 3.5, angle = 90,
            size = 4) +
   
