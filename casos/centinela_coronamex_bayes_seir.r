@@ -154,6 +154,7 @@ fechas_dias <- fechas_dias[-c(8:9, 11, 19, 24:25)]
 
 fechas_dias
 print(c(fechas_dias, n_dias_ajuste) %>% diff)
+print(length(fechas_dias))
 
 dat_train <- Cen %>%
   filter(dia < n_dias_ajuste)
@@ -203,8 +204,8 @@ init <- list(logphi = 3.6,
                          0.17, 0.18,
                          0.21, 0.24,
                          0.22, 0.28,
-                         0.80, 0.29,
-			 0.13))
+                         0.80, 0.30,
+			 0.11))
 
 adapt_delta <- 0.5
 max_treedepth <- 10
@@ -219,8 +220,8 @@ m1.stan <- sampling(m1.model,
                              "I_hoy"),
                     init = init,
                     chains = 4,
-                    iter = 8000,
-                    warmup = 6000,
+                    iter = 6500,
+                    warmup = 5000,
                     thin = 1,
                     cores = 4,
                     control = list(max_treedepth = max_treedepth,
@@ -228,7 +229,7 @@ m1.stan <- sampling(m1.model,
 save(m1.stan, file = "m1.cen_coronamex.stan.rdat")
 # load("m1.cen_coronamex.stan.rdat")
 
-m1.stan
+# m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
 
