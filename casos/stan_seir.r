@@ -92,12 +92,12 @@ stan_datos <- list(n_obs = nrow(dat_train),
                    f_red = log(1.22))
 
 init <- list(logphi = 4.1,
-             r_betas = c(0.20, 0.15,
-                         0.16, 0.15,
-                         0.16, 0.18,
-                         0.20, 0.18,
-                         0.29, 0.71,
-                         0.18, 0.07))
+             r_betas = c(0.19, 0.15,
+                         0.15, 0.15,
+                         0.17, 0.19,
+                         0.20, 0.19,
+                         0.54, 0.47,
+                         0.10, 0.07))
 
 init <- list(chain_1 = init,
              chain_2 = init,
@@ -118,7 +118,7 @@ m1.stan <- sampling(m1.model,
                                    adapt_delta = 0.5))
 # save(m1.stan, file = "m1.stan.rdat")
 # load("m1.stan.rdat")
-m1.stan
+# m1.stan
 print(m1.stan, pars = c("r_betas", "phi"))
 post <- rstan::extract(m1.stan)
 
