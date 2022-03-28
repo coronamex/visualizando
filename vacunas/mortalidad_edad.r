@@ -87,7 +87,7 @@ Dat$ola <- NA
 Dat$ola[ Dat$fecha >= "2020-04-01" & Dat$fecha <= as.Date("2020-04-01") + 192 ] <- "Ola 1"
 Dat$ola[ Dat$fecha >= "2020-11-01" & Dat$fecha <= as.Date("2020-11-01") + 135 ] <- "Ola 2"
 Dat$ola[ Dat$fecha >= "2021-06-01" & Dat$fecha <= as.Date("2021-06-01") + 180 ] <- "Ola 3"
-Dat$ola[ Dat$fecha >= "2021-12-20" & Dat$fecha <= as.Date("2021-12-20") + 180 ] <- "Ola 4"
+Dat$ola[ Dat$fecha >= "2021-12-20" & Dat$fecha <= as.Date("2021-12-20") + 90 ] <- "Ola 4"
 
 dias_recientes <- tibble(ola = "Ola 4",
                          fecha_final = max(Dat$fecha),
