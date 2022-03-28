@@ -21,13 +21,9 @@ args <- list(datos_abiertos = "../datos/datos_abiertos/base_de_datos.csv.gz",
              dias_recientes = 14,
              dias_ventana = 7,
              fecha_ref = "2021-01-20",
-             max_ola1 = "2020-07-21",
-             max_ola2 = "2021-01-20",
              fecha_inicio = "2021-03-01",
              dir_salida = "../sitio_hugo/static/imagenes/")
 cat("Mortalidad por edad y tipo de municipio...\n")
-args$max_ola1 <- parse_date(args$max_ola1, format = "%Y-%m-%d")
-args$max_ola2 <- parse_date(args$max_ola2, format = "%Y-%m-%d")
 args$fecha_ref <- parse_date(args$fecha_ref, format = "%Y-%m-%d")
 args$fecha_inicio <- parse_date(args$fecha_inicio, format = "%Y-%m-%d")
 roll_media <- tibbletime::rollify(mean, window = args$dias_ventana, na_value = 0)
@@ -89,20 +85,37 @@ Dat$ola[ Dat$fecha >= "2020-11-01" & Dat$fecha <= as.Date("2020-11-01") + 135 ] 
 Dat$ola[ Dat$fecha >= "2021-06-01" & Dat$fecha <= as.Date("2021-06-01") + 180 ] <- "Ola 3"
 Dat$ola[ Dat$fecha >= "2021-12-20" & Dat$fecha <= as.Date("2021-12-20") + 90 ] <- "Ola 4"
 
+# Dat <- Dat2
+
 dias_recientes <- tibble(ola = "Ola 4",
                          fecha_final = max(Dat$fecha),
                          fecha_reciente = max(Dat$fecha) - args$dias_recientes,
                          fecha = max(Dat$fecha),
                          muertes_escala = min(Dat$muertes_escala))
-
+# Dat2 <- Dat
+# args$fecha_final <- max(Dat$fecha)
+# args$fecha_reciente <- args$fecha_final - args$dias_recientes
 Dat <- Dat %>%
   filter(!is.na(ola))
 
-if(dias_recientes$fecha_reciente < max(Dat$fecha) & dias_recientes$fecha_final > max(Dat$fecha)){
+# if(dias_recientes$fecha_reciente < max(Dat$fecha) & dias_recientes$fecha_final > max(Dat$fecha)){
+#   dias_recientes$fecha_final <- max(Dat$fecha)
+# }else if(dias_recientes$fecha_reciente > max(Dat$fecha)){
+#   warn("CHECK that this works")
+#   dias_recientes$ola <- "Sin ola"
+# }
+
+if(max(Dat$fecha) == dias_recientes$fecha_final){
+  cat("\tTodavía estamos en la ola 4\n")
+}else if(max(Dat$fecha) < dias_recientes$fecha_final && max(Dat$fecha) >= dias_recientes$fecha_reciente){
+  cat("\tAlgunos días faltan...\n")
   dias_recientes$fecha_final <- max(Dat$fecha)
-}else if(dias_recientes$fecha_reciente > max(Dat$fecha)){
-  warn("CHECK that this works")
-  dias_recientes$ola <- "Sin ola"
+}else if(max(Dat$fecha) < dias_recientes$fecha_final && max(Dat$fecha) < dias_recientes$fecha_reciente){
+  cat("\tYa pasamos la ola. CHECAR\n")
+  dias_recientes$fecha_final <- NA
+  dias_recientes$fecha_reciente <-NA
+}else{
+  STOP("ERROR")
 }
 
 
@@ -119,7 +132,8 @@ p1 <- Dat %>%
                 ymin = -Inf,
                 ymax = Inf),
             fill = "pink") +
-  geom_vline(xintercept = max(Dat$fecha) - args$dias_recientes) +
+  geom_vline(data = dias_recientes,
+             aes(xintercept = fecha_reciente)) +
   scale_linetype_manual(values = c("Casos en estos días\npueden aumentar" = 0),
                         name = "",
                         guide = guide_legend(override.aes = list(fill = c("pink")))) +
