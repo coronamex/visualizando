@@ -123,24 +123,25 @@ p1 <- Dat %>%
   # filter(!is.na(ola)) %>%
   # filter(fecha >= fecha_inicio & fecha <= fecha_inicio + 200 ) %>%
   ggplot(aes(x = fecha, y = muertes_escala)) +
-  facet_wrap(ola ~ ., scales = "free", nrow = 2) +
-  
-  geom_rect(data = dias_recientes,
-            aes(linetype = "Casos en estos días\npueden aumentar",
-                xmin = fecha_reciente,
-                xmax = fecha_final,
-                ymin = -Inf,
-                ymax = Inf),
-            fill = "pink") +
-  geom_vline(data = dias_recientes,
-             aes(xintercept = fecha_reciente)) +
-  scale_linetype_manual(values = c("Casos en estos días\npueden aumentar" = 0),
-                        name = "",
-                        guide = guide_legend(override.aes = list(fill = c("pink")))) +
-  
+  facet_wrap(ola ~ ., scales = "free", nrow = 2)
 
-  
-  
+if(!is.na(dias_recientes$fecha_final)){
+  p1 <- p1 + 
+    geom_rect(data = dias_recientes,
+              aes(linetype = "Casos en estos días\npueden aumentar",
+                  xmin = fecha_reciente,
+                  xmax = fecha_final,
+                  ymin = -Inf,
+                  ymax = Inf),
+              fill = "pink") +
+    geom_vline(data = dias_recientes,
+               aes(xintercept = fecha_reciente)) +
+    scale_linetype_manual(values = c("Casos en estos días\npueden aumentar" = 0),
+                          name = "",
+                          guide = guide_legend(override.aes = list(fill = c("pink"))))
+}
+
+p1 <- p1 + 
   geom_line(aes(col = edad), size = 2) +
   scale_color_manual(values = c("#5e3c99", "#b2abd2", "#fdb863", "#8073ac", "#e66101")) +
   guides(col = guide_legend(nrow = 2)) +
