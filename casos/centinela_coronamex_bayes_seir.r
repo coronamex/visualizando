@@ -151,7 +151,7 @@ fechas_dias <- seq(from=0, to = n_dias_ajuste, by = 15) %>% floor
 fechas_dias <- fechas_dias[-c(8:9, 11, 19, 24:25)]
 
 # !!
-# fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
+fechas_dias <- fechas_dias[1:(length(fechas_dias) - 1)]
 
 fechas_dias
 print(c(fechas_dias, n_dias_ajuste) %>% diff)
@@ -208,7 +208,7 @@ init <- list(logphi = 3.6,
                          0.21, 0.28,
                          0.81, 0.31,
                          0.12, 0.10,
-			 0.12))
+			 0.12, 0.12))
 
 adapt_delta <- 0.5
 max_treedepth <- 10
